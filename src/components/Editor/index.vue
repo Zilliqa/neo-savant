@@ -1,0 +1,178 @@
+<template>
+  <div class="editor">
+    <div class="actions-bar">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="buttons d-flex">
+          <button class="btn btn-check mr-2 ml-2" @click="handleCheck">
+            <img src="@/assets/survey.svg" /> CHECK
+          </button>
+          <button class="btn btn-link mr-2" @click="handleDeploy">
+            <img src="@/assets/send.svg" /> DEPLOY
+          </button>
+
+          <button class="btn btn-link" v-if="changed" @click="handleSave">
+            <img src="@/assets/save.svg" /> SAVE
+          </button>
+        </div>
+        <div class="message d-flex align-items-center" v-if="changed">Remember to save changes</div>
+      </div>
+    </div>
+    <ace-editor
+      v-model="file.code"
+      :fontSize="14"
+      :showPrintMargin="true"
+      :showGutter="true"
+      :highlightActiveLine="true"
+      ref="aceEditor"
+      mode="scilla"
+      lang="scilla"
+      theme="tomorrow"
+      :annotations="annotations"
+      width="100%"
+      height="calc(100% - 50px)"
+      :onChange="handleInput"
+      name="editor"
+      :editorProps="{$blockScrolling: true}"
+    />
+  </div>
+</template>
+
+<script>
+/*eslint-disable */
+import brace from "brace"; // eslint-disable-line no-use-before-define
+/*eslint-enable */
+import { Ace as AceEditor } from "vue2-brace-editor";
+
+import "./scilla_mode";
+import "brace/mode/javascript";
+import "brace/theme/tomorrow";
+
+import axios from "axios";
+
+export default {
+  props: ["file"],
+  data() {
+    return {
+      changed: false,
+      annotations: []
+    };
+  },
+  methods: {
+    editorInit: function() {
+      require("brace/ext/language_tools"); //language extension prerequsite...
+      require("brace/theme/tomorrow");
+      require("./scilla_mode");
+    },
+    handleInput(payload) {
+      this.changed = true;
+      this.file.code = payload;
+    },
+    async handleSave() {
+      await this.$store.dispatch("files/UpdateCode", {
+        id: this.file.id,
+        code: this.file.code
+      });
+      this.changed = false;
+    },
+    handleDeploy() {
+      window.EventBus.$emit("open-deploy-contract", this.file);
+    },
+    async handleCheck() {
+      this.annotations = [];
+      axios
+        .post("https://scilla-runner.zilliqa.com/contract/check", {
+          code: this.file.code
+        })
+        .then(response => {
+          if (response.data.result === "success") {
+            const message = JSON.parse(response.data.message);
+
+            if (message.warnings !== []) {
+              const markers = message.warnings.map(err => {
+                const row = parseInt(err.start_location.line, 10);
+                const column = parseInt(err.start_location.column, 10);
+
+                return {
+                  row: row === 0 ? 0 : row - 1,
+                  column,
+                  type: "warning",
+                  text: err.warning_message
+                };
+              });
+
+              this.annotations = markers;
+            }
+            // this.checked = true;
+            this.$notify({
+              group: "scilla",
+              type: "success",
+              position: "bottom right",
+              title: "Scilla Checker",
+              text: "Contract has been successfully checked"
+            });
+          }
+        })
+        .catch(error => {
+          this.$notify({
+            group: "scilla",
+            type: "error",
+            position: "bottom right",
+            title: "Scilla Checker",
+            text: "There are errors in your contract. Check the editor."
+          });
+          const markers = error.response.data.message.map(err => {
+            const row = parseInt(err.line, 10);
+            const col = parseInt(err.column, 10);
+
+            return {
+              row: row === 0 ? 0 : row - 1,
+              column: col,
+              type: "error",
+              text: err.msg
+            };
+          });
+
+          this.annotations = markers;
+        });
+    }
+  },
+  components: {
+    AceEditor
+  },
+  mounted() {
+    this.changed = false;
+  }
+};
+</script>
+
+<style lang="scss" scoped>
+.editor {
+  height: 100%;
+
+  .actions-bar {
+    padding: 0.5rem;
+    padding-left: 0;
+    font-size: 0.85rem;
+    height: 50px;
+  }
+
+  .btn {
+    font-family: "Montserrat", sans-serif;
+
+    color: #000;
+    font-weight: 500;
+    font-size: 0.85rem;
+
+    background-color: lighten($primary, 40);
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+      text-decoration: none;
+    }
+
+    img {
+      height: 1rem;
+    }
+  }
+}
+</style>
