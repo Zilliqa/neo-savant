@@ -54,7 +54,8 @@ export default {
   data() {
     return {
       changed: false,
-      annotations: []
+      annotations: [],
+      SCILLA_CHECKER_URL: process.env.VUE_APP_SCILLA_CHECKER_URL
     };
   },
   methods: {
@@ -80,7 +81,7 @@ export default {
     async handleCheck() {
       this.annotations = [];
       axios
-        .post("https://scilla-runner.zilliqa.com/contract/check", {
+        .post(this.SCILLA_CHECKER_URL, {
           code: this.file.code
         })
         .then(response => {

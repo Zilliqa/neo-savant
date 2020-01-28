@@ -41,8 +41,11 @@
         <div class="col-12 mb-4">
           <p class="font-weight-bold">Deploying from: {{ account.address }}</p>
           <p class="font-weight-bold">Network: {{ network.name }}</p>
-          <label>Enter your passphrase to deploy</label>
-          <input type="password" v-model="passphrase" class="form-control" />
+
+          <div v-if="network.url !== 'http://localhost:5555'">
+            <label>Enter your passphrase to deploy</label>
+            <input type="password" v-model="passphrase" class="form-control" />
+          </div>
         </div>
         <div class="col-12 mb-4">
           <button class="btn btn-secondary" @click="handleDeploy">Deploy Contract</button>
@@ -53,8 +56,19 @@
     <div class="alert alert-info" v-if="loading">{{loading}}</div>
     <div class="alert alert-danger" v-if="error">{{error}}</div>
 
-    <div class="alert alert-success" style="overflow-x:scroll;" v-if="signedTx">
+    <div
+      class="alert"
+      :class="{'alert-success': signedTx.receipt.success === true, 'alert-danger': signedTx.receipt.success === false}"
+      style="overflow-x:scroll;"
+      v-if="signedTx"
+    >
       <vue-json-pretty :data="{...signedTx, code: ''}"></vue-json-pretty>
+    </div>
+
+    <div class="alert alert-danger" v-if="signedTx && signedTx.receipt.errors[0]">
+      <ul>
+        <li v-for="err in signedTx.receipt.errors[0]" :key="err">{{ possibleErrors[err] }}</li>
+      </ul>
     </div>
   </div>
 </template>
@@ -81,7 +95,11 @@ export default {
       loading: false,
       files: undefined,
       error: false,
-      signedTx: undefined
+      signedTx: undefined,
+      possibleErrors: {
+        0: 'CHECKER_FAILED',
+        5: 'NO_GAS_REMAINING_FOUND'
+      }
     };
   },
   components: { VueJsonPretty },
@@ -91,12 +109,12 @@ export default {
     ...mapGetters("networks", { network: "selected" })
   },
   async mounted() {
-    if(this.account === null || this.account === undefined) {
-      this.error = 'Please select an account first.';
-      return ;
+    if (this.account === null || this.account === undefined) {
+      this.error = "Please select an account first.";
+      return;
     }
     axios
-      .post("https://scilla-runner.zilliqa.com/contract/check", {
+      .post(process.env.VUE_APP_SCILLA_CHECKER_URL, {
         code: this.file.code
       })
       .then(response => {
@@ -143,14 +161,26 @@ export default {
           this.zilliqa = new Zilliqa(this.network.url);
         }
 
-        if (this.passphrase === "" || this.passphrase === undefined) {
-          throw new Error("Please enter passphrase.");
+        let loaded = null;
+
+        if (this.network.url !== "http://localhost:5555") {
+          if (this.passphrase === "" || this.passphrase === undefined) {
+            throw new Error("Please enter passphrase.");
+          }
+
+          loaded = await this.zilliqa.wallet.addByKeystore(
+            JSON.stringify(this.account.keystore),
+            this.passphrase
+          );
+        } else {
+          loaded = await this.zilliqa.wallet.addByPrivateKey(
+            this.account.privateKey
+          );
         }
 
-        const loaded = await this.zilliqa.wallet.addByKeystore(
-          JSON.stringify(this.account.keystore),
-          this.passphrase
-        );
+        if (loaded == null) {
+          throw new Error("Error on loading account");
+        }
 
         // Verify if account is created on blockchain
         const balance = await this.zilliqa.blockchain.getBalance(loaded);
@@ -219,11 +249,23 @@ export default {
 
         console.log("deployed contract ", contract);
 
-        await this.$store
-          .dispatch("contracts/AddContract", contract)
-          .then(() => {
-            this.signedTx = { receipt: signedTx.receipt, transId: signedTx.id, contractAddress: contractId.result };
-          });
+        if (signedTx.receipt.success !== false) {
+          await this.$store
+            .dispatch("contracts/AddContract", contract)
+            .then(() => {
+              this.signedTx = {
+                receipt: signedTx.receipt,
+                transId: signedTx.id,
+                contractAddress: contractId.result
+              };
+            });
+        } else {
+          this.signedTx = {
+            receipt: signedTx.receipt,
+            transId: signedTx.id,
+            contractAddress: contractId.result
+          };
+        }
       } catch (error) {
         this.loading = false;
         this.error = error.message;

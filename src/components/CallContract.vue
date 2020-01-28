@@ -135,9 +135,12 @@ export default {
       await zilliqa.blockchain.getSmartContractState(this.contractId)
     ).result;
 
-    this.contractCode = (
+    const contractCode = (
       await zilliqa.blockchain.getSmartContractCode(this.contractId)
-    ).result.code;
+    );
+    console.log(contractCode.result);
+
+    this.contractCode = null;
 
     this.abi = await this.getContractAbi();
   },

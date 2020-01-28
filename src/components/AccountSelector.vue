@@ -15,7 +15,7 @@
             v-if="selected && selected.address === account.address"
           >(selected)</span>
         </p>
-        <p class="mb-0">Balance: 0</p>
+        <!-- <p class="mb-0">Balance: 0</p> -->
       </div>
     </div>
     <div v-else>
