@@ -9,3 +9,5 @@ RUN npm install
 ENTRYPOINT npm run serve
 
 #ENTRYPOINT NODE_ENV=production SCILLA_VERSION=0 npm run start
+
+#c699770f095f3c38bf1f7e1bba853dfcadcce98d
