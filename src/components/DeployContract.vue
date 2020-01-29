@@ -35,7 +35,7 @@
           <p class="font-weight-bold">Deploying from: {{ account.address }}</p>
           <p class="font-weight-bold">Network: {{ network.name }}</p>
 
-          <div v-if="network.url !== 'http://localhost:5555'">
+          <div v-if="network.url !== 'http://35.246.141.209:5555/'">
             <label>Enter your passphrase to deploy</label>
             <input type="password" v-model="passphrase" class="form-control" />
           </div>
@@ -136,7 +136,7 @@ export default {
 
         let loaded = null;
 
-        if (this.network.url !== "http://localhost:5555") {
+        if (this.network.url !== "http://35.246.141.209:5555/") {
           if (this.passphrase === "" || this.passphrase === undefined) {
             throw new Error("Please enter passphrase.");
           }
@@ -181,7 +181,7 @@ export default {
 
         const init = [...this.abi.params];
 
-        if(this.network.url === 'http://localhost:5555') {
+        if(this.network.url === 'http://35.246.141.209:5555/') {
         init.push({
           vname: "_scilla_version",
           type: "Uint32",
