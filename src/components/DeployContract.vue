@@ -207,7 +207,8 @@ export default {
           gasPrice: new BN(this.gasPrice), // in Qa
           gasLimit: Long.fromNumber(this.gasLimit),
           code: this.file.code,
-          data: JSON.stringify(init).replace(/\\"/g, '"')
+          data: JSON.stringify(init).replace(/\\"/g, '"'),
+          priority: true
         });
 
         const signedTx = await this.zilliqa.blockchain.createTransaction(tx);
