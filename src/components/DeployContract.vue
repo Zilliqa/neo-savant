@@ -27,14 +27,7 @@
           <p class="font-weight-bold">Initialization parameters</p>
         </div>
         <div class="col-12 mb-4" v-for="param in abi.params" :key="param.vname">
-          <label>{{param.vname}} ({{param.type}})</label>
-          <input
-            type="text"
-            v-model="init[param.vname]"
-            class="form-control"
-            v-if="(param.type === 'String' || param.type === 'ByStr20')"
-          />
-          <textarea v-model="init[param.vname]" class="form-control" v-else></textarea>
+          <contract-input :param="param" v-model="param.value" />
         </div>
       </div>
       <div class="row">
@@ -70,10 +63,16 @@
         <li v-for="err in signedTx.receipt.errors[0]" :key="err">{{ possibleErrors[err] }}</li>
       </ul>
     </div>
+
+    <div class="mt-5">
+      <button class="btn btn-danger" @click="resetComponent">Reset</button>
+    </div>
   </div>
 </template>
 
 <script>
+import ContractInput from "./Inputs/ContractInput";
+
 import VueJsonPretty from "vue-json-pretty";
 import { BN, units, bytes, Long } from "@zilliqa-js/util";
 // import Ledger from '@/utils/zil-ledger-interface';
@@ -97,12 +96,12 @@ export default {
       error: false,
       signedTx: undefined,
       possibleErrors: {
-        0: 'CHECKER_FAILED',
-        5: 'NO_GAS_REMAINING_FOUND'
+        0: "CHECKER_FAILED",
+        5: "NO_GAS_REMAINING_FOUND"
       }
     };
   },
-  components: { VueJsonPretty },
+  components: { VueJsonPretty, ContractInput },
   props: ["file"],
   computed: {
     ...mapGetters("accounts", { account: "selected" }),
@@ -113,45 +112,16 @@ export default {
       this.error = "Please select an account first.";
       return;
     }
-    axios
-      .post(process.env.VUE_APP_SCILLA_CHECKER_URL, {
-        code: this.file.code
-      })
-      .then(response => {
-        if (response.data.result === "success") {
-          const { contract_info } = JSON.parse(response.data.message);
-
-          this.abi = contract_info;
-
-          // this.checked = true;
-          this.$notify({
-            group: "scilla",
-            type: "success",
-            position: "bottom right",
-            title: "Scilla Checker",
-            text: "Contract has been successfully checked"
-          });
-        }
-      })
-      .catch(() => {
-        this.$notify({
-          group: "scilla",
-          type: "error",
-          position: "bottom right",
-          title: "Scilla Checker",
-          text: "There are errors in your contract. Check the editor."
-        });
-      });
+    this.getContractABI();
   },
   methods: {
-    toScillaParams(fields) {
-      return Object.keys(fields).map(name => {
-        return {
-          vname: name,
-          value: this.init[name],
-          type: fields[name].type
-        };
-      });
+    async resetComponent() {
+      this.abi = undefined;
+      this.signedTx = undefined;
+      this.error = false;
+      this.lading = false;
+      this.startDeploy = false;
+      await this.getContractABI();
     },
     async handleDeploy() {
       try {
@@ -169,7 +139,7 @@ export default {
           }
 
           loaded = await this.zilliqa.wallet.addByKeystore(
-            JSON.stringify(this.account.keystore),
+            this.account.keystore,
             this.passphrase
           );
         } else {
@@ -206,15 +176,8 @@ export default {
         const msgVersion = this.network.msgVersion; // current msgVersion
         const VERSION = bytes.pack(chainId, msgVersion);
 
-        const abiParams = this.abi.params.reduce(
-          (acc, { vname, type }) => ({
-            ...acc,
-            [vname]: { value: "", type, touched: false, error: false }
-          }),
-          {}
-        );
+        const init = [...this.abi.params];
 
-        const init = this.toScillaParams(abiParams);
         init.push({
           vname: "_scilla_version",
           type: "Uint32",
@@ -270,6 +233,37 @@ export default {
         this.loading = false;
         this.error = error.message;
       }
+    },
+    async getContractABI() {
+      axios
+        .post(process.env.VUE_APP_SCILLA_CHECKER_URL, {
+          code: this.file.code
+        })
+        .then(response => {
+          if (response.data.result === "success") {
+            const { contract_info } = JSON.parse(response.data.message);
+
+            this.abi = contract_info;
+
+            // this.checked = true;
+            this.$notify({
+              group: "scilla",
+              type: "success",
+              position: "bottom right",
+              title: "Scilla Checker",
+              text: "Contract has been successfully checked"
+            });
+          }
+        })
+        .catch(() => {
+          this.$notify({
+            group: "scilla",
+            type: "error",
+            position: "bottom right",
+            title: "Scilla Checker",
+            text: "There are errors in your contract. Check the editor."
+          });
+        });
     }
   }
 };

@@ -13,8 +13,8 @@
       <div class="right-panel">
         <account-selector v-if="accountSelector" />
         <console v-if="console" />
-        <deploy-contract v-if="deployContract" :file="this.deployContract" />
-        <call-contract v-if="callContract" :contractId="this.callContract" />
+        <deploy-contract v-if="deployContract" :file="this.deployContract" :key="this.deployContract.id" />
+        <call-contract v-if="callContract" :contractId="this.callContract" :key="this.callContract" />
       </div>
     </div>
   </div>
@@ -63,6 +63,7 @@ export default {
     });
 
     window.EventBus.$on("open-deploy-contract", file => {
+      window.EventBus.$emit('clear-components');
       this.console = false;
       this.accountSelector = false;
       this.deployContract = file;

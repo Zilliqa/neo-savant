@@ -9,12 +9,14 @@
         :key="account.address"
         @click="handleSelect(account.address)"
       >
-        <p>
-          Address: {{ account.address }}
+        <div>
+          {{ account.address }}
           <span
             v-if="selected && selected.address === account.address"
           >(selected)</span>
-        </p>
+
+          <div class="delete" @click="handleDelete(account.address)">[delete]</div>
+        </div>
         <!-- <p class="mb-0">Balance: 0</p> -->
       </div>
     </div>
@@ -82,6 +84,9 @@ export default {
     ...mapGetters("networks", { network: "selected" })
   },
   methods: {
+    handleDelete() {
+
+    },
     async handleSelect(address) {
       await this.$store.dispatch("accounts/SelectAccount", { address });
       window.EventBus.$emit("close-account-selector");
@@ -158,10 +163,19 @@ export default {
     background-color: rgba(0, 0, 0, 0.02);
     border-radius: 8px;
     transition: all 0.2s ease-in-out;
+    position: relative;
 
     &:hover {
       background-color: rgba(0, 0, 0, 0.1);
       cursor: pointer;
+    }
+
+    .delete {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      font-size:12px;
+      display: none;
     }
   }
 }
