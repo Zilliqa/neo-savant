@@ -11,15 +11,15 @@
         </div>
         <div class="col-12 col-md-4">
           <label>Amount (Uint128)</label>
-          <input type="text" v-model="amount" />
+          <input type="text" v-model="amount" class="form-control" />
         </div>
         <div class="col-12 col-md-4">
           <label>Gas Price (Uint128)</label>
-          <input type="text" v-model="gasPrice" />
+          <input type="text" v-model="gasPrice" class="form-control" />
         </div>
         <div class="col-12 col-md-4">
           <label>Gas Limit (Uint128)</label>
-          <input type="text" v-model="gasLimit" />
+          <input type="text" v-model="gasLimit" class="form-control" />
         </div>
       </div>
       <div class="row mb-4">
@@ -181,12 +181,13 @@ export default {
 
         const init = [...this.abi.params];
 
+        init.push({
+          vname: "_scilla_version",
+          type: "Uint32",
+          value: "0"
+        });
+
         if (this.network.url === "http://35.246.141.209:5555/") {
-          init.push({
-            vname: "_scilla_version",
-            type: "Uint32",
-            value: "0"
-          });
           init.push({
             vname: "_this_address",
             type: "ByStr20",

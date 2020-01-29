@@ -2,12 +2,6 @@ const state = {
     selected: null,
     accounts: [
         {
-            address: '0x815A803f6915bcB9D636718FA267832bb8fBc605',
-            keystore: { "address": "0x815A803f6915bcB9D636718FA267832bb8fBc605", "crypto": { "cipher": "aes-128-ctr", "cipherparams": { "iv": "abb5db1f357bae8a8404f39415a8cac8" }, "ciphertext": "6e6c021f24652edb5780066e76289e49ec7f3c16d4ff941360e54bad0116a49b", "kdf": "scrypt", "kdfparams": { "salt": "eceb48b5edadd715e91f5b6fe0ec50ddec721e9ad040227a6289ded9179b2f63", "n": 8192, "c": 262144, "r": 8, "p": 1, "dklen": 32 }, "mac": "87a885d50931984ce783a076a69e316e4bbd96a3bd90dd57781135797707aed5" }, "id": "36663863-3737-4735-b836-313731623362", "version": 3 },
-            network: 'https://dev-api.zilliqa.com',
-            type: 'keystore'
-        },
-        {
             address: "7bb3b0e8a59f3f61d9bff038f4aeb42cae2ecce8",
             privateKey: "db11cfa086b92497c8ed5a4cc6edb3a5bfe3a640c43ffb9fc6aa0873c56f2ee3",
             network: 'http://35.246.141.209:5555/',
@@ -36,7 +30,8 @@ const state = {
         },
         {
             address: "10200e3da08ee88729469d6eabc055cb225821e7",
-            privateKey: "5430365143ce0154b682301d0ab731897221906a7054bbf5bd83c7663a6cbc40", network: 'http://35.246.141.209:5555/',
+            privateKey: "5430365143ce0154b682301d0ab731897221906a7054bbf5bd83c7663a6cbc40",
+            network: 'http://35.246.141.209:5555/',
             type: 'keystore'
         }
     ]

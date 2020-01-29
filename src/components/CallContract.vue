@@ -243,6 +243,7 @@ export default {
         const VERSION = bytes.pack(chainId, msgVersion);
 
         const init = [...this.exec.params];
+        
         init.push({
           vname: "_scilla_version",
           type: "Uint32",
