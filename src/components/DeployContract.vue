@@ -55,10 +55,10 @@
       style="overflow-x:scroll;"
       v-if="signedTx"
     >
-      <vue-json-pretty :data="{...signedTx, code: ''}"></vue-json-pretty>
+      <vue-json-pretty :data="{...signedTx}"></vue-json-pretty>
     </div>
 
-    <div class="alert alert-danger" v-if="signedTx && signedTx.receipt.errors[0]">
+    <div class="alert alert-danger" v-if="signedTx && signedTx.receipt.errors">
       <ul>
         <li v-for="err in signedTx.receipt.errors[0]" :key="err">{{ possibleErrors[err] }}</li>
       </ul>
@@ -97,7 +97,10 @@ export default {
       signedTx: undefined,
       possibleErrors: {
         0: "CHECKER_FAILED",
-        5: "NO_GAS_REMAINING_FOUND"
+        1: "RUNNER_FAILED",
+        5: "NO_GAS_REMAINING_FOUND",
+        7: "CALL_CONTRACT_FAILED",
+        8: "CREATE_CONTRACT_FAILED"
       }
     };
   },
@@ -178,11 +181,13 @@ export default {
 
         const init = [...this.abi.params];
 
+        if(this.network.url === 'http://localhost:5555') {
         init.push({
           vname: "_scilla_version",
           type: "Uint32",
           value: "0"
         });
+        }
 
         const tx = this.zilliqa.transactions.new({
           version: VERSION,

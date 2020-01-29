@@ -3,7 +3,7 @@
     <p>
       Contract Address
       <br />
-      <span class="font-weight-bold">0x{{contractId}}</span>
+      <span class="font-weight-bold">{{contractId}}</span>
     </p>
 
     <div class="alert alert-info" v-if="!abi">Loading contract ABI</div>
@@ -13,7 +13,7 @@
 
       <div class="transitions mb-4">
         <button
-          class="btn btn-secondary mr-2"
+          class="btn btn-secondary mr-2 mb-2"
           v-for="transition in abi.transitions"
           :key="transition.vname"
           @click="exec = transition"
@@ -43,15 +43,15 @@
         </div>
         <div class="col-12 col-md-4">
           <label>Amount (Uint128)</label>
-          <input type="text" v-model="amount" />
+          <input type="text" v-model="amount" class="form-control" />
         </div>
         <div class="col-12 col-md-4">
           <label>Gas Price (Uint128)</label>
-          <input type="text" v-model="gasPrice" />
+          <input type="text" v-model="gasPrice" class="form-control" />
         </div>
         <div class="col-12 col-md-4">
           <label>Gas Limit (Uint128)</label>
-          <input type="text" v-model="gasLimit" />
+          <input type="text" v-model="gasLimit" class="form-control" />
         </div>
       </div>
       <div class="row">
@@ -59,14 +59,7 @@
           <p class="font-weight-bold">Transition parameters ({{exec.vname}})</p>
         </div>
         <div class="col-12 mb-4" v-for="param in exec.params" :key="param.vname">
-          <label>{{param.vname}} ({{param.type}})</label>
-          <input
-            type="text"
-            v-model="init[param.vname]"
-            class="form-control"
-            v-if="(param.type === 'String' || param.type === 'ByStr20')"
-          />
-          <textarea v-model="init[param.vname]" class="form-control" v-else></textarea>
+          <contract-input :param="param" v-model="param.value" />
         </div>
       </div>
       <div class="row">
@@ -85,10 +78,27 @@
 
     <div class="alert alert-info" v-if="loading">{{loading}}</div>
     <div class="alert alert-danger" v-if="error">{{error}}</div>
+
+    <div
+      class="alert"
+      :class="{'alert-success': signedTx.receipt.success === true, 'alert-danger': signedTx.receipt.success === false}"
+      style="overflow-x:scroll;"
+      v-if="signedTx"
+    >
+      <vue-json-pretty :data="{...signedTx}"></vue-json-pretty>
+    </div>
+
+    <div class="alert alert-danger" v-if="signedTx && signedTx.receipt.errors">
+      <ul>
+        <li v-for="err in signedTx.receipt.errors[0]" :key="err">{{ possibleErrors[err] }}</li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script>
+import ContractInput from "./Inputs/ContractInput";
+
 import VueJsonPretty from "vue-json-pretty";
 import { BN, units, bytes, Long } from "@zilliqa-js/util";
 // import Ledger from '@/utils/zil-ledger-interface';
@@ -114,10 +124,17 @@ export default {
       loading: false,
       files: undefined,
       error: false,
-      signedTx: undefined
+      signedTx: undefined,
+      possibleErrors: {
+        0: "CHECKER_FAILED",
+        1: "RUNNER_FAILED",
+        5: "NO_GAS_REMAINING_FOUND",
+        7: "CALL_CONTRACT_FAILED",
+        8: "CREATE_CONTRACT_FAILED"
+      }
     };
   },
-  components: { VueJsonPretty },
+  components: { VueJsonPretty, ContractInput },
   props: ["contractId"],
   computed: {
     ...mapGetters("accounts", { account: "selected" }),
@@ -135,19 +152,18 @@ export default {
       await zilliqa.blockchain.getSmartContractState(this.contractId)
     ).result;
 
-    const contractCode = (
-      await zilliqa.blockchain.getSmartContractCode(this.contractId)
+    const contractCode = await zilliqa.blockchain.getSmartContractCode(
+      this.contractId
     );
-    console.log(contractCode.result);
 
-    this.contractCode = null;
+    this.contractCode = contractCode.result.code;
 
     this.abi = await this.getContractAbi();
   },
   methods: {
     getContractAbi() {
       axios
-        .post("https://scilla-runner.zilliqa.com/contract/check", {
+        .post(process.env.VUE_APP_SCILLA_CHECKER_URL, {
           code: this.contractCode
         })
         .then(response => {
@@ -198,7 +214,7 @@ export default {
         }
 
         const loaded = await this.zilliqa.wallet.addByKeystore(
-          JSON.stringify(this.account.keystore),
+          this.account.keystore,
           this.passphrase
         );
 
@@ -226,15 +242,7 @@ export default {
         const msgVersion = this.network.msgVersion; // current msgVersion
         const VERSION = bytes.pack(chainId, msgVersion);
 
-        const abiParams = this.abi.params.reduce(
-          (acc, { vname, type }) => ({
-            ...acc,
-            [vname]: { value: "", type, touched: false, error: false }
-          }),
-          {}
-        );
-
-        const init = this.toScillaParams(abiParams);
+        const init = [...this.exec.params];
         init.push({
           vname: "_scilla_version",
           type: "Uint32",
@@ -248,12 +256,33 @@ export default {
           gasPrice: new BN(this.gasPrice), // in Qa
           gasLimit: Long.fromNumber(this.gasLimit),
           data: JSON.stringify({
-            _tag: "AddFunds",
+            _tag: this.exec.vname,
             params: init
           })
         });
 
         const signedTx = await this.zilliqa.blockchain.createTransaction(tx);
+
+        if (signedTx.receipt.success !== false) {
+          this.signedTx = {
+            receipt: signedTx.receipt,
+            transId: signedTx.id
+          };
+          /* await this.$store
+            .dispatch("contracts/AddContract", contract)
+            .then(() => {
+              this.signedTx = {
+                receipt: signedTx.receipt,
+                transId: signedTx.id,
+                contractAddress: contractId.result
+              };
+            }); */
+        } else {
+          this.signedTx = {
+            receipt: signedTx.receipt,
+            transId: signedTx.id
+          };
+        }
 
         this.signedTx = { receipt: signedTx.receipt, transId: signedTx.id };
       } catch (error) {

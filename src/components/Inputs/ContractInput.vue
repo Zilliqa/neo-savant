@@ -3,26 +3,25 @@
     <label>{{param.vname}} ({{param.type}})</label>
     <input
       type="text"
+      v-model="param.value"
       class="form-control"
       ref="paramValue"
-      :value="param.value"
       @input="updateData"
       v-if="isInput()"
     />
     <ace-editor
-      :value="param.value"
-      @input="updateData"
+      v-model="param.value"
+      :onChange="updateData"
       :fontSize="14"
       :showPrintMargin="false"
       :showGutter="false"
       :highlightActiveLine="true"
-      ref="aceEditor"
+      ref="paramValue"
       mode="json"
       lang="json"
       theme="dawn"
       width="100%"
       height="150px"
-      :onChange="handleInput"
       :name="`contractInput-${param.name}`"
       :editorProps="{$blockScrolling: true}"
       v-else
@@ -56,8 +55,12 @@ export default {
 
       return false;
     },
-    updateData() {
-      this.$emit("input", this.$refs.paramValue.value);
+    updateData(payload) {
+      if (payload) {
+        this.param.value = JSON.parse(payload);
+      }
+
+      this.$emit("input", this.param.value);
     }
   }
 };
