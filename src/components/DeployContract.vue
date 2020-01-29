@@ -181,12 +181,22 @@ export default {
 
         const init = [...this.abi.params];
 
-        if(this.network.url === 'http://35.246.141.209:5555/') {
-        init.push({
-          vname: "_scilla_version",
-          type: "Uint32",
-          value: "0"
-        });
+        if (this.network.url === "http://35.246.141.209:5555/") {
+          init.push({
+            vname: "_scilla_version",
+            type: "Uint32",
+            value: "0"
+          });
+          init.push({
+            vname: "_this_address",
+            type: "ByStr20",
+            value: this.account.address
+          });
+          init.push({
+            vname: "_creation_block",
+            type: "BNum",
+            value: "1"
+          });
         }
 
         const tx = this.zilliqa.transactions.new({
