@@ -243,12 +243,12 @@ export default {
         const VERSION = bytes.pack(chainId, msgVersion);
 
         const init = [...this.exec.params];
-        
-        init.push({
+
+        /* init.push({
           vname: "_scilla_version",
           type: "Uint32",
           value: "0"
-        });
+        }); */
 
         const tx = this.zilliqa.transactions.new({
           version: VERSION,
