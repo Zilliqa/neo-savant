@@ -80,6 +80,9 @@ export default {
     },
     async handleCheck() {
       this.annotations = [];
+
+      window.EventBus.$emit('console-log', {message: `Running checker on ${this.file} contract.`});
+
       axios
         .post(this.SCILLA_CHECKER_URL, {
           code: this.file.code
@@ -101,9 +104,12 @@ export default {
                 };
               });
 
+              window.EventBus.$emit("checker-events", { warnings: markers });
+
               this.annotations = markers;
             }
             // this.checked = true;
+            window.EventBus.$emit('console-log', {message: `Contract check successfully passed.`});
             this.$notify({
               group: "scilla",
               type: "success",
@@ -114,6 +120,7 @@ export default {
           }
         })
         .catch(error => {
+          window.EventBus.$emit('console-log', {message: `There are errors in your contract.`, type: 'error'});
           this.$notify({
             group: "scilla",
             type: "error",
@@ -133,6 +140,8 @@ export default {
             };
           });
 
+          window.EventBus.$emit("checker-events", { errors: markers });
+
           this.annotations = markers;
         });
     }
@@ -142,6 +151,10 @@ export default {
   },
   mounted() {
     this.changed = false;
+
+    window.EventBus.$on('console-run-checker', () => {
+      this.handleCheck();
+    });
   }
 };
 </script>

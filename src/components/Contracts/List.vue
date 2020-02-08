@@ -36,6 +36,7 @@ export default {
   methods: {
     importContract() {
       // this.$store.dispatch('incrementBy', amount)
+      window.EventBus.$emit("open-import-contract");
     },
     handleSelect({ contractId }) {
       window.EventBus.$emit("open-call-contract", { contractId });

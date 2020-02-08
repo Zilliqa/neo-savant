@@ -69,7 +69,7 @@
           <label>Enter your passphrase to call</label>
           <input type="password" v-model="passphrase" class="form-control" />
         </div>
-        <div class="col-12 mb-4">
+        <div class="col-12 mb-4" v-if="!loading">
           <button class="btn btn-secondary mr-2" @click="handleCall">Call Transition</button>
           <button class="btn btn-danger" @click="exec = false">Cancel</button>
         </div>
@@ -263,6 +263,8 @@ export default {
         });
 
         const signedTx = await this.zilliqa.blockchain.createTransaction(tx);
+
+        this.loading = false;
 
         if (signedTx.receipt.success !== false) {
           this.signedTx = {

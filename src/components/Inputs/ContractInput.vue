@@ -42,7 +42,7 @@ export default {
   name: "ContractInput",
   data() {
     return {
-      inputs: ["ByStr20", "Uint128", "Uint32", "String"]
+      inputs: ["ByStr20", "Uint128", "Uint32", "String", "BNum"]
     };
   },
   props: ["param"],

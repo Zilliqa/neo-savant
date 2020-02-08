@@ -40,7 +40,7 @@
             <input type="password" v-model="passphrase" class="form-control" />
           </div>
         </div>
-        <div class="col-12 mb-4">
+        <div class="col-12 mb-4" v-if="!loading">
           <button class="btn btn-secondary" @click="handleDeploy">Deploy Contract</button>
         </div>
       </div>
@@ -100,7 +100,8 @@ export default {
         1: "RUNNER_FAILED",
         5: "NO_GAS_REMAINING_FOUND",
         7: "CALL_CONTRACT_FAILED",
-        8: "CREATE_CONTRACT_FAILED"
+        8: "CREATE_CONTRACT_FAILED",
+        9: "JSON_OUTPUT_CORRUPTED"
       }
     };
   },
@@ -127,8 +128,8 @@ export default {
       await this.getContractABI();
     },
     async handleDeploy() {
+      this.loading = "Trying to decrypt keystore file and access wallet...";
       try {
-        this.loading = "Trying to decrypt keystore file and access wallet...";
 
         if (this.zilliqa === undefined) {
           this.zilliqa = new Zilliqa(this.network.url);
@@ -228,6 +229,7 @@ export default {
         };
 
         console.log("deployed contract ", contract);
+        this.loading = false;
 
         if (signedTx.receipt.success !== false) {
           await this.$store
