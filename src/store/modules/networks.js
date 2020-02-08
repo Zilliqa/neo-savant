@@ -20,7 +20,7 @@ const state = {
         },
         {
             name: 'Simulated ENV',
-            url: 'http://35.246.141.209:5555/',
+            url: 'http://35.207.129.232:5555/',
             chainId: 1,
             msgVersion: 1
         }
