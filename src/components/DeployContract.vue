@@ -188,14 +188,6 @@ export default {
           value: "0"
         });
 
-        if (this.network.url === "http://35.207.129.232:5555/") {
-          init.push({
-            vname: "_this_address",
-            type: "ByStr20",
-            value: this.account.address
-          });
-        }
-
         const tx = this.zilliqa.transactions.new({
           version: VERSION,
           toAddr: "0x0000000000000000000000000000000000000000",
