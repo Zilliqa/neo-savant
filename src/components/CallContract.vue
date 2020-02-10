@@ -3,7 +3,7 @@
     <p>
       Contract Address
       <br />
-      <span class="font-weight-bold">{{contractId}}</span>
+      <span class="font-weight-bold">0x{{contractId}}</span>
     </p>
 
     <div class="alert alert-info" v-if="!abi">Loading contract ABI</div>

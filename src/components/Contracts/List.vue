@@ -58,5 +58,9 @@ export default {
 
 .img-button {
   height: 20px;
+
+  &:hover {
+    cursor: pointer;
+  }
 }
 </style>
