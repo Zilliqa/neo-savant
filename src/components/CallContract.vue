@@ -66,8 +66,10 @@
         <div class="col-12 mb-4">
           <p class="font-weight-bold mb-0">Calling from: {{ account.address }}</p>
           <p class="font-weight-bold">Network: {{ network.name }}</p>
-          <label>Enter your passphrase to call</label>
-          <input type="password" v-model="passphrase" class="form-control" />
+          <div v-if="network.url !== 'http://35.207.129.232:5555/'">
+            <label>Enter your passphrase</label>
+            <input type="password" v-model="passphrase" class="form-control" />
+          </div>
         </div>
         <div class="col-12 mb-4" v-if="!loading">
           <button class="btn btn-secondary mr-2" @click="handleCall">Call Transition</button>
@@ -209,15 +211,23 @@ export default {
           this.zilliqa = new Zilliqa(this.network.url);
         }
 
-        if (this.passphrase === "" || this.passphrase === undefined) {
-          throw new Error("Please enter passphrase.");
+        let loaded = null;
+
+        if (this.network.url !== "http://35.207.129.232:5555/") {
+          if (this.passphrase === "" || this.passphrase === undefined) {
+            throw new Error("Please enter passphrase.");
+          }
+
+          loaded = await this.zilliqa.wallet.addByKeystore(
+            this.account.keystore,
+            this.passphrase
+          );
+        } else {
+          loaded = await this.zilliqa.wallet.addByPrivateKey(
+            this.account.privateKey
+          );
         }
-
-        const loaded = await this.zilliqa.wallet.addByKeystore(
-          this.account.keystore,
-          this.passphrase
-        );
-
+        
         // Verify if account is created on blockchain
         const balance = await this.zilliqa.blockchain.getBalance(loaded);
 

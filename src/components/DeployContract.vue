@@ -36,7 +36,7 @@
           <p class="font-weight-bold">Network: {{ network.name }}</p>
 
           <div v-if="network.url !== 'http://35.207.129.232:5555/'">
-            <label>Enter your passphrase to deploy</label>
+            <label>Enter your passphrase</label>
             <input type="password" v-model="passphrase" class="form-control" />
           </div>
         </div>
