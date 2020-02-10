@@ -194,11 +194,6 @@ export default {
             type: "ByStr20",
             value: this.account.address
           });
-          init.push({
-            vname: "_creation_block",
-            type: "BNum",
-            value: "1"
-          });
         }
 
         const tx = this.zilliqa.transactions.new({
