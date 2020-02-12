@@ -213,7 +213,7 @@ export default {
 
         let loaded = null;
 
-        if (this.network.url !== "http://35.207.129.232:5555/") {
+        if (this.network.url !== process.env.VUE_APP_ISOLATED_URL) {
           if (this.passphrase === "" || this.passphrase === undefined) {
             throw new Error("Please enter passphrase.");
           }
@@ -227,7 +227,7 @@ export default {
             this.account.privateKey
           );
         }
-        
+
         // Verify if account is created on blockchain
         const balance = await this.zilliqa.blockchain.getBalance(loaded);
 
@@ -281,15 +281,12 @@ export default {
             receipt: signedTx.receipt,
             transId: signedTx.id
           };
-          /* await this.$store
-            .dispatch("contracts/AddContract", contract)
-            .then(() => {
-              this.signedTx = {
-                receipt: signedTx.receipt,
-                transId: signedTx.id,
-                contractAddress: contractId.result
-              };
-            }); */
+          if (
+            signedTx.receipt.event_logs &&
+            signedTx.receipt.event_logs.length
+          ) {
+            await this.$store.dispatch("events/AddEvents", signedTx.receipt.event_logs);
+          }
         } else {
           this.signedTx = {
             receipt: signedTx.receipt,

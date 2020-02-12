@@ -13,6 +13,7 @@
       <div class="right-panel" v-show="rightPanel">
         <account-selector v-if="rightPanel === 'accountSelector'" />
         <console v-if="rightPanel === 'console'" />
+        <events-list v-if="rightPanel === 'events'" />
         <deploy-contract
           v-if="rightPanel === 'deployContract'"
           :file="this.deployContract"
@@ -32,6 +33,8 @@
 
         <div class="action" @click="handleToggleRightPanel('events')">
           <img src="@/assets/notifications.svg" />
+
+          <span class="badge badge-secondary" v-if="events.length">{{ events.length }}</span>
         </div>
       </div>
     </div>
@@ -47,6 +50,9 @@ import Console from "@/components/Console";
 import DeployContract from "@/components/DeployContract";
 import CallContract from "@/components/CallContract";
 import ImportContract from "@/components/ImportContract";
+import EventsList from "@/components/EventsList";
+
+import { mapGetters } from "vuex";
 
 export default {
   name: "App",
@@ -65,7 +71,11 @@ export default {
     Console,
     DeployContract,
     CallContract,
-    ImportContract
+    ImportContract,
+    EventsList
+  },
+  computed: {
+    ...mapGetters("events", { events: "list" })
   },
   methods: {
     handleToggleRightPanel(type) {
@@ -161,6 +171,13 @@ export default {
       display: flex;
       align-items: center;
       justify-content: center;
+      position:relative;
+
+      .badge {
+        position: absolute;
+        top: 0;
+        right:0;
+      }
 
       img {
         width: 30px;
