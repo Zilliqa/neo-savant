@@ -14,10 +14,10 @@
         <div class="header bg-warning">{{checkerWarnings.length}} Checker Warnings:</div>
         <div class="content">
           <ul>
-            <li
-              v-for="(warning,index) in checkerWarnings"
-              :key="index"
-            ><span class="badge badge-warning">{{warning.row + 1}}, {{warning.column}}</span> {{warning.text}}</li>
+            <li v-for="(warning,index) in checkerWarnings" :key="index">
+              <span class="badge badge-warning">{{warning.row + 1}}, {{warning.column}}</span>
+              {{warning.text}}
+            </li>
           </ul>
         </div>
       </div>
@@ -25,10 +25,10 @@
         <div class="header bg-danger text-white">{{ checkerErrors.length }} Checker Errors:</div>
         <div class="content">
           <ul>
-            <li
-              v-for="(error,index) in checkerErrors"
-              :key="index"
-            ><span class="badge badge-danger">{{error.row + 1}}, {{error.column}}</span> {{error.text}}</li>
+            <li v-for="(error,index) in checkerErrors" :key="index">
+              <span class="badge badge-danger">{{error.row + 1}}, {{error.column}}</span>
+              {{error.text}}
+            </li>
           </ul>
         </div>
       </div>
@@ -39,6 +39,8 @@
 <script>
 import VueCommand from "vue-command";
 import "vue-command/dist/vue-command.css";
+
+const { toBech32Address, fromBech32Address } = require("@zilliqa-js/crypto");
 
 export default {
   components: {
@@ -54,17 +56,22 @@ export default {
           return _[1];
         },
         check: () => {
-          window.EventBus.$emit('console-run-checker');
+          window.EventBus.$emit("console-run-checker");
           return `Running checker on selected contract.`;
         },
         help: () => {
           return `
           Available commands: <br/>
           <b>check</b> - Run Checker on selected contract <br/>
-          <b>contract:import</b> [ADDRESS] <br/>
-          <b>contract:call</b> [ADDRESS] <br/>
-          <b>contract:deploy</b> [ADDRESS]
+          <b>tobech32</b> [ADDRESS] <br/>
+          <b>frombech32</b> [ADDRESS] <br/>
           `;
+        },
+        tobech32: ({ _ }) => {
+          return toBech32Address(_[1]);
+        },
+        frombech32: ({ _ }) => {
+          return fromBech32Address(_[1]).toLowerCase();
         }
       }
     };
@@ -74,7 +81,7 @@ export default {
       this.checkerWarnings = warnings;
       this.checkerErrors = errors;
     });
-    window.EventBus.$on("console-log", ({message, type}) => {
+    window.EventBus.$on("console-log", ({ message, type }) => {
       console.log(message, type);
       //this.$refs.console.$_executeCommand('help');
     });
@@ -112,7 +119,7 @@ export default {
     }
 
     ul {
-      padding:0;
+      padding: 0;
       list-style: none;
       li {
         font-size: 12px;
