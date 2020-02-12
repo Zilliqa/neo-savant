@@ -10,6 +10,7 @@
         <router-link to="#">Tutorial</router-link>
       </div>
       <div class="details d-flex">
+        <account-balance />
         <account-selector />
         <network-selector />
       </div>
@@ -20,10 +21,11 @@
 <script>
 import NetworkSelector from "./NetworkSelector";
 import AccountSelector from "./AccountSelector";
+import AccountBalance from "./AccountBalance";
 
 export default {
   name: "TopBar",
-  components: { NetworkSelector, AccountSelector }
+  components: { NetworkSelector, AccountSelector, AccountBalance }
 };
 </script>
 

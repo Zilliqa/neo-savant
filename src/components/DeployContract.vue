@@ -32,7 +32,17 @@
       </div>
       <div class="row">
         <div class="col-12 mb-4">
-          <p class="font-weight-bold">Deploying from: {{ account.address }}</p>
+          <p class="font-weight-bold">
+            Deploying from:
+            <span class="address">
+              {{ account.address }}
+              <img
+                class="copy-button"
+                src="@/assets/copy.svg"
+                @click="copyToClipboard"
+              /> <span class="ml-2 text-success" v-if="copied">Copied</span>
+            </span>
+          </p>
           <p class="font-weight-bold">Network: {{ network.name }}</p>
 
           <div v-if="network.url !== 'http://35.207.129.232:5555/'">
@@ -85,6 +95,7 @@ export default {
   data() {
     return {
       abi: undefined,
+      copied: false,
       init: {},
       amount: 0,
       gasPrice: 1000000000,
@@ -119,6 +130,15 @@ export default {
     this.getContractABI();
   },
   methods: {
+    copyToClipboard() {
+      navigator.clipboard.writeText(this.account.address).then(() => {
+        this.copied = true;
+
+        setTimeout(() => {
+          this.copied = false;
+        },1000);
+      });
+    },
     async resetComponent() {
       this.abi = undefined;
       this.signedTx = undefined;
@@ -130,7 +150,6 @@ export default {
     async handleDeploy() {
       this.loading = "Trying to decrypt keystore file and access wallet...";
       try {
-
         if (this.zilliqa === undefined) {
           this.zilliqa = new Zilliqa(this.network.url);
         }
@@ -292,5 +311,18 @@ export default {
 
 .btn {
   font-size: 0.85rem !important;
+}
+
+.address {
+  display: flex;
+  align-items: center;
+
+  .copy-button {
+    margin-left: 0.5rem;
+    height: 20px;
+    &:hover {
+      cursor: pointer;
+    }
+  }
 }
 </style>
