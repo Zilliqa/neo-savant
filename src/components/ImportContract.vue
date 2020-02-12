@@ -19,6 +19,8 @@
     <div class="alert alert-danger" v-if="error">{{error}}</div>
 
     <div class="alert alert-success" v-if="success">Contract successfully imported.</div>
+
+    <button class="btn btn-danger" @click="reset" v-if="loading || error || success">Reset</button>
   </div>
 </template>
 
@@ -46,6 +48,13 @@ export default {
     ...mapGetters("networks", { network: "selected" })
   },
   methods: {
+    reset() {
+      this.loading = false;
+      this.error = false;
+      this.success = false;
+      this.address = "";
+      this.contractCode = undefined;
+    },
     async handleImport() {
       this.success = false;
       this.error = false;
@@ -64,6 +73,11 @@ export default {
         const contractCode = await zilliqa.blockchain.getSmartContractCode(
           this.address
         );
+
+        console.log(contractCode);
+        if (contractCode.error) {
+          throw new Error(contractCode.error.message);
+        }
 
         this.contractCode = contractCode.result.code;
 

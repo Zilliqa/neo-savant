@@ -1,14 +1,14 @@
 const state = {
     selected: {
-        name: 'Mainnet',
-        url: 'https://api.zilliqa.com',
+        name: 'Simulated ENV',
+        url: process.env.VUE_APP_ISOLATED_URL,
         chainId: 1,
         msgVersion: 1
     },
     networks: [
         {
-            name: 'Mainnet',
-            url: 'https://api.zilliqa.com',
+            name: 'Simulated ENV',
+            url: process.env.VUE_APP_ISOLATED_URL,
             chainId: 1,
             msgVersion: 1
         },
@@ -19,8 +19,8 @@ const state = {
             msgVersion: 1
         },
         {
-            name: 'Simulated ENV',
-            url: 'http://35.207.129.232:5555/',
+            name: 'Mainnet',
+            url: 'https://api.zilliqa.com',
             chainId: 1,
             msgVersion: 1
         }
