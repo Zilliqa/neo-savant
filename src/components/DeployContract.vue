@@ -234,7 +234,6 @@ export default {
           deployed_by: this.account.address
         };
 
-        console.log("deployed contract ", contract);
         this.loading = false;
 
         if (signedTx.receipt.success !== false) {

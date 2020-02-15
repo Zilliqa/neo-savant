@@ -6,7 +6,7 @@ COPY . /savant-ide
 
 WORKDIR /savant-ide
 RUN npm install
-ENTRYPOINT npm run serve
+RUN npm run build
 
 #ENTRYPOINT NODE_ENV=production SCILLA_VERSION=0 npm run start
 

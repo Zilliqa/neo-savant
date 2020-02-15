@@ -81,10 +81,10 @@ export default {
       this.checkerWarnings = warnings;
       this.checkerErrors = errors;
     });
-    window.EventBus.$on("console-log", ({ message, type }) => {
-      console.log(message, type);
+    /* window.EventBus.$on("console-log", ({ message, type }) => {
+      // console.log(message, type);
       //this.$refs.console.$_executeCommand('help');
-    });
+    }); */
   }
 };
 </script>

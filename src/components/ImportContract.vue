@@ -74,7 +74,6 @@ export default {
           this.address
         );
 
-        console.log(contractCode);
         if (contractCode.error) {
           throw new Error(contractCode.error.message);
         }

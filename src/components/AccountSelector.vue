@@ -113,8 +113,6 @@ export default {
       this.error = false;
       this.account = false;
 
-      console.log("test");
-
       try {
         this.loading = "Trying to decrypt keystore file and access wallet...";
 

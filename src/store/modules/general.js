@@ -11,11 +11,8 @@ const getters = {
 const actions = {
     SelectFile({ commit, state }, { id }) {
         const file = state.files.find(function (item) {
-            console.log(item.id, id);
             return item.id === id
         });
-
-        console.log(file);
 
         commit('select', file);
     },
