@@ -29,19 +29,28 @@ export default {
   },
   methods: {
     async getBalance() {
-      const zilliqa = new Zilliqa(this.network.url);
+      if (this.account !== undefined && this.account.balance) {
+        const zilliqa = new Zilliqa(this.network.url);
 
-      const balance = await zilliqa.blockchain.getBalance(this.account.address);
+        const balance = await zilliqa.blockchain.getBalance(
+          this.account.address
+        );
 
-      if (balance.result.balance) {
-        this.balance = units.fromQa(new BN(balance.result.balance), units.Units.Zil);
-      } else {
+        if (balance.result.balance) {
+          this.balance = units.fromQa(
+            new BN(balance.result.balance),
+            units.Units.Zil
+          );
+        } else {
+          this.balance = 0;
+        }
+      }else{
         this.balance = 0;
       }
     }
   },
   mounted() {
-      this.getBalance();
+    this.getBalance();
   }
 };
 </script>

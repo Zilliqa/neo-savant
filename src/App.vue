@@ -54,13 +54,19 @@ import EventsList from "@/components/EventsList";
 
 import { mapGetters } from "vuex";
 
+import { BN, bytes, Long } from "@zilliqa-js/util";
+import { Zilliqa } from "@zilliqa-js/zilliqa";
+import { generateMultipleZilliqaAccounts } from "./utils/zilliqa";
+
 export default {
   name: "App",
   data() {
     return {
       rightPanel: "console",
       deployContract: false,
-      callContract: false
+      callContract: false,
+      zilliqa: undefined,
+      VERSION: undefined
     };
   },
   components: {
@@ -75,7 +81,9 @@ export default {
     EventsList
   },
   computed: {
-    ...mapGetters("events", { events: "list" })
+    ...mapGetters("events", { events: "list" }),
+    ...mapGetters("accounts", { accounts: "list" }),
+    ...mapGetters("networks", { network: "selected" })
   },
   methods: {
     handleToggleRightPanel(type) {
@@ -84,6 +92,61 @@ export default {
       } else {
         this.rightPanel = type;
       }
+    },
+    async requestFunds(generatedAccounts) {
+      if (generatedAccounts.length > 0) {
+        const item = generatedAccounts[0];
+
+        const tx = this.zilliqa.transactions.new({
+          version: this.VERSION,
+          toAddr: process.env.VUE_APP_FUNDS_CONTRACT,
+          amount: new BN(0),
+          gasPrice: new BN(1000000000), // in Qa
+          gasLimit: Long.fromNumber(10000),
+          data: JSON.stringify({
+            _tag: "register_user",
+            params: [
+              {
+                vname: "user_address",
+                type: "ByStr20",
+                value: item.address
+              }
+            ]
+          })
+        });
+
+        await this.zilliqa.blockchain.createTransaction(tx);
+
+        this.$store.dispatch("accounts/AddAccount", {
+          address: item.address,
+          keystore: item.privateKey,
+          type: "keystore"
+        });
+
+        generatedAccounts.splice(0, 1);
+
+        return await this.requestFunds(generatedAccounts);
+      }
+    }
+  },
+  async created() {
+    if (
+      this.network.url === process.env.VUE_APP_ISOLATED_URL &&
+      this.accounts.length === 0
+    ) {
+      const generatedAccounts = await generateMultipleZilliqaAccounts(5);
+
+      this.zilliqa = new Zilliqa(this.network.url);
+
+      const chainId = this.network.chainId; // chainId of the developer testnet
+      const msgVersion = this.network.msgVersion; // current msgVersion
+      this.VERSION = bytes.pack(chainId, msgVersion);
+
+      await this.zilliqa.wallet.addByPrivateKey(
+        process.env.VUE_APP_FUNDS_OWNER
+      );
+
+      this.requestFunds(generatedAccounts);
     }
   },
   mounted() {
@@ -154,7 +217,7 @@ export default {
     border-left: 1px solid #ccc;
     padding-right: 50px;
     max-height: calc(100vh - 60px);
-    overflow:scroll;
+    overflow: scroll;
   }
   .right-sidebar {
     position: absolute;
@@ -173,12 +236,12 @@ export default {
       display: flex;
       align-items: center;
       justify-content: center;
-      position:relative;
+      position: relative;
 
       .badge {
         position: absolute;
         top: 0;
-        right:0;
+        right: 0;
       }
 
       img {
