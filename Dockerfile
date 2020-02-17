@@ -1,16 +1,16 @@
 # build stage
-FROM node:10-alpine as build-stage
-WORKDIR /app
-COPY package*.json ./
+FROM node:10 as build-stage
+COPY . /savant-ide
+WORKDIR /savant-ide
 RUN npm install
-COPY . .
+RUN npm rebuild node-sass
 RUN npm run build
 
 # production stage
 FROM nginx:stable-alpine as production-stage
-COPY --from=build-stage /app/dist /usr/share/nginx/html
+COPY --from=build-stage /savant-ide/dist /usr/share/nginx/html
 EXPOSE 80
-ENTRYPOINT CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
 
 #ENTRYPOINT NODE_ENV=production SCILLA_VERSION=0 npm run start
 
