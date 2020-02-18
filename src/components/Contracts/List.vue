@@ -55,6 +55,16 @@ export default {
   color: #ea8b0c;
   font-family: "Montserrat";
   font-size: 1rem;
+  padding-left: 1rem;
+}
+
+.contracts-list {
+  .list-item {
+    padding-left: 1rem;
+    &:hover, &.selected {
+      background-color: #ea8a0c33;
+    }
+  }
 }
 
 .img-button {

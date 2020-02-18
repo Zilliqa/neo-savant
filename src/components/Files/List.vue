@@ -5,7 +5,12 @@
       <img src="@/assets/file-add.svg" class="img-button ml-3" @click="addFile" />
     </div>
     <div class="list">
-      <div class="list-item" v-for="file in list" :key="file.id">
+      <div
+        class="list-item py-1"
+        :class="{'selected' : (selected && selected.id === file.id)}"
+        v-for="file in list"
+        :key="file.id"
+      >
         <file-name
           :file="file"
           v-on:select-file="handleSelect"
@@ -48,6 +53,17 @@ export default {
   color: #ea8b0c;
   font-family: "Montserrat";
   font-size: 1rem;
+  padding-left: 1rem;
+}
+
+.files-list {
+  .list-item {
+    padding-left: 1rem;
+
+    &.selected {
+      background-color: #ea8a0c44;
+    }
+  }
 }
 
 .img-button {

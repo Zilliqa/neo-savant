@@ -218,7 +218,7 @@ export default {
   }
 
   .left-panel {
-    padding: 1.5rem 2rem;
+    padding: 1.5rem 0;
     height: 100%;
     border-right: 1px solid #ccc;
   }
