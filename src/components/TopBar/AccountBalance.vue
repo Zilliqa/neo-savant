@@ -29,14 +29,17 @@ export default {
   },
   methods: {
     async getBalance() {
-      if (this.account !== undefined && this.account.balance) {
+      if (this.account !== undefined && this.account.address) {
+        console.log(this.account);
         const zilliqa = new Zilliqa(this.network.url);
 
         const balance = await zilliqa.blockchain.getBalance(
           this.account.address
         );
 
-        if (balance.result.balance) {
+        console.log(balance);
+
+        if (!balance.result.error && balance.result.balance) {
           this.balance = units.fromQa(
             new BN(balance.result.balance),
             units.Units.Zil
