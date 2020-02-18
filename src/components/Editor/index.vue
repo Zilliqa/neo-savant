@@ -185,8 +185,6 @@ export default {
       if (type === "deployed-contract") {
         const zilliqa = new Zilliqa(this.network.url);
 
-        console.log("cid", contractId);
-
         const contractCode = await zilliqa.blockchain.getSmartContractCode(
           contractId
         );
