@@ -30,7 +30,7 @@
       theme="tomorrow"
       :annotations="annotations"
       width="100%"
-      height="calc(100% - 50px)"
+      height="calc(100% - 60px)"
       :onChange="handleInput"
       :readOnly="readonly"
       name="editor"
@@ -62,6 +62,10 @@ import brace from "brace"; // eslint-disable-line no-use-before-define
 import { Ace as AceEditor } from "vue2-brace-editor";
 
 import "./scilla_mode";
+import 'brace/ext/searchbox';
+import 'brace/ext/keybinding_menu';
+import 'brace/keybinding/emacs';
+import 'brace/keybinding/vim';
 import "brace/mode/javascript";
 import "brace/theme/tomorrow";
 

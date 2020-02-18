@@ -31,10 +31,10 @@
           <img src="@/assets/terminal.svg" />
         </div>
 
-        <div class="action" @click="handleToggleRightPanel('events')">
+        <div class="action events-badge" @click="handleToggleRightPanel('events')">
           <img src="@/assets/notifications.svg" />
 
-          <span class="badge badge-secondary" v-if="events.length">{{ events.length }}</span>
+          <span class=" badge badge-danger" v-if="events.length">{{ events.length }}</span>
         </div>
       </div>
     </div>
@@ -57,6 +57,7 @@ import { mapGetters } from "vuex";
 import { BN, bytes, Long } from "@zilliqa-js/util";
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { generateMultipleZilliqaAccounts } from "./utils/zilliqa";
+import { animateCSS } from "./utils/ui";
 
 export default {
   name: "App",
@@ -84,6 +85,11 @@ export default {
     ...mapGetters("events", { events: "list" }),
     ...mapGetters("accounts", { accounts: "list" }),
     ...mapGetters("networks", { network: "selected" })
+  },
+  watch: {
+    events: function() {
+      animateCSS('.events-badge', 'heartBeat');
+    },
   },
   methods: {
     handleToggleRightPanel(type) {

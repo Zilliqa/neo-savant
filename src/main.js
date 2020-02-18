@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import 'bootstrap/dist/css/bootstrap.min.css'
+import 'animate.css';
 import Notifications from 'vue-notification'
 
 Vue.config.productionTip = false
