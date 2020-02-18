@@ -1,5 +1,5 @@
 <template>
-  <div class="account-selector p-4">
+  <div class="account-selector p-4" v-if="account !== undefined && account.address">
     <div class="deploy-form" v-if="!loading">
       <div class="row mb-4">
         <div class="col-12">
@@ -22,6 +22,7 @@
 
     <button class="btn btn-danger" @click="reset" v-if="loading || error || success">Reset</button>
   </div>
+  <div class="alert alert-info m-4" v-else>Please select an account first.</div>
 </template>
 
 <script>

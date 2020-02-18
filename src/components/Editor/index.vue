@@ -1,6 +1,6 @@
 <template>
   <div class="editor">
-    <div class="actions-bar">
+    <div class="actions-bar" v-if="!readonly && file !== null">
       <div class="d-flex justify-content-between align-items-center">
         <div class="buttons d-flex">
           <button class="btn btn-check mr-2 ml-2" @click="handleCheck">
@@ -18,6 +18,7 @@
       </div>
     </div>
     <ace-editor
+      v-if="file !== null"
       v-model="file.code"
       :fontSize="14"
       :showPrintMargin="true"
@@ -31,8 +32,25 @@
       width="100%"
       height="calc(100% - 50px)"
       :onChange="handleInput"
+      :readOnly="readonly"
       name="editor"
       :editorProps="{$blockScrolling: true}"
+    />
+    <ace-editor
+      v-else
+      v-model="code"
+      :fontSize="14"
+      :showPrintMargin="true"
+      :showGutter="true"
+      :highlightActiveLine="true"
+      ref="aceEditor"
+      mode="scilla"
+      lang="scilla"
+      theme="tomorrow"
+      width="100%"
+      height="100%"
+      :readOnly="true"
+      name="editor2"
     />
   </div>
 </template>
@@ -48,15 +66,22 @@ import "brace/mode/javascript";
 import "brace/theme/tomorrow";
 
 import axios from "axios";
+import { Zilliqa } from "@zilliqa-js/zilliqa";
+import { mapGetters } from "vuex";
 
 export default {
   props: ["file"],
   data() {
     return {
+      code: null,
       changed: false,
+      readonly: false,
       annotations: [],
       SCILLA_CHECKER_URL: process.env.VUE_APP_SCILLA_CHECKER_URL
     };
+  },
+  computed: {
+    ...mapGetters("networks", { network: "selected" })
   },
   methods: {
     editorInit: function() {
@@ -81,7 +106,9 @@ export default {
     async handleCheck() {
       this.annotations = [];
 
-      window.EventBus.$emit('console-log', {message: `Running checker on ${this.file} contract.`});
+      window.EventBus.$emit("console-log", {
+        message: `Running checker on ${this.file} contract.`
+      });
 
       axios
         .post(this.SCILLA_CHECKER_URL, {
@@ -109,7 +136,9 @@ export default {
               this.annotations = markers;
             }
             // this.checked = true;
-            window.EventBus.$emit('console-log', {message: `Contract check successfully passed.`});
+            window.EventBus.$emit("console-log", {
+              message: `Contract check successfully passed.`
+            });
             this.$notify({
               group: "scilla",
               type: "success",
@@ -120,7 +149,10 @@ export default {
           }
         })
         .catch(error => {
-          window.EventBus.$emit('console-log', {message: `There are errors in your contract.`, type: 'error'});
+          window.EventBus.$emit("console-log", {
+            message: `There are errors in your contract.`,
+            type: "error"
+          });
           this.$notify({
             group: "scilla",
             type: "error",
@@ -144,6 +176,20 @@ export default {
 
           this.annotations = markers;
         });
+    },
+    async changeEditorCode({ type, contractId }) {
+      if (type === "deployed-contract") {
+        const zilliqa = new Zilliqa(this.network.url);
+
+        console.log("cid", contractId);
+
+        const contractCode = await zilliqa.blockchain.getSmartContractCode(
+          contractId
+        );
+
+        this.readonly = true;
+        this.code = contractCode.result.code;
+      }
     }
   },
   components: {
@@ -152,8 +198,16 @@ export default {
   mounted() {
     this.changed = false;
 
-    window.EventBus.$on('console-run-checker', () => {
+    window.EventBus.$on("console-run-checker", () => {
       this.handleCheck();
+    });
+
+    window.EventBus.$on("open-editor-contract", ({ contractId }) => {
+      this.changeEditorCode({
+        type: "deployed-contract",
+        contractId: contractId
+      });
+      this.$store.dispatch("files/SelectFile", null);
     });
   }
 };

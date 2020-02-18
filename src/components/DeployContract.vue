@@ -156,7 +156,7 @@ export default {
 
         let loaded = null;
 
-        if (this.network.url !== "http://35.207.129.232:5555/") {
+        if (this.network.url !== process.env.VUE_APP_ISOLATED_URL) {
           if (this.passphrase === "" || this.passphrase === undefined) {
             throw new Error("Please enter passphrase.");
           }
@@ -166,9 +166,11 @@ export default {
             this.passphrase
           );
         } else {
+          console.log('teting');
           loaded = await this.zilliqa.wallet.addByPrivateKey(
-            this.account.privateKey
+            this.account.keystore
           );
+          console.log('loaded');
         }
 
         if (loaded == null) {
@@ -177,6 +179,8 @@ export default {
 
         // Verify if account is created on blockchain
         const balance = await this.zilliqa.blockchain.getBalance(loaded);
+
+        console.log(balance);
 
         if (balance.error !== undefined) {
           throw new Error(balance.error.message);
@@ -231,7 +235,8 @@ export default {
           network: this.network.url,
           file_id: this.file.id,
           file_name: this.file.name,
-          deployed_by: this.account.address
+          deployed_by: this.account.address,
+          code: this.file.code
         };
 
         this.loading = false;

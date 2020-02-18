@@ -3,7 +3,7 @@ import uuidv4 from 'uuid';
 import { defaultFiles } from '@/contracts';
 
 const state = {
-    selected: null,
+    selected: undefined,
     files: defaultFiles
 };
 
@@ -13,12 +13,20 @@ const getters = {
 };
 
 const actions = {
-    SelectFile({ commit, state }, { id }) {
-        const file = state.files.find(function (item) {
-            return item.id === id
-        });
+    SelectFile({ commit, state }, payload) {
 
-        commit('select', file);
+        if (payload === null) {
+            commit('select', null);
+        } else {
+            const id = payload.id;
+
+            const file = state.files.find(function (item) {
+                return item.id === id
+            });
+
+            commit('select', file);
+        }
+
     },
     CreateFile({ commit }) {
         const id = uuidv4();

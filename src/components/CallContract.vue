@@ -23,7 +23,7 @@
     </div>
 
     <div v-if="!exec && contractState">
-      <p class="mt-4 mb-2">Contract State</p>
+      <p class="mt-4 mb-2 d-flex align-items-center">Contract State <img src="@/assets/refresh.svg" class="refresh-state-button" @click="refreshContractState" /></p>
       <div style="width: 100%; overflow-x:scroll;">
         <vue-json-pretty :deep="1" :data="contractState"></vue-json-pretty>
       </div>
@@ -73,7 +73,7 @@
         </div>
         <div class="col-12 mb-4" v-if="!loading">
           <button class="btn btn-secondary mr-2" @click="handleCall">Call Transition</button>
-          <button class="btn btn-danger" @click="exec = false">Cancel</button>
+          <button class="btn btn-danger" @click="handleCancel">Cancel</button>
         </div>
       </div>
     </div>
@@ -122,6 +122,7 @@ export default {
       gasPrice: 1000000000,
       gasLimit: 25000,
       startDeploy: false,
+      zilliqa: undefined,
       passphrase: undefined,
       loading: false,
       files: undefined,
@@ -144,17 +145,15 @@ export default {
     ...mapGetters("networks", { network: "selected" })
   },
   async mounted() {
-    const zilliqa = new Zilliqa(this.network.url);
+    this.zilliqa = new Zilliqa(this.network.url);
 
     this.contractInit = (
-      await zilliqa.blockchain.getSmartContractInit(this.contractId)
+      await this.zilliqa.blockchain.getSmartContractInit(this.contractId)
     ).result;
 
-    this.contractState = (
-      await zilliqa.blockchain.getSmartContractState(this.contractId)
-    ).result;
+    await this.refreshContractState();
 
-    const contractCode = await zilliqa.blockchain.getSmartContractCode(
+    const contractCode = await this.zilliqa.blockchain.getSmartContractCode(
       this.contractId
     );
 
@@ -163,6 +162,19 @@ export default {
     this.abi = await this.getContractAbi();
   },
   methods: {
+    async refreshContractState() {
+      this.contractState = (
+      await this.zilliqa.blockchain.getSmartContractState(this.contractId)
+    ).result;
+    },
+    async handleCancel() {
+      this.exec = false;
+      this.signedTx = undefined;
+      this.loading = false;
+      this.error = false;
+
+      await this.refreshContractState();
+    },
     getContractAbi() {
       axios
         .post(process.env.VUE_APP_SCILLA_CHECKER_URL, {
@@ -224,7 +236,7 @@ export default {
           );
         } else {
           loaded = await this.zilliqa.wallet.addByPrivateKey(
-            this.account.privateKey
+            this.account.keystore
           );
         }
 
@@ -324,6 +336,17 @@ export default {
 
   &.faded {
     opacity: 0.5;
+  }
+}
+
+.refresh-state-button {
+  opacity: 0.8;
+  height: 16px;
+  margin-left: 0.5rem;
+
+  &:hover {
+    cursor: pointer;
+    opacity: 1;
   }
 }
 </style>

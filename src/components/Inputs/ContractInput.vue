@@ -26,6 +26,7 @@
       :editorProps="{$blockScrolling: true}"
       v-else
     />
+    <div class="alert alert-warning" v-if="error">{{error}}</div>
   </div>
 </template>
 
@@ -42,7 +43,8 @@ export default {
   name: "ContractInput",
   data() {
     return {
-      inputs: ["ByStr20", "Uint128", "Uint32", "String", "BNum"]
+      error: false,
+      inputs: ["ByStr20", "ByStr32", "Uint128", "Uint32", "String", "BNum"]
     };
   },
   props: ["param"],
@@ -56,8 +58,14 @@ export default {
       return false;
     },
     updateData(payload) {
-      if (payload) {
-        this.param.value = JSON.parse(payload);
+      if (payload.target === undefined) {
+        try {
+          this.param.value = JSON.parse(payload);
+        } catch (e) {
+          this.param.value = payload;
+        }
+      } else {
+        this.param.value = payload.target.value;
       }
 
       this.$emit("input", this.param.value);

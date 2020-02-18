@@ -39,6 +39,7 @@ export default {
       window.EventBus.$emit("open-import-contract");
     },
     handleSelect({ contractId }) {
+      window.EventBus.$emit("open-editor-contract", { contractId });
       window.EventBus.$emit("open-call-contract", { contractId });
       //this.$store.dispatch("contracts/SelectContract", { contractId });
     }
