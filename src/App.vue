@@ -14,6 +14,7 @@
         <account-selector v-if="rightPanel === 'accountSelector'" />
         <console v-if="rightPanel === 'console'" />
         <events-list v-if="rightPanel === 'events'" />
+        <settings v-if="rightPanel === 'settings'" />
         <deploy-contract
           v-if="rightPanel === 'deployContract'"
           :file="this.deployContract"
@@ -36,6 +37,10 @@
 
           <span class=" badge badge-danger" v-if="events.length">{{ events.length }}</span>
         </div>
+
+        <div class="action" @click="handleToggleRightPanel('settings')">
+          <img src="@/assets/industry.svg" />
+        </div>
       </div>
     </div>
   </div>
@@ -51,6 +56,7 @@ import DeployContract from "@/components/DeployContract";
 import CallContract from "@/components/CallContract";
 import ImportContract from "@/components/ImportContract";
 import EventsList from "@/components/EventsList";
+import Settings from "@/components/Settings";
 
 import { mapGetters } from "vuex";
 
@@ -79,7 +85,8 @@ export default {
     DeployContract,
     CallContract,
     ImportContract,
-    EventsList
+    EventsList,
+    Settings
   },
   computed: {
     ...mapGetters("events", { events: "list" }),
