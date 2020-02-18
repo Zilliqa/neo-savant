@@ -1,5 +1,6 @@
 # build stage
 FROM node:10 as build-stage
+
 COPY . /savant-ide
 WORKDIR /savant-ide
 RUN npm install

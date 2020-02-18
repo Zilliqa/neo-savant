@@ -166,11 +166,9 @@ export default {
             this.passphrase
           );
         } else {
-          console.log('teting');
           loaded = await this.zilliqa.wallet.addByPrivateKey(
             this.account.keystore
           );
-          console.log('loaded');
         }
 
         if (loaded == null) {
@@ -179,8 +177,6 @@ export default {
 
         // Verify if account is created on blockchain
         const balance = await this.zilliqa.blockchain.getBalance(loaded);
-
-        console.log(balance);
 
         if (balance.error !== undefined) {
           throw new Error(balance.error.message);
