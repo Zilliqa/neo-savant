@@ -1,7 +1,10 @@
 <template>
   <div class="editor">
-    <div class="actions-bar" v-if="!readonly && file !== null">
-      <div class="d-flex justify-content-between align-items-center">
+    <div class="actions-bar">
+      <div
+        class="d-flex justify-content-between align-items-center"
+        v-if="file && !file.contractId"
+      >
         <div class="buttons d-flex">
           <button class="btn btn-check mr-2 ml-2" @click="handleCheck">
             <img src="@/assets/survey.svg" /> CHECK
@@ -16,9 +19,9 @@
         </div>
         <div class="message d-flex align-items-center" v-if="changed">Remember to save changes</div>
       </div>
+      <div class="d-flex p-2 align-items-center" v-else>Deployed contracts are readonly.</div>
     </div>
     <ace-editor
-      v-if="file !== null"
       v-model="file.code"
       :fontSize="14"
       :showPrintMargin="true"
@@ -32,25 +35,8 @@
       width="100%"
       height="calc(100% - 60px)"
       :onChange="handleInput"
-      :readOnly="readonly"
       name="editor"
       :editorProps="{$blockScrolling: true}"
-    />
-    <ace-editor
-      v-else
-      v-model="code"
-      :fontSize="14"
-      :showPrintMargin="true"
-      :showGutter="true"
-      :highlightActiveLine="true"
-      ref="aceEditor"
-      mode="scilla"
-      lang="scilla"
-      theme="tomorrow"
-      width="100%"
-      height="100%"
-      :readOnly="true"
-      name="editor2"
     />
   </div>
 </template>
@@ -62,15 +48,14 @@ import brace from "brace"; // eslint-disable-line no-use-before-define
 import { Ace as AceEditor } from "vue2-brace-editor";
 
 import "./scilla_mode";
-import 'brace/ext/searchbox';
-import 'brace/ext/keybinding_menu';
-import 'brace/keybinding/emacs';
-import 'brace/keybinding/vim';
+import "brace/ext/searchbox";
+import "brace/ext/keybinding_menu";
+import "brace/keybinding/emacs";
+import "brace/keybinding/vim";
 import "brace/mode/javascript";
 import "brace/theme/tomorrow";
 
 import axios from "axios";
-import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { mapGetters } from "vuex";
 
 export default {
@@ -79,13 +64,19 @@ export default {
     return {
       code: null,
       changed: false,
-      readonly: false,
       annotations: [],
       SCILLA_CHECKER_URL: process.env.VUE_APP_SCILLA_CHECKER_URL
     };
   },
   computed: {
-    ...mapGetters("networks", { network: "selected" })
+    ...mapGetters("networks", { network: "selected" }),
+    readonly() {
+      if (this.file.contractId) {
+        return true;
+      } else {
+        return false;
+      }
+    }
   },
   methods: {
     editorInit: function() {
@@ -180,18 +171,6 @@ export default {
 
           this.annotations = markers;
         });
-    },
-    async changeEditorCode({ type, contractId }) {
-      if (type === "deployed-contract") {
-        const zilliqa = new Zilliqa(this.network.url);
-
-        const contractCode = await zilliqa.blockchain.getSmartContractCode(
-          contractId
-        );
-
-        this.readonly = true;
-        this.code = contractCode.result.code;
-      }
     }
   },
   components: {
@@ -205,11 +184,11 @@ export default {
     });
 
     window.EventBus.$on("open-editor-contract", ({ contractId }) => {
-      this.changeEditorCode({
+      /* this.changeEditorCode({
         type: "deployed-contract",
         contractId: contractId
-      });
-      this.$store.dispatch("files/SelectFile", null);
+      }); */
+      this.$store.dispatch("contracts/SelectContract", { contractId });
     });
   }
 };

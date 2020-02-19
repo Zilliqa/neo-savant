@@ -9,18 +9,37 @@
       />
     </div>
     <div class="list">
-      <div class="list-item" v-for="contract in list" :key="contract.id">
+      <div
+        class="list-item"
+        v-for="contract in list"
+        :key="contract.id"
+        :class="{'selected' : (selected && contract.contractId === selected.contractId)}"
+        @contextmenu.prevent="$refs.menu.open"
+      >
         <contract-name
           :contract="contract"
           v-on:select-contract="handleSelect"
           :selected="selected && contract.contractId === selected.contractId"
         />
       </div>
+      <vue-context class="context-menu" ref="menu">
+        <li>
+          <a href="#" @click.prevent="edit = true">Nickname</a>
+        </li>
+        <li>
+          <a href="#" @click.prevent="edit = true">Add Tag</a>
+        </li>
+        <li>
+          <a href="#" @click.prevent="onClick($event.target.innerText)">Remove</a>
+        </li>
+      </vue-context>
     </div>
   </div>
 </template>
 
 <script>
+import { VueContext } from "vue-context";
+
 import { mapGetters } from "vuex";
 import ContractName from "./ContractName";
 
@@ -29,7 +48,7 @@ export default {
   data() {
     return {};
   },
-  components: { ContractName },
+  components: { ContractName, VueContext },
   computed: {
     ...mapGetters("contracts", ["selected", "list"])
   },
@@ -61,8 +80,17 @@ export default {
 .contracts-list {
   .list-item {
     padding-left: 1rem;
-    &:hover, &.selected {
+    &:hover,
+    &.selected {
       background-color: #ea8a0c33;
+    }
+  }
+}
+
+.context-menu {
+  li {
+    a {
+      font-size: 14px;
     }
   }
 }

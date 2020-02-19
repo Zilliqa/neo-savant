@@ -3,29 +3,14 @@
     class="file-name"
     :class="{'selected' : selected}"
     @click="$emit('select-file', file.id)"
-    @contextmenu.prevent="$refs.menu.open"
   >
     <span class="editable" @dblclick="edit = true" v-if="!edit">{{ file.name }}</span>
     <input v-if="edit" v-model="file.name" v-on:blur="handleRename" @keyup.enter="handleRename" />
     <span class="extension">.scilla</span>
-
-    <vue-context ref="menu">
-      <li>
-        <a href="#" @click.prevent="edit = true">Rename</a>
-      </li>
-      <li>
-        <a href="#" @click.prevent="onClick($event.target.innerText)">Duplicate</a>
-      </li>
-      <li>
-        <a href="#" @click.prevent="onClick($event.target.innerText)">Delete</a>
-      </li>
-    </vue-context>
   </div>
 </template>
 
 <script>
-import { VueContext } from "vue-context";
-
 export default {
   data() {
     return {
@@ -33,7 +18,6 @@ export default {
     };
   },
   props: ["file", "selected"],
-  components: { VueContext },
   methods: {
     handleRename() {
       this.edit = false;

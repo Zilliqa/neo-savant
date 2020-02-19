@@ -15,18 +15,14 @@ const getters = {
 const actions = {
     SelectFile({ commit, state }, payload) {
 
-        if (payload === null) {
-            commit('select', null);
-        } else {
-            const id = payload.id;
+        const id = payload.id;
 
-            const file = state.files.find(function (item) {
-                return item.id === id
-            });
+        const file = state.files.find(function (item) {
+            return item.id === id
+        });
 
-            commit('select', file);
-        }
-
+        commit('contracts/unselect', null, { root: true });
+        commit('select', file);
     },
     CreateFile({ commit }) {
         const id = uuidv4();
@@ -66,6 +62,9 @@ const actions = {
 const mutations = {
     select(state, payload) {
         state.selected = payload;
+    },
+    unselect(state) {
+        state.selected = undefined;
     },
     add(state, payload) {
         state.files.push(payload);

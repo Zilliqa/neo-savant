@@ -1,5 +1,5 @@
 const state = {
-    selected: null,
+    selected: undefined,
     contracts: []
 };
 
@@ -28,6 +28,7 @@ const actions = {
             throw Error('Contract does not exist on network.');
         }
 
+        commit('files/unselect', null, { root: true })
         commit('select', contract);
     },
     AddContract({ commit, state, rootGetters }, contract) {
@@ -53,6 +54,9 @@ const actions = {
 const mutations = {
     select(state, payload) {
         state.selected = payload;
+    },
+    unselect(state) {
+        state.selected = undefined;
     },
     addContract(state, payload) {
         state.contracts.push(payload);
