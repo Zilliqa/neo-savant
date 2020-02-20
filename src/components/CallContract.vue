@@ -3,7 +3,7 @@
     <p>
       Contract Address
       <br />
-      <span class="font-weight-bold">0x{{contractId}}</span>
+      <span class="font-weight-bold">{{contractId}}</span>
     </p>
 
     <div class="alert alert-info" v-if="!abi">Loading contract ABI</div>
@@ -23,7 +23,14 @@
     </div>
 
     <div v-if="!exec && contractState">
-      <p class="mt-4 mb-2 d-flex align-items-center">Contract State <img src="@/assets/refresh.svg" class="refresh-state-button" @click="refreshContractState" /></p>
+      <p class="mt-4 mb-2 d-flex align-items-center">
+        Contract State
+        <img
+          src="@/assets/refresh.svg"
+          class="refresh-state-button"
+          @click="refreshContractState"
+        />
+      </p>
       <div style="width: 100%; overflow-x:scroll;">
         <vue-json-pretty :deep="1" :data="contractState"></vue-json-pretty>
       </div>
@@ -164,8 +171,8 @@ export default {
   methods: {
     async refreshContractState() {
       this.contractState = (
-      await this.zilliqa.blockchain.getSmartContractState(this.contractId)
-    ).result;
+        await this.zilliqa.blockchain.getSmartContractState(this.contractId)
+      ).result;
     },
     async handleCancel() {
       this.exec = false;
@@ -185,25 +192,7 @@ export default {
             const { contract_info } = JSON.parse(response.data.message);
 
             this.abi = contract_info;
-
-            // this.checked = true;
-            this.$notify({
-              group: "scilla",
-              type: "success",
-              position: "bottom right",
-              title: "Scilla Checker",
-              text: "Contract has been successfully checked"
-            });
           }
-        })
-        .catch(() => {
-          this.$notify({
-            group: "scilla",
-            type: "error",
-            position: "bottom right",
-            title: "Scilla Checker",
-            text: "There are errors in your contract. Check the editor."
-          });
         });
     },
     toScillaParams(fields) {
@@ -297,7 +286,10 @@ export default {
             signedTx.receipt.event_logs &&
             signedTx.receipt.event_logs.length
           ) {
-            await this.$store.dispatch("events/AddEvents", signedTx.receipt.event_logs);
+            await this.$store.dispatch(
+              "events/AddEvents",
+              signedTx.receipt.event_logs
+            );
           }
         } else {
           this.signedTx = {
@@ -305,11 +297,12 @@ export default {
             transId: signedTx.id
           };
         }
-
+        window.EventBus.$emit("refresh-balance");
         this.signedTx = { receipt: signedTx.receipt, transId: signedTx.id };
       } catch (error) {
         this.loading = false;
         this.error = error.message;
+        window.EventBus.$emit("refresh-balance");
       }
     }
   }

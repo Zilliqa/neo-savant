@@ -84,12 +84,11 @@ export default {
     ...mapGetters("networks", { network: "selected" })
   },
   methods: {
-    handleDelete() {
-
-    },
+    handleDelete() {},
     async handleSelect(address) {
       await this.$store.dispatch("accounts/SelectAccount", { address });
       window.EventBus.$emit("close-account-selector");
+      window.EventBus.$emit("refresh-balance");
     },
     readUploadedFileAsText(inputFile) {
       const temporaryFileReader = new FileReader();
@@ -145,6 +144,7 @@ export default {
             this.importAccount = false;
             this.loading = false;
           });
+        window.EventBus.$emit("refresh-balance");
       } catch (error) {
         this.loading = false;
         this.error = error.message;
@@ -172,7 +172,7 @@ export default {
       position: absolute;
       top: 5px;
       right: 5px;
-      font-size:12px;
+      font-size: 12px;
       display: none;
     }
   }

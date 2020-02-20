@@ -4,7 +4,7 @@
     :class="{'selected' : selected}"
     @click="$emit('select-contract', {contractId: contract.contractId})"
   >
-    <div>0x{{ contract.contractId }}</div>
+    <div>{{ contract.contractId }}</div>
     <div class="text-muted">{{ contract.file_name }}</div>
   </div>
 </template>

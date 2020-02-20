@@ -19,14 +19,6 @@ export default {
     ...mapGetters("accounts", { account: "selected" }),
     ...mapGetters("networks", { network: "selected" })
   },
-  watch: {
-    account: async function() {
-      await this.getBalance();
-    },
-    network: async function() {
-      await this.getBalance();
-    }
-  },
   methods: {
     async getBalance() {
       if (this.account !== undefined && this.account.address) {
@@ -44,13 +36,17 @@ export default {
         } else {
           this.balance = 0;
         }
-      }else{
+      } else {
         this.balance = 0;
       }
     }
   },
   mounted() {
     this.getBalance();
+
+    window.EventBus.$on("refresh-balance", async () => {
+      await this.getBalance();
+    });
   }
 };
 </script>

@@ -7,6 +7,7 @@ import networks from './modules/networks'
 import files from './modules/files'
 import contracts from './modules/contracts'
 import events from './modules/events'
+import general from './modules/general'
 // import console from './modules/console'
 
 Vue.use(Vuex)
@@ -22,7 +23,8 @@ export default new Vuex.Store({
     networks,
     files,
     contracts,
-    events
+    events,
+    general
     // console
   },
   plugins: [vuexPersist.plugin]

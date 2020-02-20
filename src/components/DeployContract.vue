@@ -227,7 +227,7 @@ export default {
         const contract = {
           transId: signedTx.id,
           txData: signedTx,
-          contractId: contractId.result,
+          contractId: "0x" + contractId.result,
           network: this.network.url,
           file_id: this.file.id,
           file_name: this.file.name,
@@ -244,19 +244,23 @@ export default {
               this.signedTx = {
                 receipt: signedTx.receipt,
                 transId: signedTx.id,
-                contractAddress: contractId.result
+                contractAddress: "0x" + contractId.result
               };
             });
         } else {
           this.signedTx = {
             receipt: signedTx.receipt,
             transId: signedTx.id,
-            contractAddress: contractId.result
+            contractAddress: "0x" + contractId.result
           };
         }
+
+        window.EventBus.$emit('refresh-balance');
       } catch (error) {
         this.loading = false;
         this.error = error.message;
+
+        window.EventBus.$emit('refresh-balance');
       }
     },
     async getContractABI() {

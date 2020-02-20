@@ -5,7 +5,7 @@
 
       <div class="form-input">
         <label>Font size</label>
-        <input class="form-control" type="number" v-model="fontSize" />
+        <input class="form-control" type="number" :value="editor.fontSize" @change="updateFontSize" />
       </div>
     </div>
 
@@ -14,22 +14,34 @@
 
       <div class="form-input">
         <label>Faucet contract</label>
-        <input class="form-control" type="text" v-model="ide.faucet" />
+        <input class="form-control" type="text" v-model="network.faucet" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   components: {},
   data() {
     return {
-      fontSize: 14,
-      ide: {
-        faucet: ''
+      network: {
+        faucet: ""
       }
     };
+  },
+  computed: {
+    ...mapGetters("general", { editor: "editor" })
+  },
+  methods: {
+    async updateFontSize(ev) {
+      console.log(ev.target.value);
+      this.$store.dispatch("general/ChangeFontSize", {
+        fontSize: ev.target.value
+      });
+    }
   },
   mounted() {
     /* window.EventBus.$on("console-log", ({ message, type }) => {
