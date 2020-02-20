@@ -23,7 +23,7 @@
     </div>
     <ace-editor
       v-model="file.code"
-      :fontSize="14"
+      :fontSize="editor.fontSize"
       :showPrintMargin="true"
       :showGutter="true"
       :highlightActiveLine="true"
@@ -35,6 +35,7 @@
       width="100%"
       height="calc(100% - 60px)"
       :onChange="handleInput"
+      :readOnly="readonly"
       name="editor"
       :editorProps="{$blockScrolling: true}"
     />
@@ -65,11 +66,13 @@ export default {
       code: null,
       changed: false,
       annotations: [],
+      readonly2: false,
       SCILLA_CHECKER_URL: process.env.VUE_APP_SCILLA_CHECKER_URL
     };
   },
   computed: {
     ...mapGetters("networks", { network: "selected" }),
+    ...mapGetters("general", { editor: "editor" }),
     readonly() {
       if (this.file.contractId) {
         return true;
@@ -181,6 +184,10 @@ export default {
 
     window.EventBus.$on("console-run-checker", () => {
       this.handleCheck();
+    });
+
+    window.EventBus.$on("change-editor-fontSize", payload => {
+      this.fontSize = payload;
     });
 
     window.EventBus.$on("open-editor-contract", ({ contractId }) => {

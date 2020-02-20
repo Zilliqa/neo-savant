@@ -37,9 +37,9 @@ export default {
   },
   methods: {
     async updateFontSize(ev) {
-      console.log(ev.target.value);
+      //window.EventBus.$emit("change-editor-fontSize", parseInt(ev.target.value));
       this.$store.dispatch("general/ChangeFontSize", {
-        fontSize: ev.target.value
+        fontSize: parseInt(ev.target.value)
       });
     }
   },
