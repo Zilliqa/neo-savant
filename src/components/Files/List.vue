@@ -10,7 +10,6 @@
         :class="{'selected' : (selected && selected.id === file.id)}"
         v-for="file in list"
         :key="file.id"
-        @contextmenu.prevent="$refs.menu.open"
       >
         <file-name
           :file="file"
@@ -18,23 +17,11 @@
           :selected="selected && selected.id === file.id"
         />
       </div>
-      <vue-context class="context-menu" ref="menu">
-        <li>
-          <a href="#" @click.prevent="edit = true">Rename</a>
-        </li>
-        <li>
-          <a href="#" @click.prevent="onClick($event.target.innerText)">Duplicate</a>
-        </li>
-        <li>
-          <a href="#" @click.prevent="onClick($event.target.innerText)">Delete</a>
-        </li>
-      </vue-context>
     </div>
   </div>
 </template>
 
 <script>
-import { VueContext } from "vue-context";
 import { mapGetters } from "vuex";
 import FileName from "./FileName";
 
@@ -43,7 +30,7 @@ export default {
   data() {
     return {};
   },
-  components: { FileName, VueContext },
+  components: { FileName },
   computed: {
     ...mapGetters("files", ["selected", "list"])
   },
@@ -78,13 +65,7 @@ export default {
     }
   }
 }
-.context-menu {
-  li {
-    a {
-      font-size: 14px;
-    }
-  }
-}
+
 .img-button {
   height: 20px;
 

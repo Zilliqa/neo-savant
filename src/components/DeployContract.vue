@@ -40,7 +40,8 @@
                 class="copy-button"
                 src="@/assets/copy.svg"
                 @click="copyToClipboard"
-              /> <span class="ml-2 text-success" v-if="copied">Copied</span>
+              />
+              <span class="ml-2 text-success" v-if="copied">Copied</span>
             </span>
           </p>
           <p class="font-weight-bold">Network: {{ network.name }}</p>
@@ -131,13 +132,31 @@ export default {
   },
   methods: {
     copyToClipboard() {
-      navigator.clipboard.writeText(this.account.address).then(() => {
-        this.copied = true;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(this.account.address).then(() => {
+          this.copied = true;
 
-        setTimeout(() => {
-          this.copied = false;
-        },1000);
-      });
+          setTimeout(() => {
+            this.copied = false;
+          }, 1000);
+        });
+      } else {
+        const input = document.createElement("input");
+        document.body.appendChild(input);
+        input.value = this.account.address;
+        input.focus();
+        input.select();
+        const result = document.execCommand("copy");
+        if (result === "unsuccessful") {
+          console.error("Failed to copy text.");
+        } else {
+          this.copied = true;
+
+          setTimeout(() => {
+            this.copied = false;
+          }, 1000);
+        }
+      }
     },
     async resetComponent() {
       this.abi = undefined;
@@ -255,12 +274,12 @@ export default {
           };
         }
 
-        window.EventBus.$emit('refresh-balance');
+        window.EventBus.$emit("refresh-balance");
       } catch (error) {
         this.loading = false;
         this.error = error.message;
 
-        window.EventBus.$emit('refresh-balance');
+        window.EventBus.$emit("refresh-balance");
       }
     },
     async getContractABI() {
