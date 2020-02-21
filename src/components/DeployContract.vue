@@ -147,9 +147,7 @@ export default {
         input.focus();
         input.select();
         const result = document.execCommand("copy");
-        if (result === "unsuccessful") {
-          console.error("Failed to copy text.");
-        } else {
+        if (result !== "unsuccessful") {
           this.copied = true;
 
           setTimeout(() => {
