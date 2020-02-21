@@ -36,7 +36,9 @@ export default {
   },
   methods: {
     addFile() {
-      this.$store.dispatch("files/CreateFile");
+      this.$store.dispatch("files/CreateFile").then(id => {
+        this.$store.dispatch("files/SelectFile", { id });
+      });
     },
     handleSelect(id) {
       this.$store.dispatch("files/SelectFile", { id });

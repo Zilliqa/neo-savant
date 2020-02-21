@@ -16,6 +16,7 @@
     "axios": "^0.19.1",
     "bootstrap": "^4.4.1",
     "core-js": "^3.4.4",
+    "sweetalert2": "^9.7.2",
     "uuid": "^3.4.0",
     "vue": "^2.6.10",
     "vue-command": "^7.1.7",

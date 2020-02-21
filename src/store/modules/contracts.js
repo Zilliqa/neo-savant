@@ -47,6 +47,23 @@ const actions = {
         }
 
         commit('addContract', { ...contract, network: network.url })
+    },
+    RemoveContract({ commit, state, rootGetters }, { id }) {
+
+        const network = rootGetters['networks/selected'];
+        const contract = state.contracts.findIndex(function (item) {
+            return (item.network === network.url && item.contractId === id)
+        });
+
+        if (contract === undefined) {
+            throw Error('Contract not found.');
+        }
+
+        if (id === state.selected.contractId) {
+            commit('unselect');
+        }
+
+        commit('remove', { index: contract });
     }
 };
 
@@ -60,6 +77,9 @@ const mutations = {
     },
     addContract(state, payload) {
         state.contracts.push(payload);
+    },
+    remove(state, payload) {
+        state.contracts.splice(payload.index, 1);
     }
 };
 

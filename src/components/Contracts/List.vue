@@ -14,7 +14,6 @@
         v-for="contract in list"
         :key="contract.id"
         :class="{'selected' : (selected && contract.contractId === selected.contractId)}"
-        @contextmenu.prevent="$refs.menu.open"
       >
         <contract-name
           :contract="contract"
@@ -22,24 +21,11 @@
           :selected="selected && contract.contractId === selected.contractId"
         />
       </div>
-      <vue-context class="context-menu" ref="menu">
-        <li>
-          <a href="#" @click.prevent="edit = true">Nickname</a>
-        </li>
-        <li>
-          <a href="#" @click.prevent="edit = true">Add Tag</a>
-        </li>
-        <li>
-          <a href="#" @click.prevent="onClick($event.target.innerText)">Remove</a>
-        </li>
-      </vue-context>
     </div>
   </div>
 </template>
 
 <script>
-import { VueContext } from "vue-context";
-
 import { mapGetters } from "vuex";
 import ContractName from "./ContractName";
 
@@ -48,7 +34,7 @@ export default {
   data() {
     return {};
   },
-  components: { ContractName, VueContext },
+  components: { ContractName },
   computed: {
     ...mapGetters("contracts", ["selected", "list"])
   },

@@ -28,6 +28,8 @@ const actions = {
         const id = uuidv4();
 
         commit('add', { id, name: 'untitled', code: '' });
+
+        return id;
     },
     RenameFile({ commit, state }, { id, name }) {
         const file = state.files.findIndex(item => item.id === id);
@@ -52,6 +54,10 @@ const actions = {
 
         if (file === undefined) {
             throw Error('File not found.');
+        }
+
+        if (id === state.selected.id) {
+            commit('unselect');
         }
 
         commit('remove', { index: file });

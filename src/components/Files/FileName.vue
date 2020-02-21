@@ -14,10 +14,7 @@
         <a href="#" @click.prevent="edit = true">Rename</a>
       </li>
       <li>
-        <a href="#" @click.prevent="onClick($event.target.innerText)">Duplicate</a>
-      </li>
-      <li>
-        <a href="#" @click.prevent="onClick($event.target.innerText)">Delete</a>
+        <a href="#" @click.prevent="handleDelete">Delete</a>
       </li>
     </vue-context>
   </div>
@@ -52,13 +49,31 @@ export default {
             text: "File has been renamed"
           });
         });
+    },
+    handleDelete() {
+      const confirmed = confirm("Are you sure you want to delete this file?");
+
+      if (confirmed) {
+        this.$store
+          .dispatch("files/RemoveFile", {
+            id: this.file.id
+          })
+          .then(() => {
+            this.$notify({
+              group: "scilla",
+              type: "success",
+              position: "bottom right",
+              title: "Files",
+              text: "File has been deleted"
+            });
+          });
+      }
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-
 .file-name {
   font-size: 0.85rem;
   color: #000;
