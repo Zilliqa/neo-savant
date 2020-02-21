@@ -8,6 +8,18 @@
         <router-link to="#" class="mr-3">Scilla Docs</router-link>
         <router-link to="#" class="mr-3">Help</router-link>
         <router-link to="#">Tutorial</router-link>
+        <li class="tools-menu">
+          <a href="#">Tools</a>
+
+          <ul class="submenu">
+            <li>
+              <a href="#">Units Convertor</a>
+            </li>
+            <li>
+              <a href="#">Address Convertor</a>
+            </li>
+          </ul>
+        </li>
       </div>
       <div class="details d-flex">
         <account-balance />
@@ -56,6 +68,35 @@ export default {
     img {
       max-height: 48px;
       object-fit: contain;
+    }
+  }
+
+  .tools-menu {
+    list-style: none;
+    margin-left: 1rem;
+    position: relative;
+
+    .submenu {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      left: 0;
+      width: 150px;
+      list-style: none;
+      padding: 0;
+      background-color: saturate($primary, 80);
+      z-index: 99;
+      padding-top: 0.5rem;
+
+      li {
+        padding: 0.5rem;
+      }
+    }
+
+    &:hover {
+      .submenu {
+        display: flex;
+      }
     }
   }
 }
