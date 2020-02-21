@@ -72,21 +72,9 @@ export default {
   },
   computed: {
     ...mapGetters("networks", { network: "selected" }),
-    ...mapGetters("general", { editor: "editor" }),
-    readonly() {
-      if (this.file.contractId) {
-        return true;
-      } else {
-        return false;
-      }
-    }
+    ...mapGetters("general", { editor: "editor" })
   },
   methods: {
-    editorInit: function() {
-      require("brace/ext/language_tools"); //language extension prerequsite...
-      require("brace/theme/tomorrow");
-      require("./scilla_mode");
-    },
     handleInput(payload) {
       this.changed = true;
       this.file.code = payload;
