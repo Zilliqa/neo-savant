@@ -2,7 +2,7 @@
   <div class="account-selector d-flex align-items-center mr-4">
     <div class="selected-account">
       <div v-if="selected" @click="handleSelect">
-        <img src="@/assets/settings.svg" height="24px" class="mr-2" />
+        <img src="@/assets/user.svg" height="24px" class="mr-2" />
         {{selected.address}}
       </div>
       <div @click="handleSelect" v-else>
