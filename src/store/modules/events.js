@@ -14,6 +14,9 @@ const actions = {
             commit('add', ev);
         });
     },
+    RemoveEvent({ commit }, { index }) {
+        commit('remove', { index });
+    }
 };
 
 
