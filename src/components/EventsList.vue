@@ -1,6 +1,6 @@
 <template>
   <div class="events-list panel-content p-4">
-    <img src="@/assets/close.svg" class="close-button" @click="handleClose" />
+    
     <div class="mb-4 event-item" v-for="(event,index) in events" :key="index">
       <div class="remove-button" @click="handleRemove(index)">
         <img src="@/assets/rubbish.svg" />
