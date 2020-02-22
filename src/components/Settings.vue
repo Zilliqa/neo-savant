@@ -1,5 +1,6 @@
 <template>
-  <div class="settings p-4">
+  <div class="settings panel-content p-4">
+    <img src="@/assets/close.svg" class="close-button" @click="handleClose" />
     <div class="ide-settings">
       <h4>IDE Settings</h4>
 
@@ -36,6 +37,9 @@ export default {
     ...mapGetters("general", { editor: "editor" })
   },
   methods: {
+    handleClose() {
+      window.EventBus.$emit("close-right-panel");
+    },
     async updateFontSize(ev) {
       //window.EventBus.$emit("change-editor-fontSize", parseInt(ev.target.value));
       this.$store.dispatch("general/ChangeFontSize", {

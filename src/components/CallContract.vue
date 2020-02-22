@@ -1,5 +1,6 @@
 <template>
-  <div class="account-selector p-4">
+  <div class="panel-content p-4">
+    <img src="@/assets/close.svg" class="close-button" @click="handleClose" />
     <p>
       Contract Address
       <br />
@@ -169,6 +170,9 @@ export default {
     this.abi = await this.getContractAbi();
   },
   methods: {
+    handleClose() {
+      window.EventBus.$emit("close-right-panel");
+    },
     async refreshContractState() {
       this.contractState = (
         await this.zilliqa.blockchain.getSmartContractState(this.contractId)

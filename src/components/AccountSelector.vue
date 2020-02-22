@@ -1,5 +1,6 @@
 <template>
-  <div class="account-selector p-4">
+  <div class="account-selector panel-content p-4">
+    <img src="@/assets/close.svg" class="close-button" @click="handleClose" />
     <h4>Account Selector</h4>
 
     <div class="accounts-list" v-if="list.length">
@@ -84,6 +85,9 @@ export default {
     ...mapGetters("networks", { network: "selected" })
   },
   methods: {
+    handleClose() {
+      window.EventBus.$emit("close-right-panel");
+    },
     handleDelete() {},
     async handleSelect(address) {
       await this.$store.dispatch("accounts/SelectAccount", { address });

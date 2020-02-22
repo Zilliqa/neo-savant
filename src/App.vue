@@ -35,7 +35,7 @@
         <div class="action events-badge" @click="handleToggleRightPanel('events')">
           <img src="@/assets/notifications.svg" />
 
-          <span class=" badge badge-danger" v-if="events.length">{{ events.length }}</span>
+          <span class="badge badge-danger" v-if="events.length">{{ events.length }}</span>
         </div>
 
         <div class="action" @click="handleToggleRightPanel('settings')">
@@ -95,8 +95,8 @@ export default {
   },
   watch: {
     events: function() {
-      animateCSS('.events-badge', 'heartBeat');
-    },
+      animateCSS(".events-badge", "heartBeat");
+    }
   },
   methods: {
     handleToggleRightPanel(type) {
@@ -163,6 +163,9 @@ export default {
     }
   },
   mounted() {
+    window.EventBus.$on("close-right-panel", () => {
+      this.rightPanel = false;
+    });
     window.EventBus.$on("open-account-selector", () => {
       this.rightPanel = "accountSelector";
     });
@@ -201,6 +204,22 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
   height: calc(100% - 48px);
+}
+
+.panel-content {
+  position: relative;
+
+  .close-button {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    width: 20px;
+    opacity: 0.5;
+    &:hover {
+      cursor: pointer;
+      opacity: 1;
+    }
+  }
 }
 
 .btn {

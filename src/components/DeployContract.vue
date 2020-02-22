@@ -1,5 +1,7 @@
 <template>
-  <div class="account-selector p-4">
+  <div class="panel-content p-4">
+    <img src="@/assets/close.svg" class="close-button" @click="handleClose" />
+
     <h4 class="mb-4">Deploy {{file.name}}.scilla</h4>
 
     <div class="alert alert-info" v-if="abi === undefined">Loading contract ABI</div>
@@ -75,7 +77,7 @@
       </ul>
     </div>
 
-    <div class="mt-5">
+    <div class="mt-4">
       <button class="btn btn-danger" @click="resetComponent">Reset</button>
     </div>
   </div>
@@ -131,6 +133,9 @@ export default {
     this.getContractABI();
   },
   methods: {
+    handleClose() {
+      window.EventBus.$emit("close-right-panel");
+    },
     copyToClipboard() {
       if (navigator.clipboard) {
         navigator.clipboard.writeText(this.account.address).then(() => {
