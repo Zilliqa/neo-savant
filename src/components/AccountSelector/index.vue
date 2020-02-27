@@ -4,22 +4,14 @@
     <h4>Account Selector</h4>
 
     <div class="accounts-list" v-if="list.length">
-      <div
+      <account-item
         class="item mb-4 p-2"
         v-for="account in list"
+        :account="account"
+        :selected="(selected && selected.address === account.address)"
         :key="account.address"
         @click="handleSelect(account.address)"
-      >
-        <div>
-          {{ account.address }}
-          <span
-            v-if="selected && selected.address === account.address"
-          >(selected)</span>
-
-          <div class="delete" @click="handleDelete(account.address)">[delete]</div>
-        </div>
-        <!-- <p class="mb-0">Balance: 0</p> -->
-      </div>
+      />
     </div>
     <div v-else>
       <div class="alert alert-info">There are no accounts defined on this network.</div>
@@ -67,6 +59,7 @@
 // import TransportU2F from '@ledgerhq/hw-transport-u2f';
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { mapGetters } from "vuex";
+import AccountItem from "./AccountItem.vue";
 
 export default {
   data() {
@@ -80,6 +73,7 @@ export default {
       error: false
     };
   },
+  components: { AccountItem },
   computed: {
     ...mapGetters("accounts", ["list", "selected"]),
     ...mapGetters("networks", { network: "selected" })
@@ -159,28 +153,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.accounts-list {
-  .item {
-    border: 1px dashed #ccc;
-    background-color: rgba(0, 0, 0, 0.02);
-    border-radius: 8px;
-    transition: all 0.2s ease-in-out;
-    position: relative;
-
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.1);
-      cursor: pointer;
-    }
-
-    .delete {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      font-size: 12px;
-      display: none;
-    }
-  }
-}
 
 .btn {
   font-size: 0.85rem !important;

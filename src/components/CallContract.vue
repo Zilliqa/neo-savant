@@ -74,7 +74,7 @@
         <div class="col-12 mb-4">
           <p class="font-weight-bold mb-0">Calling from: {{ account.address }}</p>
           <p class="font-weight-bold">Network: {{ network.name }}</p>
-          <div v-if="network.url !== 'http://35.207.129.232:5555/'">
+          <div v-if="network.url !== VUE_APP_ISOLATED_URL">
             <label>Enter your passphrase</label>
             <input type="password" v-model="passphrase" class="form-control" />
           </div>
@@ -120,6 +120,7 @@ import axios from "axios";
 export default {
   data() {
     return {
+      VUE_APP_ISOLATED_URL: process.env.VUE_APP_ISOLATED_URL,
       abi: undefined,
       exec: false,
       contractState: undefined,
