@@ -61,7 +61,7 @@ import Settings from "@/components/Settings";
 import { mapGetters } from "vuex";
 import axios from "axios";
 
-import { BN, bytes, Long } from "@zilliqa-js/util";
+import { bytes } from "@zilliqa-js/util";
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { generateMultipleZilliqaAccounts } from "./utils/zilliqa";
 import { animateCSS } from "./utils/ui";
@@ -127,9 +127,6 @@ export default {
 
               return await this.requestFunds(generatedAccounts);
             }
-          })
-          .catch(function(error) {
-            console.log(error);
           });
       }
     }
