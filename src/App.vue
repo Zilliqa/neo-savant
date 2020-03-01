@@ -59,6 +59,7 @@ import EventsList from "@/components/EventsList";
 import Settings from "@/components/Settings";
 
 import { mapGetters } from "vuex";
+import axios from "axios";
 
 import { BN, bytes, Long } from "@zilliqa-js/util";
 import { Zilliqa } from "@zilliqa-js/zilliqa";
@@ -110,35 +111,26 @@ export default {
       if (generatedAccounts.length > 0) {
         const item = generatedAccounts[0];
 
-        const tx = this.zilliqa.transactions.new({
-          version: this.VERSION,
-          toAddr: process.env.VUE_APP_FUNDS_CONTRACT,
-          amount: new BN(0),
-          gasPrice: new BN(1000000000), // in Qa
-          gasLimit: Long.fromNumber(10000),
-          data: JSON.stringify({
-            _tag: "register_user",
-            params: [
-              {
-                vname: "user_address",
-                type: "ByStr20",
-                value: item.address
-              }
-            ]
+        axios
+          .post(process.env.VUE_APP_ISOLATED_FAUCET + "/register-account", {
+            address: item.address
           })
-        });
+          .then(async response => {
+            this.$store.dispatch("accounts/AddAccount", {
+              address: item.address,
+              keystore: item.privateKey,
+              type: "keystore"
+            });
 
-        await this.zilliqa.blockchain.createTransaction(tx);
+            if (response.data.success !== false) {
+              generatedAccounts.splice(0, 1);
 
-        this.$store.dispatch("accounts/AddAccount", {
-          address: item.address,
-          keystore: item.privateKey,
-          type: "keystore"
-        });
-
-        generatedAccounts.splice(0, 1);
-
-        return await this.requestFunds(generatedAccounts);
+              return await this.requestFunds(generatedAccounts);
+            }
+          })
+          .catch(function(error) {
+            console.log(error);
+          });
       }
     }
   },
