@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <notifications group="scilla" />
+    <tools />
     <top-bar />
     <div class="ide" :class="{'only2': !rightPanel}">
       <div id="left-panel" class="left-panel">
@@ -58,11 +59,10 @@ import ImportContract from "@/components/ImportContract";
 import EventsList from "@/components/EventsList";
 import Settings from "@/components/Settings";
 
-import { mapGetters } from "vuex";
-import axios from "axios";
+import Tools from "@/components/Tools";
 
-import { bytes } from "@zilliqa-js/util";
-import { Zilliqa } from "@zilliqa-js/zilliqa";
+import { mapGetters } from "vuex";
+
 import { generateMultipleZilliqaAccounts } from "./utils/zilliqa";
 import { animateCSS } from "./utils/ui";
 
@@ -87,7 +87,8 @@ export default {
     CallContract,
     ImportContract,
     EventsList,
-    Settings
+    Settings,
+    Tools
   },
   computed: {
     ...mapGetters("events", { events: "list" }),
@@ -106,29 +107,6 @@ export default {
       } else {
         this.rightPanel = type;
       }
-    },
-    async requestFunds(generatedAccounts) {
-      if (generatedAccounts.length > 0) {
-        const item = generatedAccounts[0];
-
-        axios
-          .post(process.env.VUE_APP_ISOLATED_FAUCET + "/register-account", {
-            address: item.address
-          })
-          .then(async response => {
-            this.$store.dispatch("accounts/AddAccount", {
-              address: item.address,
-              keystore: item.privateKey,
-              type: "keystore"
-            });
-
-            if (response.data.success !== false) {
-              generatedAccounts.splice(0, 1);
-
-              return await this.requestFunds(generatedAccounts);
-            }
-          });
-      }
     }
   },
   async created() {
@@ -138,17 +116,13 @@ export default {
     ) {
       const generatedAccounts = await generateMultipleZilliqaAccounts(5);
 
-      this.zilliqa = new Zilliqa(this.network.url);
-
-      const chainId = this.network.chainId; // chainId of the developer testnet
-      const msgVersion = this.network.msgVersion; // current msgVersion
-      this.VERSION = bytes.pack(chainId, msgVersion);
-
-      await this.zilliqa.wallet.addByPrivateKey(
-        process.env.VUE_APP_FUNDS_OWNER
-      );
-
-      this.requestFunds(generatedAccounts);
+      generatedAccounts.map(item => {
+        this.$store.dispatch("accounts/AddAccount", {
+          address: item.address,
+          keystore: item.privateKey,
+          type: "keystore"
+        });
+      });
     }
   },
   mounted() {
@@ -249,7 +223,7 @@ export default {
     border-left: 1px solid #ccc;
     padding: 0.5rem;
     padding-top: 1rem;
-    z-index: 99999;
+    z-index: 99;
     background-color: #fff;
 
     .action {

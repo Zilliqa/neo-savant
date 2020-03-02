@@ -5,18 +5,17 @@
     </div>
     <div class="menus flex-grow-1 d-flex justify-content-between">
       <div class="main d-flex align-items-center mr-5">
-        <router-link to="#" class="mr-3">Scilla Docs</router-link>
-        <router-link to="#" class="mr-3">Help</router-link>
-        <router-link to="#">Tutorial</router-link>
+        <a href="https://scilla.readthedocs.io/en/latest/" target="_blank" class="mr-3">Scilla Docs</a>
+        <a href="https://scilla-lang.org/#TutorialSection" target="_blank">Tutorial</a>
         <li class="tools-menu">
           <a href="#">Tools</a>
 
           <ul class="submenu">
             <li>
-              <a href="#">Units Convertor</a>
+              <a href="#" @click="handleOpenTools('units-converter')">Units Converter</a>
             </li>
             <li>
-              <a href="#">Address Convertor</a>
+              <a href="#" @click="handleOpenTools('address-converter')">Address Converter</a>
             </li>
           </ul>
         </li>
@@ -37,7 +36,12 @@ import AccountBalance from "./AccountBalance";
 
 export default {
   name: "TopBar",
-  components: { NetworkSelector, AccountSelector, AccountBalance }
+  components: { NetworkSelector, AccountSelector, AccountBalance },
+  methods: {
+    handleOpenTools(toolName) {
+      window.EventBus.$emit("open-tools", toolName);
+    }
+  }
 };
 </script>
 
