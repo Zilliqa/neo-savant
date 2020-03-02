@@ -1,13 +1,43 @@
 <template>
   <div class="panel">
     <div class="form-group mb-4">
-      <label>Bech32 Address</label>
+      <label class="d-flex align-items-center">
+        Bech32 Address
+        <v-popover offset="16" trigger="hover" placement="top" class="ml-2">
+          <!-- This will be the popover target (for the events and position) -->
+          <a class="tooltip-target b3">
+            <img src="@/assets/question.svg" />
+          </a>
+
+          <!-- This will be the content of the popover -->
+          <template slot="popover">
+            To avoid confusion amongst users, the bech32 checksum address format shall be used in the GUI of any user-facing application built on Zilliqa in order to cearly distinguish a Zilliqa-based address (zil1) from an Ethereum-based address (0x).
+            <br />For more details, please read
+            <a
+              href="https://github.com/Zilliqa/ZIP/blob/master/zips/zip-1.md"
+            >[ZIP-1]</a>.
+          </template>
+        </v-popover>
+      </label>
       <input type="text" class="form-control mb-2" :value="bech32" @change="handleBech32Change" />
       <div class="text-danger text-small" v-if="bech32Error">{{ bech32Error }}</div>
     </div>
 
     <div class="form-group">
-      <label>Base16 Address</label>
+      <label class="d-flex align-items-center">
+        Base16 Address
+        <v-popover offset="16" trigger="hover" placement="top" class="ml-2">
+          <!-- This will be the popover target (for the events and position) -->
+          <a class="tooltip-target b3">
+            <img src="@/assets/question.svg" />
+          </a>
+
+          <!-- This will be the content of the popover -->
+          <template
+            slot="popover"
+          >The Zilliqa protocol and Scilla uses base16 checksummed addresses (0x) in its global state and messages. This is the address format to be used by developers when interacting with the Zilliqa protocol.</template>
+        </v-popover>
+      </label>
       <input type="text" class="form-control mb-2" :value="base16" @change="handleBase16Change" />
       <div class="text-danger text-small" v-if="base16Error">{{ base16Error }}</div>
     </div>
@@ -52,3 +82,11 @@ export default {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.tooltip-target {
+  img {
+    height: 20px;
+  }
+}
+</style>
