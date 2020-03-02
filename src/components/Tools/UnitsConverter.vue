@@ -35,7 +35,7 @@ export default {
       this.qa = qa;
     },
     handleChangeLi() {
-      const qa = units.toQa(this.zil, units.Units.Li);
+      const qa = units.toQa(this.li, units.Units.Li);
       this.zil = units.fromQa(new BN(qa), units.Units.Zil);
       this.qa = qa;
     },
