@@ -2,7 +2,7 @@
   <div class="tools-panel" v-if="toolsPanel">
     <div class="header p-2">
       <div class="title">{{ tool.name }}</div>
-      <img src="@/assets/close.svg" @click="handleClose" class="close-button" />
+      <img src="@/assets/close-color.svg" @click="handleClose" class="close-button" />
     </div>
     <div class="content p-4">
       <units-converter v-if="toolsPanel === 'units-converter'" />
@@ -82,7 +82,7 @@ export default {
 
     .close-button {
       cursor: pointer;
-      height: 1rem;
+      height: 16px;
     }
   }
 }
