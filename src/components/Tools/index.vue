@@ -1,7 +1,7 @@
 <template>
   <div class="tools-panel" v-if="toolsPanel">
     <div class="header p-2">
-      <div class="title">Tools Panel</div>
+      <div class="title">{{ tool.name }}</div>
       <img src="@/assets/close.svg" @click="handleClose" class="close-button" />
     </div>
     <div class="content p-4">
@@ -19,8 +19,23 @@ export default {
   name: "Tools",
   data() {
     return {
-      toolsPanel: false
+      toolsPanel: false,
+      tools: [
+        {
+          slug: "units-converter",
+          name: "Units Converter"
+        },
+        {
+          slug: "address-converter",
+          name: "Address Converter"
+        }
+      ]
     };
+  },
+  computed: {
+    tool() {
+      return this.tools.find(item => item.slug === this.toolsPanel);
+    }
   },
   components: {
     UnitsConverter,

@@ -1,7 +1,5 @@
 <template>
   <div class="panel">
-    <h5 class="mb-4">Address Converter</h5>
-
     <div class="form-group mb-4">
       <label>Bech32 Address</label>
       <input type="text" class="form-control mb-2" :value="bech32" @change="handleBech32Change" />
