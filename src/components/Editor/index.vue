@@ -66,7 +66,7 @@ export default {
       code: null,
       changed: false,
       annotations: [],
-      readonly2: false,
+      readonly: false,
       SCILLA_CHECKER_URL: process.env.VUE_APP_SCILLA_CHECKER_URL
     };
   },
