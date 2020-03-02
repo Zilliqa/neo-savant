@@ -1,5 +1,5 @@
 <template>
-  <div class="item" :class="{'selected': selected}">
+  <div class="item" :class="{'selected': selected}" @click="$emit('handle-select')">
     {{ account.address }}
     <div class="delete" @click="handleDelete(account.address)">[delete]</div>
   </div>

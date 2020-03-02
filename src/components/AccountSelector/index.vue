@@ -10,7 +10,7 @@
         :account="account"
         :selected="(selected && selected.address === account.address)"
         :key="account.address"
-        @click="handleSelect(account.address)"
+        v-on:handle-select="handleSelect(account.address)"
       />
     </div>
     <div v-else>
