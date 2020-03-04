@@ -1,8 +1,11 @@
 # build stage
 FROM node:10 as build-stage
 
+ARG DEPLOY_ENV="dev"
+
 COPY . /savant-ide
 WORKDIR /savant-ide
+RUN mv .env_$DEPLOY_ENV .env
 RUN npm install
 RUN npm rebuild node-sass
 RUN npm run build
