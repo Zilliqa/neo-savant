@@ -31,14 +31,16 @@ cd savant-artifact
 
 cd stg
 echo $commit > savant-artifact-commit.txt
-tar -czvf savant-artifact-stg.gz .
-aws s3 sync . s3://neo-savant-static-artifact --exclude='*' --include='savant-artifact-stg.gz'
+#tar -czvf savant-artifact-stg.gz .
+zip -r savant-artifact-stg.zip .
+aws s3 sync . s3://neo-savant-static-artifact --exclude='*' --include='savant-artifact-stg.zip'
 cd ..
 
 cd prd
 echo $commit > savant-artifact-commit.txt
-tar -czvf savant-artifact-prd.gz .
-aws s3 sync . s3://neo-savant-static-artifact --exclude='*' --include='savant-artifact-prd.gz'
+#tar -czvf savant-artifact-prd.gz .
+zip -r savant-artifact-prd.zip .
+aws s3 sync . s3://neo-savant-static-artifact --exclude='*' --include='savant-artifact-prd.zip'
 cd ..
 
 echo $(date) > date_created.txt
