@@ -34,6 +34,6 @@ echo $commit > savant_artifact_commit.txt
 cd ..
 tar -zcvf savant-artifact.gz savant-artifact
 
-aws s3 sync . s3://neo-savant-static-artifact --exclude='*' --include='*/savant-artifact.gz'
+aws s3 sync . s3://neo-savant-static-artifact --exclude='*' --include='savant-artifact.gz'
 
 # Push to s3 staging
