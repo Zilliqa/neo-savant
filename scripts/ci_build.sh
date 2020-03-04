@@ -28,12 +28,20 @@ docker cp extractprd:/usr/share/nginx/html/. $(pwd)/savant-artifact/prd/
 docker rm extractprd
 
 cd savant-artifact
-echo $(date) > savant_artifact.txt
-echo $commit > savant_artifact_commit.txt
 
+cd stg
+echo $commit > savant-artifact-commit.txt
+tar -czvf savant-artifact-stg.gz .
+aws s3 sync . s3://neo-savant-static-artifact --exclude='*' --include='savant-artifact-stg.gz'
 cd ..
-tar -zcvf savant-artifact.gz savant-artifact
 
-aws s3 sync . s3://neo-savant-static-artifact --exclude='*' --include='savant-artifact.gz'
+cd prd
+echo $commit > savant-artifact-commit.txt
+tar -czvf savant-artifact-prd.gz .
+aws s3 sync . s3://neo-savant-static-artifact --exclude='*' --include='savant-artifact-prd.gz'
+cd ..
+
+echo $(date) > date_created.txt
+aws s3 sync . s3://neo-savant-static-artifact --exclude='*' --include='date_created.txt'
 
 # Push to s3 staging
