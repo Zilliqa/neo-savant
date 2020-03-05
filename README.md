@@ -1,4 +1,4 @@
-# savant-new
+# neo-savent
 
 ## Project setup
 ```
