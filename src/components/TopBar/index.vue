@@ -6,7 +6,7 @@
     <div class="menus flex-grow-1 d-flex justify-content-between">
       <div class="main d-flex align-items-center mr-5">
         <a href="https://scilla.readthedocs.io/en/latest/" target="_blank" class="mr-3">Scilla Docs</a>
-        <a href="https://scilla-lang.org/#TutorialSection" target="_blank">Tutorial</a>
+        <a href="https://learnscilla.com" target="_blank">Tutorial</a>
         <li class="tools-menu">
           <a href="#">Tools</a>
 
