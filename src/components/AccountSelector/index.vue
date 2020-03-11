@@ -117,7 +117,7 @@ export default {
           this.zilliqa = new Zilliqa(this.network.url);
         }
 
-        if (this.selected === "" || this.selected === undefined) {
+        if (this.selectedFile === "" || this.selectedFile === undefined) {
           throw new Error("Please select your keystore file.");
         }
 
