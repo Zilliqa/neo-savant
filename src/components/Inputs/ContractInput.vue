@@ -22,7 +22,7 @@
       theme="dawn"
       width="100%"
       height="150px"
-      :name="`contractInput-${param.name}`"
+      :name="`contractInput-${param.vname}`"
       :editorProps="{$blockScrolling: true}"
       v-else
     />
@@ -43,15 +43,17 @@ export default {
   name: "ContractInput",
   data() {
     return {
-      error: false,
-      inputs: ["ByStr20", "ByStr32", "Uint128", "Uint32", "String", "BNum"]
+      error: false
     };
   },
   props: ["param"],
   components: { AceEditor },
   methods: {
     isInput() {
-      if (this.inputs.indexOf(this.param.type) !== -1) {
+      const regex = /(ByStr\d{1,}|Uint\d{1,}|String|BNum)/g;
+      const firstWord = this.param.type.replace(/ .*/,'');
+
+      if (firstWord.match(regex) !== null) {
         return true;
       }
 
