@@ -7,9 +7,10 @@ import helloWorld from '!raw-loader!./hello_world.scilla';
 import nonFungibleToken from '!raw-loader!./nonfungible_token.scilla';
 import schnorr from '!raw-loader!./schnorr.scilla';
 import zilGame from '!raw-loader!./zil_hash_game.scilla';
+import ascillart from '!raw-loader!./ascillart.scilla';
 
 export const defaultFiles = [
-  { id:'hello-world', name: 'HelloWorld', code: helloWorld },
+  { id: 'hello-world', name: 'HelloWorld', code: helloWorld },
   { id: 'book-store', name: 'BookStore', code: bookstore },
   { id: 'crowd-funding', name: 'CrowdFunding', code: crowdfunding },
   { id: 'auction', name: 'Auction', code: auction },
@@ -18,4 +19,5 @@ export const defaultFiles = [
   { id: 'zil-game', name: 'ZilGame', code: zilGame },
   { id: 'schnorr-test', name: 'SchnorrTest', code: schnorr },
   { id: 'ecdsa-test', name: 'ECDSATest', code: ecdsa },
+  { id: 'ascillart', name: 'ascillart', code: ascillart }
 ];
