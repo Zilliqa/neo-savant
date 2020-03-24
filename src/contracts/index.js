@@ -19,5 +19,5 @@ export const defaultFiles = [
   { id: 'zil-game', name: 'ZilGame', code: zilGame },
   { id: 'schnorr-test', name: 'SchnorrTest', code: schnorr },
   { id: 'ecdsa-test', name: 'ECDSATest', code: ecdsa },
-  { id: 'asciiart', name: 'asciiart', code: asciiart }
+  { id: 'asciiart', name: 'AsciiArt', code: asciiart }
 ];
