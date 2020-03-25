@@ -2,7 +2,7 @@
   <div class="account-balance d-flex align-items-center mr-4">
     <span class="font-weight-medium" v-if="!balanceLoading">Balance: {{ balance }} ZIL</span>
     <span class="font-weight-medium" v-else>
-      Balance: ...
+      Balance: <i class="fas fa-spinner fa-spin"></i>
     </span>
   </div>
 </template>
