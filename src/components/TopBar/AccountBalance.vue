@@ -1,6 +1,9 @@
 <template>
   <div class="account-balance d-flex align-items-center mr-4">
-    <span class="font-weight-medium">Balance: {{ balance }} ZIL</span>
+    <span class="font-weight-medium" v-if="!balanceLoading">Balance: {{ balance }} ZIL</span>
+    <span class="font-weight-medium" v-else>
+      Balance: ...
+    </span>
   </div>
 </template>
 
@@ -14,7 +17,8 @@ import axios from "axios";
 export default {
   data() {
     return {
-      balance: 0
+      balance: 0,
+      balanceLoading: true
     };
   },
   computed: {
@@ -23,6 +27,7 @@ export default {
   },
   methods: {
     async getBalance() {
+      this.balanceLoading = true;
       if (this.account !== undefined && this.account.address) {
         const zilliqa = new Zilliqa(this.network.url);
 
@@ -30,14 +35,18 @@ export default {
           this.account.address
         );
 
-        if (balance.error && balance.error.code === -5 && this.network.url === process.env.VUE_APP_ISOLATED_URL) {
-          axios
+        if (
+          balance.error &&
+          balance.error.code === -5 &&
+          this.network.url === process.env.VUE_APP_ISOLATED_URL
+        ) {
+          return axios
             .post(process.env.VUE_APP_ISOLATED_FAUCET + "register-account", {
               address: this.account.address
             })
             .then(async response => {
               if (response.data.success === true) {
-                return (this.balance = 10000);
+                return this.getBalance();
               } else {
                 this.$notify({
                   group: "scilla",
@@ -55,12 +64,15 @@ export default {
             new BN(balance.result.balance),
             units.Units.Zil
           );
+          this.balanceLoading = false;
           return this.balance;
         }
+        this.balanceLoading = false;
         this.balance = 0;
 
         return 0;
       } else {
+        this.balanceLoading = false;
         this.balance = 0;
         return 0;
       }
