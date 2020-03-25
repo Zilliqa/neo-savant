@@ -28,12 +28,14 @@ const getters = {
 };
 
 const actions = {
-    SelectNetwork({ commit, state }, {url}) {
+    SelectNetwork({ commit, state }, { url }) {
         const network = state.networks.find(function (item) {
             return item.url === url
         });
 
         commit('setNetwork', network);
+        commit('accounts/setAccount', undefined, { root: true });
+        window.EventBus.$emit('refresh-balance');
     }
 };
 
