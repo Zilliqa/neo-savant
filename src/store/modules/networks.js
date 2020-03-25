@@ -1,10 +1,5 @@
 const state = {
-    selected: {
-        name: 'Simulated ENV',
-        url: process.env.VUE_APP_ISOLATED_URL,
-        chainId: 1,
-        msgVersion: 1
-    },
+    selected: undefined,
     networks: [
         {
             name: 'Simulated ENV',

@@ -30,7 +30,7 @@ export default {
           this.account.address
         );
 
-        if (balance.error && balance.error.code === -5) {
+        if (balance.error && balance.error.code === -5 && this.network.url === process.env.VUE_APP_ISOLATED_URL) {
           axios
             .post(process.env.VUE_APP_ISOLATED_FAUCET + "register-account", {
               address: this.account.address

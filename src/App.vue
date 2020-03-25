@@ -93,7 +93,7 @@ export default {
   computed: {
     ...mapGetters("events", { events: "list" }),
     ...mapGetters("accounts", { accounts: "list" }),
-    ...mapGetters("networks", { network: "selected" })
+    ...mapGetters("networks", { network: "selected", networksList: "list" })
   },
   watch: {
     events: function() {
@@ -110,6 +110,11 @@ export default {
     }
   },
   async created() {
+    // Initialize default network
+    if(this.network === undefined) {
+      this.$store.dispatch("networks/SelectNetwork", this.networksList[0]);
+    }
+
     if (
       this.network.url === process.env.VUE_APP_ISOLATED_URL &&
       this.accounts.length === 0
