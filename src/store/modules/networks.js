@@ -1,10 +1,5 @@
 const state = {
-    selected: {
-        name: 'Simulated ENV',
-        url: process.env.VUE_APP_ISOLATED_URL,
-        chainId: 1,
-        msgVersion: 1
-    },
+    selected: undefined,
     networks: [
         {
             name: 'Simulated ENV',
@@ -33,12 +28,14 @@ const getters = {
 };
 
 const actions = {
-    SelectNetwork({ commit, state }, {url}) {
+    SelectNetwork({ commit, state }, { url }) {
         const network = state.networks.find(function (item) {
             return item.url === url
         });
 
         commit('setNetwork', network);
+        commit('accounts/setAccount', undefined, { root: true });
+        window.EventBus.$emit('refresh-balance');
     }
 };
 
