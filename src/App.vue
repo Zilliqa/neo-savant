@@ -66,6 +66,8 @@ import { mapGetters } from "vuex";
 import { generateMultipleZilliqaAccounts } from "./utils/zilliqa";
 import { animateCSS } from "./utils/ui";
 
+import { Zilliqa } from "@zilliqa-js/zilliqa";
+
 export default {
   name: "App",
   data() {
@@ -93,7 +95,8 @@ export default {
   computed: {
     ...mapGetters("events", { events: "list" }),
     ...mapGetters("accounts", { accounts: "list" }),
-    ...mapGetters("networks", { network: "selected", networksList: "list" })
+    ...mapGetters("networks", { network: "selected", networksList: "list" }),
+    ...mapGetters("contracts", { contracts: "list" })
   },
   watch: {
     events: function() {
@@ -111,23 +114,42 @@ export default {
   },
   async created() {
     // Initialize default network
-    if(this.network === undefined) {
+    if (this.network === undefined) {
       this.$store.dispatch("networks/SelectNetwork", this.networksList[0]);
     }
 
-    if (
-      this.network.url === process.env.VUE_APP_ISOLATED_URL &&
-      this.accounts.length === 0
-    ) {
-      const generatedAccounts = await generateMultipleZilliqaAccounts(5);
+    if (this.network.url === process.env.VUE_APP_ISOLATED_URL) {
+      // Check if contracts are still on network
+      const zilliqa = new Zilliqa(process.env.VUE_APP_ISOLATED_URL);
 
-      generatedAccounts.map(item => {
-        this.$store.dispatch("accounts/AddAccount", {
-          address: item.address,
-          keystore: item.privateKey,
-          type: "keystore"
-        });
+      this.contracts.forEach(async contract => {
+        const deployed = zilliqa.contracts.at(contract.contractId);
+
+        const state = await deployed.getState();
+
+        if (state === undefined) {
+          this.$store.dispatch("contracts/RemoveContract", {
+            id: contract.contractId
+          });
+        }
       });
+
+      // Generate default accounts on Simulated ENV
+      const ACCOUNTS_NUMBER = 5;
+
+      if (this.accounts.length === 0) {
+        const generatedAccounts = await generateMultipleZilliqaAccounts(
+          ACCOUNTS_NUMBER
+        );
+
+        generatedAccounts.map(item => {
+          this.$store.dispatch("accounts/AddAccount", {
+            address: item.address,
+            keystore: item.privateKey,
+            type: "keystore"
+          });
+        });
+      }
     }
   },
   mounted() {
