@@ -38,6 +38,9 @@ export default {
   computed: {
     ...mapGetters("contracts", ["selected", "list"])
   },
+  created() {
+    
+  },
   methods: {
     importContract() {
       // this.$store.dispatch('incrementBy', amount)

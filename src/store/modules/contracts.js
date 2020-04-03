@@ -59,7 +59,7 @@ const actions = {
             throw Error('Contract not found.');
         }
 
-        if (id === state.selected.contractId) {
+        if (state.selected && id === state.selected.contractId) {
             commit('unselect');
         }
 
