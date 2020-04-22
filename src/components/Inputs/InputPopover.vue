@@ -40,6 +40,11 @@ export default {
             "An address in Scilla is declared using the data type ByStr20. ByStr20 represents a hexadecimal byte string of 20 bytes (40 hexadecimal characters). A ByStr20 literal is prefixed with 0x",
           link:
             "https://scilla.readthedocs.io/en/latest/scilla-in-depth.html#addresses"
+        },
+        {
+            type: "List",
+            description: "Lists of values are specified using the type List t, where t is some type. All elements in a list must be of the same type t. In other words, two values of different types cannot be added to the same list.",
+            link: "https://scilla.readthedocs.io/en/latest/scilla-in-depth.html#list"
         }
       ],
       selected: undefined
@@ -47,11 +52,9 @@ export default {
   },
   props: ["type"],
   mounted() {
-    const regex = /(?<ByStr20>ByStr20)|(?<String>String)|(?<ByStr>ByStr)\d{1,}|(?<Uint>Uint)\d{1,}|(?<BNum>BNum)/;
+    const regex = /(?<List>List (.+))|(?<ByStr20>ByStr20)|(?<String>String)|(?<ByStr>ByStr)\d{1,}|(?<Uint>Uint)\d{1,}|(?<BNum>BNum)/;
     const results = this.type.match(regex).groups;
     let foundType = null;
-
-    console.log(results);
 
     for (let key in results) {
       if (results[key] !== undefined) {

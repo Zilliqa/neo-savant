@@ -20,29 +20,21 @@
         </div>
         <!-- Initialization parameters -> needs to be moved to own component -->
 
-        <div class="row">
-          <div class="col-12 mb-4">
-            <p class="font-weight-bold">
-              Deploying from:
-              <span class="address">
-                {{ account.address }}
-                <img
-                  class="copy-button"
-                  src="@/assets/copy.svg"
-                  @click="copyToClipboard"
-                />
-                <span class="ml-2 text-success" v-if="copied">Copied</span>
-              </span>
-            </p>
-            <p class="font-weight-bold">Network: {{ network.name }}</p>
-
-            <div v-if="network.url !== VUE_APP_ISOLATED_URL">
+        <div class="row mb-4">
+          <div class="col-12 mb-4" v-if="network.url !== VUE_APP_ISOLATED_URL">
+            <div>
               <label>Enter your passphrase</label>
               <input type="password" v-model="passphrase" class="form-control" />
             </div>
           </div>
-          <div class="col-12 mb-4" v-if="!loading">
-            <button class="btn btn-secondary" @click="handleDeploy">Deploy Contract</button>
+          <div class="col-12 mb-4 d-flex" v-if="!loading">
+            <button class="btn btn-light text-danger text-small mr-2" @click="resetComponent">
+              <small>Reset</small>
+            </button>
+            <button class="btn btn-primary btn-block" @click="handleDeploy">
+              <i class="fas fa-paper-plane"></i>
+              Deploy Contract
+            </button>
           </div>
         </div>
       </div>
@@ -63,10 +55,6 @@
         <ul>
           <li v-for="err in signedTx.receipt.errors[0]" :key="err">{{ possibleErrors[err] }}</li>
         </ul>
-      </div>
-
-      <div class="mt-4">
-        <button class="btn btn-danger" @click="resetComponent">Reset</button>
       </div>
     </div>
   </div>
@@ -370,7 +358,7 @@ export default {
 }
 
 .btn {
-  font-size: 0.85rem !important;
+  border-radius: 0;
 }
 
 .address {

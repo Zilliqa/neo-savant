@@ -214,6 +214,28 @@ export default {
 
 .btn {
   font-size: 0.85rem;
+  transition: all 0.2s ease-in-out;
+  i.fas {
+    transition: all 0.2s ease-in-out;
+    margin-left: 0.2rem;
+  }
+
+  &:hover {
+    i.fas {
+      transition: all 0.2s ease-in-out;
+      margin-left: 0.5rem;
+    }
+  }
+
+  &.btn-primary {
+    background-color: $primary;
+    border-color: $primary;
+
+    &:hover {
+      background-color: lighten($color: $primary, $amount: 8);
+      border-color: lighten($color: $primary, $amount: 8);
+    }
+  }
 }
 
 .ide {
