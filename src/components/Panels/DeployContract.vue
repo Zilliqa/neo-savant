@@ -1,90 +1,77 @@
 <template>
-  <div class="panel-content p-4">
-    <img src="@/assets/close.svg" class="close-button" @click="handleClose" />
+  <div class="panel-content">
+    <div class="header">
+      <div class="title">Deploy {{file.name}}.scilla</div>
+      <img src="@/assets/close-color.svg" @click="handleClose" class="close-button-new" />
+    </div>
+    <div class="body p-4">
+      <div class="alert alert-info" v-if="abi === undefined">Loading contract ABI</div>
 
-    <h4 class="mb-4">Deploy {{file.name}}.scilla</h4>
-
-    <div class="alert alert-info" v-if="abi === undefined">Loading contract ABI</div>
-
-    <div class="deploy-form" v-if="abi && !signedTx">
-      <div class="row mb-4">
-        <div class="col-12">
-          <p class="font-weight-bold">Transaction parameters</p>
-        </div>
-        <div class="col-12 col-md-4">
-          <label>Amount (Uint128)</label>
-          <input type="text" v-model="amount" class="form-control" />
-        </div>
-        <div class="col-12 col-md-4">
-          <label>Gas Price (Uint128)</label>
-          <input type="text" v-model="gasPrice" class="form-control" />
-        </div>
-        <div class="col-12 col-md-4">
-          <label>Gas Limit (Uint128)</label>
-          <input type="text" v-model="gasLimit" class="form-control" />
-        </div>
-      </div>
-      <div class="row mb-4">
-        <div class="col-12">
-          <p class="font-weight-bold">Initialization parameters</p>
-        </div>
-        <div class="col-12 mb-4" v-for="param in abi.params" :key="param.vname">
-          <contract-input :param="param" v-model="param.value" />
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-12 mb-4">
-          <p class="font-weight-bold">
-            Deploying from:
-            <span class="address">
-              {{ account.address }}
-              <img
-                class="copy-button"
-                src="@/assets/copy.svg"
-                @click="copyToClipboard"
-              />
-              <span class="ml-2 text-success" v-if="copied">Copied</span>
-            </span>
-          </p>
-          <p class="font-weight-bold">Network: {{ network.name }}</p>
-
-          <div v-if="network.url !== VUE_APP_ISOLATED_URL">
-            <label>Enter your passphrase</label>
-            <input type="password" v-model="passphrase" class="form-control" />
+      <div class="deploy-form" v-if="abi && !signedTx">
+        <transaction-parameters v-on:input="onTransactionParameters"></transaction-parameters>
+        <div class="row mb-4">
+          <div class="col-12">
+            <p class="font-weight-bold">Initialization parameters</p>
+          </div>
+          <div class="col-12 mb-4" v-for="param in abi.params" :key="param.vname">
+            <contract-input :param="param" v-model="param.value" />
           </div>
         </div>
-        <div class="col-12 mb-4" v-if="!loading">
-          <button class="btn btn-secondary" @click="handleDeploy">Deploy Contract</button>
+        <div class="row">
+          <div class="col-12 mb-4">
+            <p class="font-weight-bold">
+              Deploying from:
+              <span class="address">
+                {{ account.address }}
+                <img
+                  class="copy-button"
+                  src="@/assets/copy.svg"
+                  @click="copyToClipboard"
+                />
+                <span class="ml-2 text-success" v-if="copied">Copied</span>
+              </span>
+            </p>
+            <p class="font-weight-bold">Network: {{ network.name }}</p>
+
+            <div v-if="network.url !== VUE_APP_ISOLATED_URL">
+              <label>Enter your passphrase</label>
+              <input type="password" v-model="passphrase" class="form-control" />
+            </div>
+          </div>
+          <div class="col-12 mb-4" v-if="!loading">
+            <button class="btn btn-secondary" @click="handleDeploy">Deploy Contract</button>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="alert alert-info" v-if="loading">{{loading}}</div>
-    <div class="alert alert-danger" v-if="error">{{error}}</div>
+      <div class="alert alert-info" v-if="loading">{{loading}}</div>
+      <div class="alert alert-danger" v-if="error">{{error}}</div>
 
-    <div
-      class="alert"
-      :class="{'alert-success': signedTx.receipt.success === true, 'alert-danger': signedTx.receipt.success === false}"
-      style="overflow-x:scroll;"
-      v-if="signedTx"
-    >
-      <vue-json-pretty :data="{...signedTx}"></vue-json-pretty>
-    </div>
+      <div
+        class="alert"
+        :class="{'alert-success': signedTx.receipt.success === true, 'alert-danger': signedTx.receipt.success === false}"
+        style="overflow-x:scroll;"
+        v-if="signedTx"
+      >
+        <vue-json-pretty :data="{...signedTx}"></vue-json-pretty>
+      </div>
 
-    <div class="alert alert-danger" v-if="signedTx && signedTx.receipt.errors">
-      <ul>
-        <li v-for="err in signedTx.receipt.errors[0]" :key="err">{{ possibleErrors[err] }}</li>
-      </ul>
-    </div>
+      <div class="alert alert-danger" v-if="signedTx && signedTx.receipt.errors">
+        <ul>
+          <li v-for="err in signedTx.receipt.errors[0]" :key="err">{{ possibleErrors[err] }}</li>
+        </ul>
+      </div>
 
-    <div class="mt-4">
-      <button class="btn btn-danger" @click="resetComponent">Reset</button>
+      <div class="mt-4">
+        <button class="btn btn-danger" @click="resetComponent">Reset</button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import ContractInput from "./Inputs/ContractInput";
+import ContractInput from "@/components/Inputs/ContractInput";
+import TransactionParameters from "@/components/Inputs/TransactionParameters";
 
 import VueJsonPretty from "vue-json-pretty";
 import { BN, units, bytes, Long } from "@zilliqa-js/util";
@@ -120,7 +107,7 @@ export default {
       }
     };
   },
-  components: { VueJsonPretty, ContractInput },
+  components: { VueJsonPretty, ContractInput, TransactionParameters },
   props: ["file"],
   computed: {
     ...mapGetters("accounts", { account: "selected" }),
@@ -316,12 +303,54 @@ export default {
             text: "There are errors in your contract. Check the editor."
           });
         });
+    },
+    onTransactionParameters(payload) {
+      this.amount = parseInt(payload.amount);
+      this.gasLimit = parseInt(payload.gasLimit);
+      this.gasPrice = parseInt(payload.gasPrice);
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
+.panel-content {
+  position: absolute;
+  top: 0;
+  right: 30px; // 50px RightSidebar - 20px scroll sidebar
+  height: 100%;
+  width: 500px;
+  min-width: 450px;
+  min-height: 350px;
+  z-index: 98;
+  border-left: 1px solid saturate($primary, 50);
+  background-color: #fff;
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: saturate($primary, 50);
+    padding: 0.5rem calc(0.5rem + 20px) 0.5rem 0.5rem;
+
+    .title {
+      font-size: 1rem;
+      color: #fff;
+    }
+
+    .close-button-new {
+      cursor: pointer;
+      height: 16px;
+    }
+  }
+
+  .body {
+    height: calc(100% - 3rem);
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+}
+
 .accounts-list {
   .item {
     border: 1px dashed #ccc;

@@ -53,7 +53,7 @@ import ContractsList from "@/components/Contracts/List";
 import TopBar from "@/components/TopBar/index";
 import AccountSelector from "@/components/AccountSelector";
 import Console from "@/components/Console";
-import DeployContract from "@/components/DeployContract";
+import DeployContract from "@/components/Panels/DeployContract";
 import CallContract from "@/components/CallContract";
 import ImportContract from "@/components/ImportContract";
 import EventsList from "@/components/EventsList";
