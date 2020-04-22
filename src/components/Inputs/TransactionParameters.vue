@@ -15,14 +15,18 @@
     <div class="col-12 col-md-4 input-contract">
       <label class="flex-column align-items-start">
         <div class="name">Gas Price</div>
-        <div class="type">(Uint128)</div>
+        <div class="type">
+          <input-popover type="Uint128"></input-popover>
+        </div>
       </label>
       <input type="text" v-model="gasPrice" @input="updateAmount" class="form-control" />
     </div>
     <div class="col-12 col-md-4 input-contract">
       <label class="flex-column align-items-start">
         <div class="name">Gas Limit</div>
-        <div class="type">(Uint128)</div>
+        <div class="type">
+          <input-popover type="Uint128"></input-popover>
+        </div>
       </label>
       <input type="text" v-model="gasLimit" @input="updateAmount" class="form-control" />
     </div>
@@ -70,5 +74,4 @@ export default {
     }
   }
 }
-
 </style>

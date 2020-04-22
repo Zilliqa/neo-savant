@@ -323,15 +323,16 @@ export default {
   min-width: 450px;
   min-height: 350px;
   z-index: 98;
-  border-left: 1px solid saturate($primary, 50);
+  border-left: 1px solid saturate($primary, 10);
   background-color: #fff;
 
   .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: saturate($primary, 50);
+    background-color: saturate($primary, 10);
     padding: 0.5rem calc(0.5rem + 20px) 0.5rem 0.5rem;
+    border-top: 1px dashed #ccc;
 
     .title {
       font-size: 1rem;

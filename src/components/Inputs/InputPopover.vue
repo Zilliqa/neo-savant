@@ -7,24 +7,50 @@
     </a>
 
     <!-- This will be the content of the popover -->
-    <template slot="popover">
-      Scilla defines signed and unsigned integer types of 32, 64, 128, and 256 bits. These integer types can be specified with the keywords IntX and UintX where X can be 32, 64, 128, or 256. For example, the type of an unsigned integer of 32 bits is Uint32. Read more about this
-      <a
-        href="https://scilla.readthedocs.io/en/latest/scilla-in-depth.html#integer-types"
-        target="_blank"
-      >here</a>
+    <template slot="popover" v-if="selected !== undefined">
+      {{selected.description}} Read more about this
+      <a :href="selected.link" target="_blank">here</a>
     </template>
   </v-popover>
 </template>
 
 <script>
 export default {
-  props: ["type"]
+  data() {
+    return {
+      texts: [
+        {
+          type: "Uint",
+          description:
+            "Scilla defines signed and unsigned integer types of 32, 64, 128, and 256 bits. These integer types can be specified with the keywords IntX and UintX where X can be 32, 64, 128, or 256. For example, the type of an unsigned integer of 32 bits is Uint32.",
+          link:
+            "https://scilla.readthedocs.io/en/latest/scilla-in-depth.html#integer-types"
+        }
+      ],
+      selected: undefined
+    };
+  },
+  props: ["type"],
+  mounted() {
+    const regex = /(?<ByStr>ByStr)\d{1,}|(?<Uint>Uint)\d{1,}|(?<String>String)|(?<BNum>BNum)/;
+    const results = this.type.match(regex).groups;
+    let foundType = null;
+
+    for (let key in results) {
+      if (results[key] !== undefined) {
+        foundType = key;
+        break;
+      }
+    }
+
+    this.selected = this.texts.find(item => item.type === foundType);
+  }
 };
 </script>
 
 <style lang="scss" scoped>
 .tooltip-target {
+  cursor: pointer;
   img {
     height: 12px;
   }
