@@ -65,13 +65,22 @@ export default {
     justify-content: space-between;
 
     .name {
-      color: #aaa;
+      color: rgb(143, 142, 142);
       font-weight: bold;
     }
-
+    
     .type {
       font-size: 12px;
     }
+  }
+
+   input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: #eee;
+    border: 0;
+    border-radius: 0;
   }
 }
 </style>

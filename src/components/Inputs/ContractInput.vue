@@ -1,6 +1,11 @@
 <template>
-  <div>
-    <label>{{param.vname}} ({{param.type}})</label>
+  <div class="input-contract">
+    <label>
+      <div class="name">{{param.vname}}</div>
+      <div class="type">
+        <input-popover :type="param.type"></input-popover>
+      </div>
+    </label>
     <input
       type="text"
       v-model="param.value"
@@ -31,6 +36,7 @@
 </template>
 
 <script>
+import InputPopover from "./InputPopover";
 /*eslint-disable */
 import brace from "brace"; // eslint-disable-line no-use-before-define
 /*eslint-enable */
@@ -47,11 +53,11 @@ export default {
     };
   },
   props: ["param"],
-  components: { AceEditor },
+  components: { AceEditor, InputPopover },
   methods: {
     isInput() {
       const regex = /(ByStr\d{1,}|Uint\d{1,}|String|BNum)/g;
-      const firstWord = this.param.type.replace(/ .*/,'');
+      const firstWord = this.param.type.replace(/ .*/, "");
 
       if (firstWord.match(regex) !== null) {
         return true;
@@ -75,3 +81,31 @@ export default {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.input-contract {
+  label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .name {
+      color: rgb(143, 142, 142);
+      font-weight: bold;
+    }
+
+    .type {
+      font-size: 12px;
+    }
+  }
+
+  input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: #eee;
+    border: 0;
+    border-radius: 0;
+  }
+}
+</style>

@@ -11,6 +11,7 @@
       {{selected.description}} Read more about this
       <a :href="selected.link" target="_blank">here</a>
     </template>
+    <template slot="popover" v-else>{{type}}</template>
   </v-popover>
 </template>
 
@@ -25,6 +26,20 @@ export default {
             "Scilla defines signed and unsigned integer types of 32, 64, 128, and 256 bits. These integer types can be specified with the keywords IntX and UintX where X can be 32, 64, 128, or 256. For example, the type of an unsigned integer of 32 bits is Uint32.",
           link:
             "https://scilla.readthedocs.io/en/latest/scilla-in-depth.html#integer-types"
+        },
+        {
+          type: "String",
+          description:
+            "String literals in Scilla are expressed using a sequence of characters enclosed in double quotes. Variables can be declared by specifying using keyword String.",
+          link:
+            "https://scilla.readthedocs.io/en/latest/scilla-in-depth.html#strings"
+        },
+        {
+          type: "ByStr20",
+          description:
+            "An address in Scilla is declared using the data type ByStr20. ByStr20 represents a hexadecimal byte string of 20 bytes (40 hexadecimal characters). A ByStr20 literal is prefixed with 0x",
+          link:
+            "https://scilla.readthedocs.io/en/latest/scilla-in-depth.html#addresses"
         }
       ],
       selected: undefined
@@ -32,9 +47,11 @@ export default {
   },
   props: ["type"],
   mounted() {
-    const regex = /(?<ByStr>ByStr)\d{1,}|(?<Uint>Uint)\d{1,}|(?<String>String)|(?<BNum>BNum)/;
+    const regex = /(?<ByStr20>ByStr20)|(?<String>String)|(?<ByStr>ByStr)\d{1,}|(?<Uint>Uint)\d{1,}|(?<BNum>BNum)/;
     const results = this.type.match(regex).groups;
     let foundType = null;
+
+    console.log(results);
 
     for (let key in results) {
       if (results[key] !== undefined) {

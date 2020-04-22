@@ -9,6 +9,7 @@
 
       <div class="deploy-form" v-if="abi && !signedTx">
         <transaction-parameters v-on:input="onTransactionParameters"></transaction-parameters>
+        <!-- Initialization parameters -->
         <div class="row mb-4">
           <div class="col-12">
             <p class="font-weight-bold">Initialization parameters</p>
@@ -17,6 +18,8 @@
             <contract-input :param="param" v-model="param.value" />
           </div>
         </div>
+        <!-- Initialization parameters -> needs to be moved to own component -->
+
         <div class="row">
           <div class="col-12 mb-4">
             <p class="font-weight-bold">
