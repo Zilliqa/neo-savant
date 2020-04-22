@@ -1,53 +1,62 @@
 <template>
-  <div class="account-selector panel-content p-4">
-    <img src="@/assets/close.svg" class="close-button" @click="handleClose" />
-    <h4>Account Selector</h4>
-
-    <div class="accounts-list" v-if="list.length">
-      <account-item
-        class="item mb-4 p-2"
-        v-for="account in list"
-        :account="account"
-        :selected="(selected && selected.address === account.address)"
-        :key="account.address"
-        v-on:handle-select="handleSelect(account.address)"
-      />
-    </div>
-    <div v-else>
-      <div class="alert alert-info">There are no accounts defined on this network.</div>
+  <div class="account-selector panel-content">
+    <div class="header">
+      <div class="title">Account selector</div>
+      <img src="@/assets/close-color.svg" @click="handleClose" class="close-button-new" />
     </div>
 
-    <button
-      class="btn btn-secondary"
-      @click="importAccount = true"
-      v-if="!importAccount"
-    >Import account</button>
+    <div class="body p-4">
+      <div class="accounts-list" v-if="list.length">
+        <account-item
+          class="item mb-4 p-2"
+          v-for="account in list"
+          :account="account"
+          :selected="(selected && selected.address === account.address)"
+          :key="account.address"
+          v-on:handle-select="handleSelect(account.address)"
+        />
+      </div>
+      <div v-else>
+        <div class="alert alert-info">There are no accounts defined on this network.</div>
+      </div>
 
-    <div class="import-form" v-if="importAccount">
-      <div class="row">
-        <div class="col-12 mb-4">
-          <label class="font-weight-bold">Select your keystore.json file</label>
-          <div class="file-text">
-            <div
-              v-if="selectedFile !== undefined && selectedFile.name !== undefined"
-            >{{ selectedFile.name }}</div>
-            <button class="btn btn-secondary p-2 mr-2" @click="$refs.file.click()">
-              <i class="fas fa-file-upload"></i> BROWSE
-            </button>
+      <button
+        class="btn btn-secondary"
+        @click="importAccount = true"
+        v-if="!importAccount"
+      >Import account</button>
+
+      <div class="import-form" v-if="importAccount">
+        <div class="row">
+          <div class="col-12 mb-4">
+            <label class="font-weight-bold">Select your keystore.json file</label>
+            <div class="file-text">
+              <div
+                v-if="selectedFile !== undefined && selectedFile.name !== undefined"
+              >{{ selectedFile.name }}</div>
+              <button class="btn btn-secondary p-2 mr-2" @click="$refs.file.click()">
+                <i class="fas fa-file-upload"></i> BROWSE
+              </button>
+            </div>
+            <input type="file" ref="file" @change="onFileChange" class="d-none" />
           </div>
-          <input type="file" ref="file" @change="onFileChange" class="d-none" />
-        </div>
 
-        <div class="col-12 mb-4">
-          <label class="font-weight-bold">Enter your passphrase</label>
-          <input type="password" class="form-control" v-model="passphrase" placeholder="Passprase" />
-        </div>
+          <div class="col-12 mb-4">
+            <label class="font-weight-bold">Enter your passphrase</label>
+            <input
+              type="password"
+              class="form-control"
+              v-model="passphrase"
+              placeholder="Passprase"
+            />
+          </div>
 
-        <div class="col-12 mb-4" v-if="passphrase && selectedFile && !loading">
-          <button class="btn btn-secondary" @click="handleImport">Import wallet</button>
+          <div class="col-12 mb-4" v-if="passphrase && selectedFile && !loading">
+            <button class="btn btn-secondary" @click="handleImport">Import wallet</button>
+          </div>
+          <div class="alert alert-info" v-if="loading">{{loading}}</div>
+          <div class="alert alert-danger" v-if="error">{{error}}</div>
         </div>
-        <div class="alert alert-info" v-if="loading">{{loading}}</div>
-        <div class="alert alert-danger" v-if="error">{{error}}</div>
       </div>
     </div>
   </div>
@@ -153,7 +162,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 .btn {
   font-size: 0.85rem !important;
 }

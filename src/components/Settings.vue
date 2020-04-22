@@ -1,18 +1,28 @@
 <template>
-  <div class="settings panel-content p-4">
-    <img src="@/assets/close.svg" class="close-button" @click="handleClose" />
-    <div class="settings-group mb-4">
-      <h5>IDE Settings</h5>
-
-      <div class="form-input">
-        <label>Font size</label>
-        <input class="form-control" type="number" :value="editor.fontSize" @change="updateFontSize" />
-      </div>
+  <div class="settings panel-content">
+    <div class="header">
+      <div class="title">IDE Settings</div>
+      <img src="@/assets/close-color.svg" @click="handleClose" class="close-button-new" />
     </div>
+    <div class="body p-4">
+      <div class="settings-group mb-4">
+        <h5>IDE Settings</h5>
 
-    <div class="settings-group mt-5">
-      <h5>Reset</h5>
-      <button class="btn btn-danger" @click="handleHardReset">Reset IDE to default</button>
+        <div class="form-input">
+          <label>Font size</label>
+          <input
+            class="form-control"
+            type="number"
+            :value="editor.fontSize"
+            @change="updateFontSize"
+          />
+        </div>
+      </div>
+
+      <div class="settings-group mt-5">
+        <h5>Reset</h5>
+        <button class="btn btn-danger" @click="handleHardReset">Reset IDE to default</button>
+      </div>
     </div>
   </div>
 </template>

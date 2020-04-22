@@ -3,31 +3,32 @@
     <notifications group="scilla" />
     <tools />
     <top-bar />
-    <div class="ide" :class="{'only2': !rightPanel}">
+    <div class="ide">
       <div id="left-panel" class="left-panel">
         <files-list />
         <contracts-list />
       </div>
-      <div class="main-panel">
-        <router-view />
+      <div class="right-panel">
+        <div class="main-panel">
+          <router-view />
+        </div>
+        <div class="bottom-panel d-none"></div>
       </div>
-      <div class="right-panel" v-show="rightPanel">
-        <account-selector v-if="rightPanel === 'accountSelector'" />
-        <console v-if="rightPanel === 'console'" />
-        <events-list v-if="rightPanel === 'events'" />
-        <settings v-if="rightPanel === 'settings'" />
-        <deploy-contract
-          v-if="rightPanel === 'deployContract'"
-          :file="this.deployContract"
-          :key="this.deployContract.id"
-        />
-        <call-contract
-          v-if="rightPanel === 'callContract'"
-          :contractId="this.callContract"
-          :key="this.callContract"
-        />
-        <import-contract v-if="rightPanel === 'importContract'" />
-      </div>
+      <deploy-contract
+        v-if="rightPanel === 'deployContract'"
+        :file="this.deployContract"
+        :key="this.deployContract.id"
+      />
+      <account-selector v-if="rightPanel === 'accountSelector'" />
+      <console v-if="rightPanel === 'console'" />
+      <events-list v-if="rightPanel === 'events'" />
+      <settings v-if="rightPanel === 'settings'" />
+      <call-contract
+        v-if="rightPanel === 'callContract'"
+        :contractId="this.callContract"
+        :key="this.callContract"
+      />
+      <import-contract v-if="rightPanel === 'importContract'" />
       <div class="right-sidebar">
         <div class="action" @click="handleToggleRightPanel('console')">
           <img src="@/assets/terminal.svg" />
@@ -197,18 +198,40 @@ export default {
 }
 
 .panel-content {
-  position: relative;
+  position: absolute;
+  top: 0;
+  right: 30px; // 50px RightSidebar - 20px scroll sidebar
+  height: 100%;
+  width: 500px;
+  min-width: 450px;
+  min-height: 350px;
+  z-index: 98;
+  border-left: 1px solid saturate($primary, 10);
+  background-color: #fff;
 
-  .close-button {
-    position: absolute;
-    right: 1rem;
-    top: 1rem;
-    width: 20px;
-    opacity: 0.5;
-    &:hover {
-      cursor: pointer;
-      opacity: 1;
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: saturate($primary, 10);
+    padding: 0.5rem calc(0.5rem + 20px) 0.5rem 0.5rem;
+    border-top: 1px dashed #ccc;
+
+    .title {
+      font-size: 1rem;
+      color: #fff;
     }
+
+    .close-button-new {
+      cursor: pointer;
+      height: 16px;
+    }
+  }
+
+  .body {
+    height: calc(100% - 3rem);
+    overflow-y: scroll;
+    overflow-x: hidden;
   }
 }
 
@@ -240,8 +263,7 @@ export default {
 
 .ide {
   position: relative;
-  display: grid;
-  grid-template-columns: 1fr 2fr 2fr;
+  display: flex;
   height: 100%;
 
   &.only2 {
@@ -252,16 +274,16 @@ export default {
     padding: 1.5rem 0;
     height: 100%;
     border-right: 1px solid #ccc;
+    width: 300px;
   }
+
   .main-panel {
     height: 100%;
   }
+
   .right-panel {
     height: 100%;
-    border-left: 1px solid #ccc;
-    padding-right: 50px;
-    max-height: calc(100vh - 60px);
-    overflow: scroll;
+    flex-grow: 1;
   }
   .right-sidebar {
     position: absolute;

@@ -1,107 +1,106 @@
 <template>
-  <div class="panel-content p-4">
-    <img src="@/assets/close.svg" class="close-button" @click="handleClose" />
-    <p>
-      Contract Address
-      <br />
-      <span class="font-weight-bold">{{contractId}}</span>
-    </p>
-
-    <div class="alert alert-info" v-if="!abi">Loading contract ABI</div>
-
-    <div class="contract-transitions" v-if="abi">
-      <p class="mb-2">Transitions</p>
-
-      <div class="transitions mb-4">
-        <button
-          class="btn btn-secondary mr-2 mb-2"
-          v-for="transition in abi.transitions"
-          :key="transition.vname"
-          @click="exec = transition"
-          :class="{'faded': exec && exec.vname !== transition.vname}"
-        >{{ transition.vname }}</button>
-      </div>
+  <div class="panel-content">
+    <div class="header">
+      <div class="title">{{ contractId }}</div>
+      <img src="@/assets/close-color.svg" @click="handleClose" class="close-button-new" />
     </div>
+    <div class="body p-4">
+      <div class="alert alert-info" v-if="!abi">Loading contract ABI</div>
 
-    <div v-if="!exec && contractState">
-      <p class="mt-4 mb-2 d-flex align-items-center">
-        Contract State
-        <img
-          src="@/assets/refresh.svg"
-          class="refresh-state-button"
-          @click="refreshContractState"
-        />
-      </p>
-      <div style="width: 100%; overflow-x:scroll;">
-        <vue-json-pretty :deep="1" :data="contractState"></vue-json-pretty>
-      </div>
-    </div>
+      <div class="contract-transitions" v-if="abi">
+        <p class="mb-2">Transitions</p>
 
-    <div v-if="contractInit && !exec">
-      <p class="mb-2">Contract Init</p>
-      <div style="width: 100%; overflow-x:scroll;">
-        <vue-json-pretty :deep="2" :data="contractInit"></vue-json-pretty>
+        <div class="transitions mb-4">
+          <button
+            class="btn btn-secondary mr-2 mb-2"
+            v-for="transition in abi.transitions"
+            :key="transition.vname"
+            @click="exec = transition"
+            :class="{'faded': exec && exec.vname !== transition.vname}"
+          >{{ transition.vname }}</button>
+        </div>
       </div>
-    </div>
 
-    <div class="deploy-form" v-if="abi && exec">
-      <div class="row mb-4">
-        <div class="col-12">
-          <p class="font-weight-bold">Transaction parameters</p>
-        </div>
-        <div class="col-12 col-md-4">
-          <label>Amount (Uint128)</label>
-          <input type="text" v-model="amount" class="form-control" />
-        </div>
-        <div class="col-12 col-md-4">
-          <label>Gas Price (Uint128)</label>
-          <input type="text" v-model="gasPrice" class="form-control" />
-        </div>
-        <div class="col-12 col-md-4">
-          <label>Gas Limit (Uint128)</label>
-          <input type="text" v-model="gasLimit" class="form-control" />
+      <div v-if="!exec && contractState">
+        <p class="mt-4 mb-2 d-flex align-items-center">
+          Contract State
+          <img
+            src="@/assets/refresh.svg"
+            class="refresh-state-button"
+            @click="refreshContractState"
+          />
+        </p>
+        <div style="width: 100%; overflow-x:scroll;">
+          <vue-json-pretty :deep="1" :data="contractState"></vue-json-pretty>
         </div>
       </div>
-      <div class="row">
-        <div class="col-12">
-          <p class="font-weight-bold">Transition parameters ({{exec.vname}})</p>
-        </div>
-        <div class="col-12 mb-4" v-for="param in exec.params" :key="param.vname">
-          <contract-input :param="param" v-model="param.value" />
+
+      <div v-if="contractInit && !exec">
+        <p class="mb-2">Contract Init</p>
+        <div style="width: 100%; overflow-x:scroll;">
+          <vue-json-pretty :deep="2" :data="contractInit"></vue-json-pretty>
         </div>
       </div>
-      <div class="row">
-        <div class="col-12 mb-4">
-          <p class="font-weight-bold mb-0">Calling from: {{ account.address }}</p>
-          <p class="font-weight-bold">Network: {{ network.name }}</p>
-          <div v-if="network.url !== VUE_APP_ISOLATED_URL">
-            <label>Enter your passphrase</label>
-            <input type="password" v-model="passphrase" class="form-control" />
+
+      <div class="deploy-form" v-if="abi && exec">
+        <div class="row mb-4">
+          <div class="col-12">
+            <p class="font-weight-bold">Transaction parameters</p>
+          </div>
+          <div class="col-12 col-md-4">
+            <label>Amount (Uint128)</label>
+            <input type="text" v-model="amount" class="form-control" />
+          </div>
+          <div class="col-12 col-md-4">
+            <label>Gas Price (Uint128)</label>
+            <input type="text" v-model="gasPrice" class="form-control" />
+          </div>
+          <div class="col-12 col-md-4">
+            <label>Gas Limit (Uint128)</label>
+            <input type="text" v-model="gasLimit" class="form-control" />
           </div>
         </div>
-        <div class="col-12 mb-4" v-if="!loading">
-          <button class="btn btn-secondary mr-2" @click="handleCall">Call Transition</button>
-          <button class="btn btn-danger" @click="handleCancel">Cancel</button>
+        <div class="row">
+          <div class="col-12">
+            <p class="font-weight-bold">Transition parameters ({{exec.vname}})</p>
+          </div>
+          <div class="col-12 mb-4" v-for="param in exec.params" :key="param.vname">
+            <contract-input :param="param" v-model="param.value" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12 mb-4">
+            <p class="font-weight-bold mb-0">Calling from: {{ account.address }}</p>
+            <p class="font-weight-bold">Network: {{ network.name }}</p>
+            <div v-if="network.url !== VUE_APP_ISOLATED_URL">
+              <label>Enter your passphrase</label>
+              <input type="password" v-model="passphrase" class="form-control" />
+            </div>
+          </div>
+          <div class="col-12 mb-4" v-if="!loading">
+            <button class="btn btn-secondary mr-2" @click="handleCall">Call Transition</button>
+            <button class="btn btn-danger" @click="handleCancel">Cancel</button>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="alert alert-info" v-if="loading">{{loading}}</div>
-    <div class="alert alert-danger" v-if="error">{{error}}</div>
+      <div class="alert alert-info" v-if="loading">{{loading}}</div>
+      <div class="alert alert-danger" v-if="error">{{error}}</div>
 
-    <div
-      class="alert"
-      :class="{'alert-success': signedTx.receipt.success === true, 'alert-danger': signedTx.receipt.success === false}"
-      style="overflow-x:scroll;"
-      v-if="signedTx"
-    >
-      <vue-json-pretty :data="{...signedTx}"></vue-json-pretty>
-    </div>
+      <div
+        class="alert"
+        :class="{'alert-success': signedTx.receipt.success === true, 'alert-danger': signedTx.receipt.success === false}"
+        style="overflow-x:scroll;"
+        v-if="signedTx"
+      >
+        <vue-json-pretty :data="{...signedTx}"></vue-json-pretty>
+      </div>
 
-    <div class="alert alert-danger" v-if="signedTx && signedTx.receipt.errors">
-      <ul>
-        <li v-for="err in signedTx.receipt.errors[0]" :key="err">{{ possibleErrors[err] }}</li>
-      </ul>
+      <div class="alert alert-danger" v-if="signedTx && signedTx.receipt.errors">
+        <ul>
+          <li v-for="err in signedTx.receipt.errors[0]" :key="err">{{ possibleErrors[err] }}</li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>

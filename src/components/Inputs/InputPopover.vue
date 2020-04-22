@@ -16,6 +16,8 @@
 </template>
 
 <script>
+import { getParamType } from "@/utils/validation";
+
 export default {
   data() {
     return {
@@ -42,9 +44,11 @@ export default {
             "https://scilla.readthedocs.io/en/latest/scilla-in-depth.html#addresses"
         },
         {
-            type: "List",
-            description: "Lists of values are specified using the type List t, where t is some type. All elements in a list must be of the same type t. In other words, two values of different types cannot be added to the same list.",
-            link: "https://scilla.readthedocs.io/en/latest/scilla-in-depth.html#list"
+          type: "List",
+          description:
+            "Lists of values are specified using the type List t, where t is some type. All elements in a list must be of the same type t. In other words, two values of different types cannot be added to the same list.",
+          link:
+            "https://scilla.readthedocs.io/en/latest/scilla-in-depth.html#list"
         }
       ],
       selected: undefined
@@ -52,16 +56,7 @@ export default {
   },
   props: ["type"],
   mounted() {
-    const regex = /(?<List>List (.+))|(?<ByStr20>ByStr20)|(?<String>String)|(?<ByStr>ByStr)\d{1,}|(?<Uint>Uint)\d{1,}|(?<BNum>BNum)/;
-    const results = this.type.match(regex).groups;
-    let foundType = null;
-
-    for (let key in results) {
-      if (results[key] !== undefined) {
-        foundType = key;
-        break;
-      }
-    }
+    const foundType = getParamType({ type: this.type });
 
     this.selected = this.texts.find(item => item.type === foundType);
   }

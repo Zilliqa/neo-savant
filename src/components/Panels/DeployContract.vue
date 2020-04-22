@@ -15,7 +15,13 @@
             <p class="font-weight-bold">Initialization parameters</p>
           </div>
           <div class="col-12 mb-4" v-for="param in abi.params" :key="param.vname">
-            <contract-input :param="param" v-model="param.value" />
+            <contract-input
+              :error="param.validationErrors"
+              :vname="param.vname"
+              :type="param.type"
+              :pvalue="param.value"
+              v-model="param.value"
+            />
           </div>
         </div>
         <!-- Initialization parameters -> needs to be moved to own component -->
@@ -27,7 +33,7 @@
               <input type="password" v-model="passphrase" class="form-control" />
             </div>
           </div>
-          <div class="col-12 mb-4 d-flex" v-if="!loading">
+          <div class="col-12 d-flex" v-if="!loading">
             <button class="btn btn-light text-danger text-small mr-2" @click="resetComponent">
               <small>Reset</small>
             </button>
@@ -72,6 +78,8 @@ import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { mapGetters } from "vuex";
 import axios from "axios";
 
+import { validateParams } from "@/utils/validation.js";
+
 export default {
   data() {
     return {
@@ -85,6 +93,7 @@ export default {
       startDeploy: false,
       passphrase: undefined,
       loading: false,
+      validatedParams: [],
       files: undefined,
       error: false,
       signedTx: undefined,
@@ -149,6 +158,16 @@ export default {
       await this.getContractABI();
     },
     async handleDeploy() {
+      this.errors = false;
+      const validatedParams = validateParams([...this.abi.params]);
+
+      if (validatedParams.errors) {
+        this.abi.params = validatedParams.params;
+        console.log("errors");
+        this.error = "Please fix the errors in your inputs";
+        return false;
+      }
+
       this.loading = "Trying to decrypt keystore file and access wallet...";
       try {
         if (this.zilliqa === undefined) {
@@ -200,7 +219,9 @@ export default {
         const msgVersion = this.network.msgVersion; // current msgVersion
         const VERSION = bytes.pack(chainId, msgVersion);
 
-        const init = [...this.abi.params];
+        const init = this.abi.params.map(item => {
+          return { vname: item.vname, value: item.value, type: item.type };
+        });
 
         init.push({
           vname: "_scilla_version",
@@ -305,44 +326,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.panel-content {
-  position: absolute;
-  top: 0;
-  right: 30px; // 50px RightSidebar - 20px scroll sidebar
-  height: 100%;
-  width: 500px;
-  min-width: 450px;
-  min-height: 350px;
-  z-index: 98;
-  border-left: 1px solid saturate($primary, 10);
-  background-color: #fff;
-
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: saturate($primary, 10);
-    padding: 0.5rem calc(0.5rem + 20px) 0.5rem 0.5rem;
-    border-top: 1px dashed #ccc;
-
-    .title {
-      font-size: 1rem;
-      color: #fff;
-    }
-
-    .close-button-new {
-      cursor: pointer;
-      height: 16px;
-    }
-  }
-
-  .body {
-    height: calc(100% - 3rem);
-    overflow-y: scroll;
-    overflow-x: hidden;
-  }
-}
-
 .accounts-list {
   .item {
     border: 1px dashed #ccc;
