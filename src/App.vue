@@ -73,7 +73,7 @@ export default {
   name: "App",
   data() {
     return {
-      rightPanel: "console",
+      rightPanel: false,
       deployContract: false,
       callContract: false,
       zilliqa: undefined,
