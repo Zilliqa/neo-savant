@@ -171,6 +171,7 @@ export default {
       await this.getContractABI();
     },
     async handleDeploy() {
+      this.error = false;
       this.loading = "Trying to decrypt keystore file and access wallet...";
       try {
         if (this.zilliqa === undefined) {
