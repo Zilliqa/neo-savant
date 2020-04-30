@@ -1,8 +1,8 @@
 <template>
   <div class="settings panel-content p-4">
     <img src="@/assets/close.svg" class="close-button" @click="handleClose" />
-    <div class="ide-settings">
-      <h4>IDE Settings</h4>
+    <div class="settings-group mb-4">
+      <h5>IDE Settings</h5>
 
       <div class="form-input">
         <label>Font size</label>
@@ -10,19 +10,16 @@
       </div>
     </div>
 
-    <div class="simulated-env-settings">
-      <h4 class="mt-4">Simulated Env Settings</h4>
-
-      <div class="form-input">
-        <label>Faucet contract</label>
-        <input class="form-control" type="text" v-model="network.faucet" />
-      </div>
+    <div class="settings-group mt-5">
+      <h5>Reset</h5>
+      <button class="btn btn-danger" @click="handleHardReset">Reset IDE to default</button>
     </div>
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
+import Swal from "sweetalert2";
 
 export default {
   components: {},
@@ -37,6 +34,20 @@ export default {
     ...mapGetters("general", { editor: "editor" })
   },
   methods: {
+    handleHardReset() {
+      Swal.fire({
+        title: "Are you sure?",
+        text:
+          "This action will reset all Savant IDE data to default. You will lose all accounts and contracts stored.",
+        type: "warning",
+        showCancelButton: true
+      }).then(e => {
+        if (e.value && e.value === true) {
+          localStorage.clear("savant-ide");
+          window.location.reload();
+        }
+      });
+    },
     handleClose() {
       window.EventBus.$emit("close-right-panel");
     },

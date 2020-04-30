@@ -17,7 +17,7 @@
       :showGutter="false"
       :highlightActiveLine="true"
       ref="paramValue"
-      mode="json"
+      mode="text"
       lang="json"
       theme="dawn"
       width="100%"
@@ -50,8 +50,8 @@ export default {
   components: { AceEditor },
   methods: {
     isInput() {
-      const regex = /(ByStr\d{1,}|Uint\d{1,}|String|BNum)/g;
-      const firstWord = this.param.type.replace(/ .*/,'');
+      const regex = /(ByStr\d{1,}|Uint\d{1,}|Int\d{1,}|String|BNum)/g;
+      const firstWord = this.param.type.replace(/ .*/, "");
 
       if (firstWord.match(regex) !== null) {
         return true;
@@ -64,7 +64,7 @@ export default {
         try {
           this.param.value = JSON.parse(payload);
         } catch (e) {
-          this.param.value = payload;
+          this.param.value = payload.toString();
         }
       } else {
         this.param.value = payload.target.value;

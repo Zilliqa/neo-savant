@@ -171,6 +171,7 @@ export default {
       await this.getContractABI();
     },
     async handleDeploy() {
+      this.error = false;
       this.loading = "Trying to decrypt keystore file and access wallet...";
       try {
         if (this.zilliqa === undefined) {
@@ -238,8 +239,7 @@ export default {
           gasLimit: Long.fromNumber(this.gasLimit),
           code: this.file.code,
           data: JSON.stringify(init).replace(/\\"/g, '"'),
-          priority: true
-        });
+        },true);
 
         const signedTx = await this.zilliqa.blockchain.createTransaction(tx);
 

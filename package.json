@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@zilliqa-js/contract": "^0.9.0",
     "@zilliqa-js/crypto": "^0.8.8",
     "@zilliqa-js/util": "^0.8.8",
     "@zilliqa-js/zilliqa": "^0.8.8",
