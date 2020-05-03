@@ -14,6 +14,15 @@
         </div>
         <div class="bottom-panel d-none"></div>
       </div>
+
+      <account-import v-if="rightPanel === 'accountImport'" />
+
+      <console v-if="rightPanel === 'console'" />
+      <events-list v-if="rightPanel === 'events'" />
+      <settings v-if="rightPanel === 'settings'" />
+
+      <!-- Contract panels -->
+      <import-contract v-if="rightPanel === 'importContract'" />
       <deploy-contract
         v-if="rightPanel === 'deployContract'"
         :file="this.deployContract"
@@ -24,11 +33,6 @@
         :contractId="this.callContract"
         :key="this.callContract"
       />
-      <account-selector v-if="rightPanel === 'accountSelector'" />
-      <console v-if="rightPanel === 'console'" />
-      <events-list v-if="rightPanel === 'events'" />
-      <settings v-if="rightPanel === 'settings'" />
-      <import-contract v-if="rightPanel === 'importContract'" />
       <div class="right-sidebar">
         <div class="action" @click="handleToggleRightPanel('console')">
           <img src="@/assets/terminal.svg" />
@@ -52,13 +56,13 @@
 import FilesList from "@/components/Files/List";
 import ContractsList from "@/components/Contracts/List";
 import TopBar from "@/components/TopBar/index";
-import AccountSelector from "@/components/AccountSelector";
+
 import Console from "@/components/Console";
 
 // Panels
 import DeployContract from "@/components/Panels/DeployContract";
 import CallContract from "@/components/Panels/CallContract";
-
+import AccountImport from "@/components/Panels/AccountImport";
 
 import ImportContract from "@/components/ImportContract";
 import EventsList from "@/components/EventsList";
@@ -88,7 +92,7 @@ export default {
     FilesList,
     ContractsList,
     TopBar,
-    AccountSelector,
+    AccountImport,
     Console,
     DeployContract,
     CallContract,
@@ -161,12 +165,9 @@ export default {
     window.EventBus.$on("close-right-panel", () => {
       this.rightPanel = false;
     });
-    window.EventBus.$on("open-account-selector", () => {
-      this.rightPanel = "accountSelector";
-    });
 
-    window.EventBus.$on("close-account-selector", () => {
-      this.rightPanel = false;
+    window.EventBus.$on("open-account-import", () => {
+      this.rightPanel = "accountImport";
     });
 
     window.EventBus.$on("open-deploy-contract", file => {
@@ -240,17 +241,21 @@ export default {
 }
 
 .btn {
+  border-radius: 0px !important;
   font-size: 0.85rem;
   transition: all 0.2s ease-in-out;
-  i.fas {
-    transition: all 0.2s ease-in-out;
-    margin-left: 0.2rem;
-  }
 
-  &:hover {
+  &.btn-block {
     i.fas {
       transition: all 0.2s ease-in-out;
-      margin-left: 0.5rem;
+      margin-left: 0.2rem;
+    }
+
+    &:hover {
+      i.fas {
+        transition: all 0.2s ease-in-out;
+        margin-left: 0.5rem;
+      }
     }
   }
 
@@ -263,6 +268,23 @@ export default {
       border-color: lighten($color: $primary, $amount: 8);
     }
   }
+
+  &.btn-outline {
+    background-color: transparent;
+    &:hover {
+      background-color: transparent;
+      background-color: transparentize($color: $secondary, $amount: 0.9)
+    }
+  }
+}
+
+input.form-control {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-color: #eee !important;
+  border: 0 !important;
+  border-radius: 0 !important;
 }
 
 .ide {

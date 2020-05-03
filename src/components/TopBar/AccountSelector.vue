@@ -11,7 +11,7 @@
       </div>
 
       <div class="accounts-list flex-column">
-        <div class="item item-action">
+        <div class="item item-action" @click="handleImport">
           <div class="btn-action">
             <i class="fas fa-file-import mr-2"></i>
             Import account
@@ -58,8 +58,10 @@ export default {
   methods: {
     async handleSelect({ address }) {
       await this.$store.dispatch("accounts/SelectAccount", { address });
-      window.EventBus.$emit("close-account-selector");
       window.EventBus.$emit("refresh-balance");
+    },
+    handleImport() {
+      window.EventBus.$emit("open-account-import");
     }
   }
 };
