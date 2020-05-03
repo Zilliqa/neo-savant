@@ -71,10 +71,7 @@ import ContractInput from "@/components/Inputs/ContractInput";
 import TransactionParameters from "@/components/Inputs/TransactionParameters";
 
 import VueJsonPretty from "vue-json-pretty";
-import { BN, units, bytes, Long } from "@zilliqa-js/util";
-// import Ledger from '@/utils/zil-ledger-interface';
-// import TransportU2F from '@ledgerhq/hw-transport-u2f';
-import { Zilliqa } from "@zilliqa-js/zilliqa";
+import { BN, bytes, Long } from "@zilliqa-js/util";
 import { mapGetters } from "vuex";
 import axios from "axios";
 
@@ -119,35 +116,51 @@ export default {
       return;
     }
     this.getContractABI();
+
+    window.EventBus.$on("sign-success", async payload => {
+      console.log(payload);
+
+      const contractId = await this.zilliqa.blockchain.getContractAddressFromTransactionID(
+        payload.txId
+      );
+
+      const contract = {
+        transId: payload.txId,
+        txData: payload.txData,
+        contractId: "0x" + contractId.result,
+        network: this.network.url,
+        file_id: this.file.id,
+        file_name: this.file.name,
+        deployed_by: this.account.address,
+        code: this.file.code
+      };
+
+      this.loading = false;
+
+      if (payload.receipt.success !== false) {
+        await this.$store
+          .dispatch("contracts/AddContract", contract)
+          .then(() => {
+            this.signedTx = {
+              receipt: payload.receipt,
+              transId: payload.txId,
+              contractAddress: "0x" + contractId.result
+            };
+          });
+      } else {
+        this.signedTx = {
+          receipt: payload.receipt,
+          transId: payload.txId,
+          contractAddress: "0x" + contractId.result
+        };
+      }
+
+      window.EventBus.$emit("refresh-balance");
+    });
   },
   methods: {
     handleClose() {
       window.EventBus.$emit("close-right-panel");
-    },
-    copyToClipboard() {
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(this.account.address).then(() => {
-          this.copied = true;
-
-          setTimeout(() => {
-            this.copied = false;
-          }, 1000);
-        });
-      } else {
-        const input = document.createElement("input");
-        document.body.appendChild(input);
-        input.value = this.account.address;
-        input.focus();
-        input.select();
-        const result = document.execCommand("copy");
-        if (result !== "unsuccessful") {
-          this.copied = true;
-
-          setTimeout(() => {
-            this.copied = false;
-          }, 1000);
-        }
-      }
     },
     async resetComponent() {
       this.abi = undefined;
@@ -168,115 +181,36 @@ export default {
         return false;
       }
 
-      this.loading = "Trying to decrypt keystore file and access wallet...";
+      const init = this.abi.params.map(item => {
+        return { vname: item.vname, value: item.value, type: item.type };
+      });
+
+      init.push({
+        vname: "_scilla_version",
+        type: "Uint32",
+        value: "0"
+      });
+
       try {
-        if (this.zilliqa === undefined) {
-          this.zilliqa = new Zilliqa(this.network.url);
-        }
-
-        let loaded = null;
-
-        if (this.network.url !== process.env.VUE_APP_ISOLATED_URL) {
-          if (this.passphrase === "" || this.passphrase === undefined) {
-            throw new Error("Please enter passphrase.");
-          }
-
-          loaded = await this.zilliqa.wallet.addByKeystore(
-            this.account.keystore,
-            this.passphrase
-          );
-        } else {
-          loaded = await this.zilliqa.wallet.addByPrivateKey(
-            this.account.keystore
-          );
-        }
-
-        if (loaded == null) {
-          throw new Error("Error on loading account");
-        }
-
-        // Verify if account is created on blockchain
-        const balance = await this.zilliqa.blockchain.getBalance(loaded);
-
-        if (balance.error !== undefined) {
-          throw new Error(balance.error.message);
-        }
-
-        const zils = units.fromQa(
-          new BN(balance.result.balance),
-          units.Units.Zil
-        );
-        if (zils < 20) {
-          throw new Error(
-            "You account should have more than 20 ZIL to be able to perform actions."
-          );
-        }
-
-        this.loading =
-          "Trying to sign and send transaction... this might take between 3-5 minutes.";
-
-        const chainId = this.network.chainId; // chainId of the developer testnet
-        const msgVersion = this.network.msgVersion; // current msgVersion
-        const VERSION = bytes.pack(chainId, msgVersion);
-
-        const init = this.abi.params.map(item => {
-          return { vname: item.vname, value: item.value, type: item.type };
-        });
-
-        init.push({
-          vname: "_scilla_version",
-          type: "Uint32",
-          value: "0"
-        });
-
-        const tx = this.zilliqa.transactions.new({
-          version: VERSION,
-          toAddr: "0x0000000000000000000000000000000000000000",
-          amount: new BN(this.amount),
-          gasPrice: new BN(this.gasPrice), // in Qa
-          gasLimit: Long.fromNumber(this.gasLimit),
-          code: this.file.code,
-          data: JSON.stringify(init).replace(/\\"/g, '"'),
-        },true);
-
-        const signedTx = await this.zilliqa.blockchain.createTransaction(tx);
-
-        const contractId = await this.zilliqa.blockchain.getContractAddressFromTransactionID(
-          tx.id
+        const VERSION = bytes.pack(
+          this.network.chainId,
+          this.network.msgVersion
         );
 
-        const contract = {
-          transId: signedTx.id,
-          txData: signedTx,
-          contractId: "0x" + contractId.result,
-          network: this.network.url,
-          file_id: this.file.id,
-          file_name: this.file.name,
-          deployed_by: this.account.address,
-          code: this.file.code
-        };
+        const tx = this.zilliqa.transactions.new(
+          {
+            version: VERSION,
+            toAddr: "0x0000000000000000000000000000000000000000",
+            amount: new BN(this.amount),
+            gasPrice: new BN(this.gasPrice), // in Qa
+            gasLimit: Long.fromNumber(this.gasLimit),
+            code: this.file.code,
+            data: JSON.stringify(init).replace(/\\"/g, '"')
+          },
+          true
+        );
 
-        this.loading = false;
-
-        if (signedTx.receipt.success !== false) {
-          await this.$store
-            .dispatch("contracts/AddContract", contract)
-            .then(() => {
-              this.signedTx = {
-                receipt: signedTx.receipt,
-                transId: signedTx.id,
-                contractAddress: "0x" + contractId.result
-              };
-            });
-        } else {
-          this.signedTx = {
-            receipt: signedTx.receipt,
-            transId: signedTx.id,
-            contractAddress: "0x" + contractId.result
-          };
-        }
-
-        window.EventBus.$emit("refresh-balance");
+        window.EventBus.$emit("sign-transaction", tx);
       } catch (error) {
         this.loading = false;
         this.error = error.message;

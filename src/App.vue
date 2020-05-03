@@ -33,6 +33,10 @@
         :contractId="this.callContract"
         :key="this.callContract"
       />
+
+      <!-- Transactions panels -->
+      <sign-transaction v-if="rightPanel === 'signTransaction'" :tx="signTransaction" />
+
       <div class="right-sidebar">
         <div class="action" @click="handleToggleRightPanel('console')">
           <img src="@/assets/terminal.svg" />
@@ -63,6 +67,7 @@ import Console from "@/components/Console";
 import DeployContract from "@/components/Panels/DeployContract";
 import CallContract from "@/components/Panels/CallContract";
 import AccountImport from "@/components/Panels/AccountImport";
+import SignTransaction from "@/components/Panels/SignTransaction";
 
 import ImportContract from "@/components/ImportContract";
 import EventsList from "@/components/EventsList";
@@ -84,8 +89,7 @@ export default {
       rightPanel: false,
       deployContract: false,
       callContract: false,
-      zilliqa: undefined,
-      VERSION: undefined
+      signTransaction: false
     };
   },
   components: {
@@ -97,6 +101,7 @@ export default {
     DeployContract,
     CallContract,
     ImportContract,
+    SignTransaction,
     EventsList,
     Settings,
     Tools
@@ -155,7 +160,7 @@ export default {
           this.$store.dispatch("accounts/AddAccount", {
             address: item.address,
             keystore: item.privateKey,
-            type: "keystore"
+            type: "privatekey"
           });
         });
       }
@@ -188,6 +193,11 @@ export default {
 
     window.EventBus.$on("open-import-contract", () => {
       this.rightPanel = "importContract";
+    });
+
+    window.EventBus.$on("sign-transaction", payload => {
+      this.rightPanel = "signTransaction";
+      this.signTransaction = payload;
     });
   }
 };
@@ -273,7 +283,7 @@ export default {
     background-color: transparent;
     &:hover {
       background-color: transparent;
-      background-color: transparentize($color: $secondary, $amount: 0.9)
+      background-color: transparentize($color: $secondary, $amount: 0.9);
     }
   }
 }

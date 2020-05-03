@@ -179,7 +179,7 @@
 
 <script>
 import { BN, units } from "@zilliqa-js/util";
-import Ledger from "@/utils/ledger-interface";
+import LedgerInterface from "@/utils/ledger-interface";
 import TransportU2F from "@ledgerhq/hw-transport-u2f";
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { mapGetters } from "vuex";
@@ -278,7 +278,7 @@ export default {
       this.loading = "Trying to create U2F transport.";
       const transport = await TransportU2F.create();
       this.loading = "Trying to initialize Ledger Transport";
-      const zil = new Ledger(transport);
+      const zil = new LedgerInterface(transport);
       this.loading = "Please confirm action on Ledger Device";
       const address = await zil.getPublicAddress(this.currentIndex + 1);
       if (this.zilliqa === undefined) {

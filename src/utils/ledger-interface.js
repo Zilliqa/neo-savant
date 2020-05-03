@@ -195,4 +195,4 @@ class LedgerInterface {
     }
 }
 
-exports.default = LedgerInterface;
+export default LedgerInterface;
