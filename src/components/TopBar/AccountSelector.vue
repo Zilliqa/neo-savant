@@ -12,10 +12,13 @@
 
       <div class="accounts-list flex-column">
         <div class="item item-action">
-          <div class="btn-action">Import account</div>
+          <div class="btn-action">
+            <i class="fas fa-file-import mr-2"></i>
+            Import account
+          </div>
         </div>
 
-        <div class="item-separator"></div>
+        <div class="item-separator" v-if="filteredList.length"></div>
         <div
           class="item d-flex align-items-center"
           v-for="account in filteredList"
@@ -25,7 +28,7 @@
           <address-display
             class="select-account"
             :address="account.address"
-            @click="handleSelect(account)"
+            @click.native="handleSelect(account)"
             title="Click to select account"
           ></address-display>
         </div>
@@ -53,8 +56,10 @@ export default {
   },
   components: { CopyToClipboard, AddressDisplay },
   methods: {
-    handleSelect() {
-      window.EventBus.$emit("open-account-selector");
+    async handleSelect({ address }) {
+      await this.$store.dispatch("accounts/SelectAccount", { address });
+      window.EventBus.$emit("close-account-selector");
+      window.EventBus.$emit("refresh-balance");
     }
   }
 };
@@ -89,6 +94,7 @@ export default {
 
   .accounts-list {
     display: none;
+    min-width: 100%;
 
     .item {
       padding: 0.5rem;
@@ -104,7 +110,7 @@ export default {
 
     .item-action {
       cursor: pointer;
-      padding-left: calc(1rem + 24px);
+      padding-left: calc(0.5rem + 5px);
       font-weight: bold;
     }
 
