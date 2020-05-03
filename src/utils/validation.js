@@ -1,7 +1,7 @@
 import { validation } from "@zilliqa-js/util";
 
 const getParamType = ({ type }) => {
-    const regex = /(?<List>List (.+))|(?<ByStr20>ByStr20)|(?<String>String)|(?<ByStr>ByStr)\d{1,}|(?<Uint>Uint)\d{1,}|(?<BNum>BNum)/;
+    const regex = /(?<List>List (.+))|(?<ByStr20>ByStr20)|(?<String>String)|(?<ByStr>ByStr)\d{1,}|(?<Uint>Uint)\d{1,}|(?<Int>Int)\d{1,}|(?<BNum>BNum)/;
     const results = type.match(regex).groups;
 
     let foundType = null;
@@ -45,6 +45,12 @@ const validateParam = ({ type, value }) => {
         case 'Uint': {
             if (value && !Number.isInteger(parseInt(value))) {
                 throw new Error('Uint should be a integer number.');
+            }
+            return true;
+        }
+        case 'Int': {
+            if (value && !Number.isInteger(parseInt(value))) {
+                throw new Error('Int should be a integer number.');
             }
             return true;
         }
