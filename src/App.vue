@@ -9,15 +9,14 @@
         <contracts-list />
       </div>
       <div class="right-panel">
-        <div class="main-panel">
+        <div class="main-panel" :class="{'has-bottom-panel': bottomPanel}">
           <router-view />
         </div>
-        <div class="bottom-panel d-none"></div>
+        <bottom-panel :active="bottomPanel" v-on:toggle="handleToggleBottomPanel" />
       </div>
 
       <account-import v-if="rightPanel === 'accountImport'" />
 
-      <console v-if="rightPanel === 'console'" />
       <events-list v-if="rightPanel === 'events'" />
       <settings v-if="rightPanel === 'settings'" />
 
@@ -61,13 +60,13 @@ import FilesList from "@/components/Files/List";
 import ContractsList from "@/components/Contracts/List";
 import TopBar from "@/components/TopBar/index";
 
-import Console from "@/components/Console";
-
 // Panels
 import DeployContract from "@/components/Panels/DeployContract";
 import CallContract from "@/components/Panels/CallContract";
 import AccountImport from "@/components/Panels/AccountImport";
 import SignTransaction from "@/components/Panels/SignTransaction";
+
+import BottomPanel from "@/components/BottomPanel";
 
 import ImportContract from "@/components/ImportContract";
 import EventsList from "@/components/EventsList";
@@ -89,6 +88,7 @@ export default {
       rightPanel: false,
       deployContract: false,
       callContract: false,
+      bottomPanel: true,
       signTransaction: false
     };
   },
@@ -97,11 +97,11 @@ export default {
     ContractsList,
     TopBar,
     AccountImport,
-    Console,
     DeployContract,
     CallContract,
     ImportContract,
     SignTransaction,
+    BottomPanel,
     EventsList,
     Settings,
     Tools
@@ -124,6 +124,9 @@ export default {
       } else {
         this.rightPanel = type;
       }
+    },
+    handleToggleBottomPanel() {
+      this.bottomPanel = !this.bottomPanel;
     }
   },
   async created() {
@@ -302,10 +305,6 @@ input.form-control {
   display: flex;
   height: 100%;
 
-  &.only2 {
-    grid-template-columns: 1fr 4fr;
-  }
-
   .left-panel {
     padding: 1.5rem 0;
     height: 100%;
@@ -313,13 +312,19 @@ input.form-control {
     width: 300px;
   }
 
-  .main-panel {
-    height: 100%;
-  }
-
   .right-panel {
     height: 100%;
     flex-grow: 1;
+
+    .main-panel {
+      height: calc(
+        100% - 1.25rem - 1px
+      ); // full height - bottom panel header - border
+
+      &.has-bottom-panel {
+        height: calc(100% - 150px); // full height - bottom panel
+      }
+    }
   }
   .right-sidebar {
     position: absolute;
