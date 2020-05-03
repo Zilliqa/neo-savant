@@ -346,7 +346,7 @@ export default {
             window.EventBus.$emit("refresh-balance");
             window.EventBus.$emit("close-right-panel");
             this.$notify({
-              group: "accounts",
+              group: "scilla",
               type: "success",
               position: "bottom right",
               title: "Accounts",
