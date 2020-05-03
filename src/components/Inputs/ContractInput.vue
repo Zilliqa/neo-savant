@@ -23,7 +23,7 @@
       :showGutter="false"
       :highlightActiveLine="true"
       ref="paramValue"
-      mode="json"
+      mode="text"
       lang="json"
       theme="dawn"
       width="100%"

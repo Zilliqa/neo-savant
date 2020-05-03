@@ -237,8 +237,7 @@ export default {
           gasLimit: Long.fromNumber(this.gasLimit),
           code: this.file.code,
           data: JSON.stringify(init).replace(/\\"/g, '"'),
-          priority: true
-        });
+        },true);
 
         const signedTx = await this.zilliqa.blockchain.createTransaction(tx);
 

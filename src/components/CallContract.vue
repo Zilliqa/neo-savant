@@ -274,8 +274,8 @@ export default {
           data: JSON.stringify({
             _tag: this.exec.vname,
             params: init
-          })
-        });
+          }),
+        },true);
 
         const signedTx = await this.zilliqa.blockchain.createTransaction(tx);
 

@@ -183,6 +183,9 @@ end
 
 (* Getter transitions *)
 
+(* @dev: Check if an address is an operator or default operator of a token_owner. Provide a Bool *)
+(* @param operator:    Address of a potential operator.                                          *)
+(* @param token_owner: Address of a token_owner.                                                 *)
 transition IsOperatorFor(token_owner: ByStr20, operator: ByStr20)
   is_operator_approved <- exists operators_map[token_owner][operator];
   is_default_operator = is_default_operator f_eq operator default_operators;
@@ -199,6 +202,9 @@ end
 
 (* Optional transitions *)
 
+(* @dev: Optional transition. Mint new tokens. Only contract_owner can mint. *)
+(* @param recipient: Address of the recipient whose balance is to increase.  *)
+(* @param amount:    Number of tokens to be minted.                          *)
 transition Mint(recipient: ByStr20, amount: Uint128)
   is_owner = builtin eq _sender contract_owner;
    match is_owner with
@@ -217,6 +223,9 @@ transition Mint(recipient: ByStr20, amount: Uint128)
     end
 end
 
+(* @dev: Optional transition. Burn existing tokens. Only contract_owner can burn. *)
+(* @param burn_account: Address of the token_owner whose balance is to decrease.  *)
+(* @param amount:       Number of tokens to be burned.                            *)
 transition Burn(burn_account: ByStr20, amount: Uint128)
   is_owner = builtin eq _sender contract_owner;
     match is_owner with
@@ -234,6 +243,9 @@ end
 
 (* Compulsory interface transitions *)
 
+(* @dev: Make an address an operator of the caller.             *)
+(* @param operator: Address to be authorize as operator or      *)
+(* Re-authorize as default_operator. Cannot be calling address. *)
 transition AuthorizeOperator(operator: ByStr20)
   is_sender = builtin eq operator _sender;
   match is_sender with
@@ -259,6 +271,8 @@ transition AuthorizeOperator(operator: ByStr20)
   end
 end
 
+(* @dev: Revoke an address from being an operator or default_operator of the caller. *)
+(* @param operator: Address to be removed as operator or default_operator.           *)
 transition RevokeOperator(operator: ByStr20)
   is_default_operator = is_default_operator f_eq operator default_operators;
   match is_default_operator with
@@ -284,6 +298,9 @@ transition RevokeOperator(operator: ByStr20)
   end
 end
 
+(* @dev: Increase the allowance of an approved_spender over the callers tokens. Only token_owner allowed to invoke. *)
+(* param spender:      Address of the designated approved_spender.                                                   *)
+(* param amount:       Number of tokens to be increased as allowance for the approved_spender.                       *)
 transition IncreaseAllowance(spender: ByStr20, amount: Uint128)
   (* Checks if the _sender and approved_spender is the same *)
   is_owner = builtin eq _sender spender;
@@ -305,6 +322,9 @@ transition IncreaseAllowance(spender: ByStr20, amount: Uint128)
   end
 end
 
+(* @dev: Decrease the allowance of an approved_spender over the callers tokens. Only token_owner allowed to invoke. *)
+(* param spender:      Address of the designated approved_spender.                                                   *)
+(* param amount:       Number of tokens to be decreased as allowance for the approved_spender.                       *)
 transition DecreaseAllowance(spender: ByStr20, amount: Uint128)
   (* Checks if the _sender and approved_spender is the same *)
   is_owner = builtin eq _sender spender;
@@ -331,6 +351,10 @@ transition DecreaseAllowance(spender: ByStr20, amount: Uint128)
   end
 end
 
+(* @dev: Moves an amount tokens from _sender to the recipient. Used by token_owner. *)
+(* @dev: Balance of recipient will increase. Balance of _sender will decrease.      *)
+(* @param to:  Address of the recipient whose balance is increased.                 *)
+(* @param amount:     Amount of tokens to be sent.                                  *)
 transition Transfer(to: ByStr20, amount: Uint128)
   AuthorizedMoveIfSufficientBalance _sender to amount;
   e = {_eventname : "Transfer"; sender : _sender; recipient : to; amount : amount};
@@ -344,6 +368,11 @@ transition Transfer(to: ByStr20, amount: Uint128)
   send msgs
 end
 
+(* @dev: Moves amount tokens from token_owner to recipient. _sender must be an operator of token_owner. *)
+(* @dev: Balance of recipient will increase. Balance of token_owner will decrease.                      *)
+(* @param from:        Address of the token_owner whose balance is decreased.                           *)
+(* @param to:          Address of the recipient whose balance is increased.                             *)
+(* @param amount:      Amount of tokens to be sent.                                                     *)
 transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
   is_operator_approved <- exists operators_map[from][_sender];
   is_default_operator = is_default_operator f_eq _sender default_operators;
@@ -369,6 +398,11 @@ transition OperatorSend(from: ByStr20, to: ByStr20, amount: Uint128)
    end
 end
 
+(* @dev: Move a given amount of tokens from one address to another using the allowance mechanism. The caller must be an approved_spender. *)
+(* @dev: Balance of recipient will increase. Balance of token_owner will decrease.                                                        *)
+(* @param from:    Address of the token_owner whose balance is decreased.                                                                 *)
+(* @param to:      Address of the recipient whose balance is increased.                                                                   *)
+(* @param amount:  Amount of tokens to be transferred.                                                                                    *)
 transition TransferFrom(from: ByStr20, to: ByStr20, amount: Uint128)
   get_bal <- balances_map[from];
   match get_bal with
