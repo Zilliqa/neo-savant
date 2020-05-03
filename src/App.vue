@@ -37,10 +37,6 @@
       <sign-transaction v-if="rightPanel === 'signTransaction'" :tx="signTransaction" />
 
       <div class="right-sidebar">
-        <div class="action" @click="handleToggleRightPanel('console')">
-          <img src="@/assets/terminal.svg" />
-        </div>
-
         <div class="action events-badge" @click="handleToggleRightPanel('events')">
           <img src="@/assets/notifications.svg" />
 
