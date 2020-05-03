@@ -158,7 +158,7 @@ export default {
       await this.getContractABI();
     },
     async handleDeploy() {
-      this.errors = false;
+      this.error = false;
       const validatedParams = validateParams([...this.abi.params]);
 
       if (validatedParams.errors) {
@@ -208,7 +208,7 @@ export default {
         );
         if (zils < 20) {
           throw new Error(
-            "You account should have more than 20 ZIL to be able to perform multisig actions."
+            "You account should have more than 20 ZIL to be able to perform actions."
           );
         }
 

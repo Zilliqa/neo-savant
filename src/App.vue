@@ -19,15 +19,15 @@
         :file="this.deployContract"
         :key="this.deployContract.id"
       />
-      <account-selector v-if="rightPanel === 'accountSelector'" />
-      <console v-if="rightPanel === 'console'" />
-      <events-list v-if="rightPanel === 'events'" />
-      <settings v-if="rightPanel === 'settings'" />
       <call-contract
         v-if="rightPanel === 'callContract'"
         :contractId="this.callContract"
         :key="this.callContract"
       />
+      <account-selector v-if="rightPanel === 'accountSelector'" />
+      <console v-if="rightPanel === 'console'" />
+      <events-list v-if="rightPanel === 'events'" />
+      <settings v-if="rightPanel === 'settings'" />
       <import-contract v-if="rightPanel === 'importContract'" />
       <div class="right-sidebar">
         <div class="action" @click="handleToggleRightPanel('console')">
@@ -54,8 +54,12 @@ import ContractsList from "@/components/Contracts/List";
 import TopBar from "@/components/TopBar/index";
 import AccountSelector from "@/components/AccountSelector";
 import Console from "@/components/Console";
+
+// Panels
 import DeployContract from "@/components/Panels/DeployContract";
-import CallContract from "@/components/CallContract";
+import CallContract from "@/components/Panels/CallContract";
+
+
 import ImportContract from "@/components/ImportContract";
 import EventsList from "@/components/EventsList";
 import Settings from "@/components/Settings";

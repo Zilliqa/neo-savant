@@ -60,14 +60,23 @@
             <input type="text" v-model="gasLimit" class="form-control" />
           </div>
         </div>
-        <div class="row">
+        <!-- Transition parameters -->
+        <div class="row mb-4">
           <div class="col-12">
-            <p class="font-weight-bold">Transition parameters ({{exec.vname}})</p>
+            <p class="font-weight-bold">Tansition parameters ({{ exec.vname }})</p>
           </div>
           <div class="col-12 mb-4" v-for="param in exec.params" :key="param.vname">
-            <contract-input :param="param" v-model="param.value" />
+            <contract-input
+              :error="param.validationErrors"
+              :vname="param.vname"
+              :type="param.type"
+              :pvalue="param.value"
+              v-model="param.value"
+            />
           </div>
         </div>
+        <!-- Transition parameters -> needs to be moved to own component -->
+
         <div class="row">
           <div class="col-12 mb-4">
             <p class="font-weight-bold mb-0">Calling from: {{ account.address }}</p>
@@ -106,7 +115,7 @@
 </template>
 
 <script>
-import ContractInput from "./Inputs/ContractInput";
+import ContractInput from "../Inputs/ContractInput";
 
 import VueJsonPretty from "vue-json-pretty";
 import { BN, units, bytes, Long } from "@zilliqa-js/util";
@@ -115,6 +124,8 @@ import { BN, units, bytes, Long } from "@zilliqa-js/util";
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { mapGetters } from "vuex";
 import axios from "axios";
+
+import { validateParams } from "@/utils/validation.js";
 
 export default {
   data() {
@@ -132,6 +143,7 @@ export default {
       startDeploy: false,
       zilliqa: undefined,
       passphrase: undefined,
+      validatedParams: [],
       loading: false,
       files: undefined,
       error: false,
@@ -141,7 +153,8 @@ export default {
         1: "RUNNER_FAILED",
         5: "NO_GAS_REMAINING_FOUND",
         7: "CALL_CONTRACT_FAILED",
-        8: "CREATE_CONTRACT_FAILED"
+        8: "CREATE_CONTRACT_FAILED",
+        9: "JSON_OUTPUT_CORRUPTED"
       }
     };
   },
@@ -209,6 +222,16 @@ export default {
       });
     },
     async handleCall() {
+      this.errors = false;
+      const validatedParams = validateParams([...this.exec.params]);
+
+      if (validatedParams.errors) {
+        this.exec.params = validatedParams.params;
+        console.log("errors");
+        this.error = "Please fix the errors in your inputs";
+        return false;
+      }
+
       try {
         this.loading = "Trying to decrypt keystore file and access wallet...";
 
@@ -246,7 +269,7 @@ export default {
         );
         if (zils < 20) {
           throw new Error(
-            "You account should have more than 20 ZIL to be able to perform multisig actions."
+            "You account should have more than 20 ZIL to be able to perform actions."
           );
         }
 
@@ -257,7 +280,9 @@ export default {
         const msgVersion = this.network.msgVersion; // current msgVersion
         const VERSION = bytes.pack(chainId, msgVersion);
 
-        const init = [...this.exec.params];
+        const init = this.exec.params.map(item => {
+          return { vname: item.vname, value: item.value, type: item.type };
+        });
 
         /* init.push({
           vname: "_scilla_version",
@@ -265,17 +290,20 @@ export default {
           value: "0"
         }); */
 
-        const tx = this.zilliqa.transactions.new({
-          version: VERSION,
-          toAddr: this.contractId,
-          amount: new BN(this.amount),
-          gasPrice: new BN(this.gasPrice), // in Qa
-          gasLimit: Long.fromNumber(this.gasLimit),
-          data: JSON.stringify({
-            _tag: this.exec.vname,
-            params: init
-          }),
-        },true);
+        const tx = this.zilliqa.transactions.new(
+          {
+            version: VERSION,
+            toAddr: this.contractId,
+            amount: new BN(this.amount),
+            gasPrice: new BN(this.gasPrice), // in Qa
+            gasLimit: Long.fromNumber(this.gasLimit),
+            data: JSON.stringify({
+              _tag: this.exec.vname,
+              params: init
+            })
+          },
+          true
+        );
 
         const signedTx = await this.zilliqa.blockchain.createTransaction(tx);
 
