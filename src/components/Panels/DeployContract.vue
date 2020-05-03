@@ -72,6 +72,8 @@ import TransactionParameters from "@/components/Inputs/TransactionParameters";
 
 import VueJsonPretty from "vue-json-pretty";
 import { BN, bytes, Long } from "@zilliqa-js/util";
+import { Zilliqa } from "@zilliqa-js/zilliqa";
+
 import { mapGetters } from "vuex";
 import axios from "axios";
 
@@ -172,6 +174,7 @@ export default {
     },
     async handleDeploy() {
       this.error = false;
+      const zilliqa = new Zilliqa(this.network.url);
       const validatedParams = validateParams([...this.abi.params]);
 
       if (validatedParams.errors) {
@@ -197,7 +200,7 @@ export default {
           this.network.msgVersion
         );
 
-        const tx = this.zilliqa.transactions.new(
+        const tx = zilliqa.transactions.new(
           {
             version: VERSION,
             toAddr: "0x0000000000000000000000000000000000000000",
