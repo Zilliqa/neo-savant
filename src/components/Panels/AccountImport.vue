@@ -68,6 +68,7 @@
               <tbody>
                 <tr
                   v-for="(account, index) in accounts"
+                  class="ledger-account-item"
                   :key="index"
                   @click="useLedgerAccount(index)"
                 >
@@ -140,39 +141,6 @@
 
         <div class="alert alert-danger my-2" v-if="error">{{ error }}</div>
       </div>
-
-      <!-- <div class="import-form" v-if="importAccount">
-        <div class="row">
-          <div class="col-12 mb-4">
-            <label class="font-weight-bold">Select your keystore.json file</label>
-            <div class="file-text">
-              <div
-                v-if="selectedFile !== undefined && selectedFile.name !== undefined"
-              >{{ selectedFile.name }}</div>
-              <button class="btn btn-secondary p-2 mr-2" @click="$refs.file.click()">
-                <i class="fas fa-file-upload"></i> BROWSE
-              </button>
-            </div>
-            <input type="file" ref="file" @change="onFileChange" class="d-none" />
-          </div>
-
-          <div class="col-12 mb-4">
-            <label class="font-weight-bold">Enter your passphrase</label>
-            <input
-              type="password"
-              class="form-control"
-              v-model="passphrase"
-              placeholder="Passprase"
-            />
-          </div>
-
-          <div class="col-12 mb-4" v-if="passphrase && selectedFile && !loading">
-            <button class="btn btn-secondary" @click="handleImport">Import wallet</button>
-          </div>
-          <div class="alert alert-info" v-if="loading">{{loading}}</div>
-          <div class="alert alert-danger" v-if="error">{{error}}</div>
-        </div>
-      </div>-->
     </div>
   </div>
 </template>
@@ -183,6 +151,7 @@ import LedgerInterface from "@/utils/ledger-interface";
 import TransportU2F from "@ledgerhq/hw-transport-u2f";
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { mapGetters } from "vuex";
+import { fromBech32Address } from "@zilliqa-js/crypto";
 
 export default {
   data() {
@@ -199,7 +168,6 @@ export default {
     };
   },
   computed: {
-    //...mapGetters("accounts", ["list", "selected"]),
     ...mapGetters("networks", { network: "selected" })
   },
   methods: {
@@ -232,48 +200,6 @@ export default {
         await this.tryKeystoreLogin();
       }
     },
-    /* async handleImport() {
-      this.error = false;
-      this.account = false;
-
-      try {
-        this.loading = "Trying to decrypt keystore file and access wallet...";
-
-        if (this.zilliqa === undefined) {
-          this.zilliqa = new Zilliqa(this.network.url);
-        }
-
-        if (this.selectedFile === "" || this.selectedFile === undefined) {
-          throw new Error("Please select your keystore file.");
-        }
-
-        if (this.passphrase === "" || this.passphrase === undefined) {
-          throw new Error("Please enter passphrase.");
-        }
-
-        this.file = await this.readUploadedFileAsText(this.selectedFile);
-
-        const address = await this.zilliqa.wallet.addByKeystore(
-          this.file,
-          this.passphrase
-        );
-
-        await this.$store
-          .dispatch("accounts/AddAccount", {
-            address: address,
-            keystore: this.file,
-            type: "keystore"
-          })
-          .then(() => {
-            this.importAccount = false;
-            this.loading = false;
-          });
-        window.EventBus.$emit("refresh-balance");
-      } catch (error) {
-        this.loading = false;
-        this.error = error.message;
-      }
-    }, */
     async generateLedgerAccount() {
       this.loading = "Trying to create U2F transport.";
       const transport = await TransportU2F.create();
@@ -288,7 +214,7 @@ export default {
       if (balance.error && balance.error.code === -5) {
         this.accounts.push({
           index: this.currentIndex + 1,
-          address: address.pubAddr,
+          address: fromBech32Address(address.pubAddr),
           balance: 0
         });
       } else {
@@ -298,7 +224,7 @@ export default {
         );
         this.accounts.push({
           index: this.currentIndex + 1,
-          address: address.pubAddr,
+          address: fromBech32Address(address.pubAddr),
           balance: zils
         });
       }
@@ -306,8 +232,28 @@ export default {
       transport.close();
       this.loading = false;
     },
-    useLedgerAccount(index) {
+    async useLedgerAccount(index) {
+      console.log()
       const account = this.accounts[index];
+      await this.$store
+          .dispatch("accounts/AddAccount", {
+            address: account.address,
+            keystore: account.index,
+            type: "ledger"
+          })
+          .then(() => {
+            window.EventBus.$emit("refresh-balance");
+            window.EventBus.$emit("close-right-panel");
+            this.$notify({
+              group: "scilla",
+              type: "success",
+              position: "bottom right",
+              title: "Accounts",
+              text: "Account successfully imported"
+            });
+            this.importAccount = false;
+            this.loading = false;
+          });
       window.EventBus.$emit("login-success", {
         keystore: account.index,
         address: account.address
@@ -398,6 +344,15 @@ export default {
       svg {
         fill: #fff;
       }
+    }
+  }
+}
+
+.account-selector {
+  .ledger-account-item {
+    &:hover {
+      cursor: pointer;
+      background-color: transparentize($color: $primary, $amount: 0.7);
     }
   }
 }
