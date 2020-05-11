@@ -231,106 +231,158 @@ export default {
         }
       }
     },
-    async handleSign(tx) {
-      if (this.account.type === "ledger") {
-        try {
-          this.loading = "Trying to create U2F transport.";
-          const transport = await TransportU2F.create();
-          this.loading = "Connect your Ledger Device and open Zilliqa App.";
-          this.ledger = new LedgerInterface(transport);
-          this.loading = "Confirm Public Key generation on Ledger Device";
-          const pubkey = await this.ledger.getPublicKey(this.account.keystore);
+    async handleLedgerSign(tx) {
+      try {
+        this.loading = "Trying to create U2F transport.";
+        const transport = await TransportU2F.create();
+        this.loading = "Connect your Ledger Device and open Zilliqa App.";
+        this.ledger = new LedgerInterface(transport);
+        this.loading = "Confirm Public Key generation on Ledger Device";
+        const pubkey = await this.ledger.getPublicKey(this.account.keystore);
 
-          const address = getAddressFromPublicKey(pubkey.publicKey);
+        const address = getAddressFromPublicKey(pubkey.publicKey);
 
-          let balance = await this.zilliqa.blockchain.getBalance(address);
+        let balance = await this.zilliqa.blockchain.getBalance(address);
 
-          if (balance.error && balance.error.code === -5) {
-            throw new Error("Account has no balance.");
-          } else {
-            this.nonce = balance.result.nonce;
-            this.address = address;
-            this.publicKey = pubkey.publicKey;
-            const zils = units.fromQa(
-              new BN(balance.result.balance),
-              units.Units.Zil
-            );
-            this.loading = `Account balance: ${zils} ZIL`;
-            this.generatedKeys = true;
+        if (balance.error && balance.error.code === -5) {
+          throw new Error("Account has no balance.");
+        } else {
+          this.nonce = balance.result.nonce;
+          this.address = address;
+          this.publicKey = pubkey.publicKey;
+          const zils = units.fromQa(
+            new BN(balance.result.balance),
+            units.Units.Zil
+          );
+          this.loading = `Account balance: ${zils} ZIL`;
+          this.generatedKeys = true;
 
-            let nonce = parseInt(this.nonce) + 1;
-            this.loading = "";
+          let nonce = parseInt(this.nonce) + 1;
+          this.loading = "";
 
-            const oldp = tx.txParams;
-            const newP = {
-              version: oldp.version,
-              toAddr: oldp.toAddr,
-              amount: oldp.amount,
-              code: oldp.code,
-              data: oldp.data,
-              gasLimit: oldp.gasLimit,
-              gasPrice: oldp.gasPrice,
-              nonce: nonce,
-              pubKey: this.publicKey,
-              signature: ""
-            };
+          const oldp = tx.txParams;
+          const newP = {
+            version: oldp.version,
+            toAddr: oldp.toAddr,
+            amount: oldp.amount,
+            code: oldp.code,
+            data: oldp.data,
+            gasLimit: oldp.gasLimit,
+            gasPrice: oldp.gasPrice,
+            nonce: nonce,
+            pubKey: this.publicKey,
+            signature: ""
+          };
 
-            this.loading = "Sign transaction from the Ledger Device";
-            const signed = await this.ledger.signTxn(this.keystore, newP);
-            const signature = signed.sig;
+          this.loading = "Sign transaction from the Ledger Device";
+          const signed = await this.ledger.signTxn(this.keystore, newP);
+          const signature = signed.sig;
 
-            const newtx = {
-              id: "1",
-              jsonrpc: "2.0",
-              method: "CreateTransaction",
-              params: [
-                {
-                  toAddr: oldp.toAddr,
-                  amount: oldp.amount.toString(),
-                  code: oldp.code,
-                  data: oldp.data,
-                  gasLimit: oldp.gasLimit.toString(),
-                  gasPrice: oldp.gasPrice.toString(),
-                  nonce: nonce,
-                  pubKey: this.publicKey,
-                  signature: signature,
-                  version: oldp.version,
-                  priority: false
-                }
-              ]
-            };
+          const newtx = {
+            id: "1",
+            jsonrpc: "2.0",
+            method: "CreateTransaction",
+            params: [
+              {
+                toAddr: oldp.toAddr,
+                amount: oldp.amount.toString(),
+                code: oldp.code,
+                data: oldp.data,
+                gasLimit: oldp.gasLimit.toString(),
+                gasPrice: oldp.gasPrice.toString(),
+                nonce: nonce,
+                pubKey: this.publicKey,
+                signature: signature,
+                version: oldp.version,
+                priority: false
+              }
+            ]
+          };
 
-            const response = await fetch(this.network.url, {
-              method: "POST",
-              mode: "cors",
-              cache: "no-cache",
-              credentials: "same-origin",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify(newtx)
-            });
+          const response = await fetch(this.network.url, {
+            method: "POST",
+            mode: "cors",
+            cache: "no-cache",
+            credentials: "same-origin",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(newtx)
+          });
 
-            let data = await response.json();
+          let data = await response.json();
 
-            if (data.result.TranID !== undefined) {
-              this.loading = "Trying to deploy transaction...";
-              this.txId = data.result.TranID;
-              this.watchTx();
-            }
-
-            if (data.result.error !== undefined) {
-              this.actionHappening = false;
-              throw new Error(data.result.error.message);
-            }
-
-            transport.close();
-
-            this.actionHappening = false;
+          if (data.result.TranID !== undefined) {
+            this.loading = "Trying to deploy transaction...";
+            this.txId = data.result.TranID;
+            this.watchTx();
           }
-        } catch (error) {
-          this.errorr = error.message;
+
+          if (data.result.error !== undefined) {
+            this.actionHappening = false;
+            throw new Error(data.result.error.message);
+          }
+
+          transport.close();
+
+          this.actionHappening = false;
         }
+      } catch (error) {
+        this.errorr = error.message;
+      }
+    },
+    async handleKeystoreSign(tx) {
+      try {
+        this.loading = "Trying to sign and send transaction...";
+
+        if (this.passphrase === "" || this.passphrase === undefined) {
+          throw new Error("Enter your passphrase.");
+        }
+
+        await this.zilliqa.wallet.addByKeystore(
+          this.account.keystore,
+          this.passphrase
+        );
+
+        const txn = await this.zilliqa.blockchain.createTransaction(tx);
+        this.txId = txn.id;
+        this.watchTries = 0;
+        await this.watchTx();
+      } catch (error) {
+        this.errror = error.message;
+      }
+    },
+    async handlePrivateKeySign(tx) {
+      try {
+        this.loading = "Trying to sign and send transaction...";
+
+        await this.zilliqa.wallet.addByPrivateKey(this.account.keystore);
+
+        const txn = await this.zilliqa.blockchain.createTransaction(tx);
+        this.txId = txn.id;
+        this.watchTries = 0;
+        await this.watchTx();
+      } catch (error) {
+        this.errror = error.message;
+      }
+    },
+    async handleSign(tx) {
+      switch (this.account.type) {
+        case "ledger":
+          this.handleLedgerSign(tx);
+          break;
+        case "keystore":
+          this.handleKeystoreSign(tx);
+          break;
+        case "privatekey":
+          this.handlePrivateKeySign(tx);
+          break;
+        default:
+          this.error = "There has been an error in account detection.";
+          break;
+      }
+      if (this.account.type === "ledger") {
+        this.handleLedgerSign(tx);
       }
     },
     async resetComponent() {
@@ -343,7 +395,6 @@ export default {
     },
     async handleDeploy() {
       this.error = false;
-      const zilliqa = new Zilliqa(this.network.url);
       const validatedParams = validateParams([...this.abi.params]);
 
       if (validatedParams.errors) {
@@ -369,7 +420,7 @@ export default {
           this.network.msgVersion
         );
 
-        const tx = zilliqa.transactions.new(
+        const tx = this.zilliqa.transactions.new(
           {
             version: VERSION,
             toAddr: "0x0000000000000000000000000000000000000000",
