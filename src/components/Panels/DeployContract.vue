@@ -45,7 +45,7 @@
         </div>
       </div>
 
-      <div class="alert alert-info" v-if="loading">{{loading}}</div>
+      <div class="alert alert-info" v-if="loading">{{loading}} <i class="fas fa-spin fa-spinner"></i></div>
       <div class="alert alert-danger" v-if="error">{{error}}</div>
 
       <div
@@ -62,8 +62,6 @@
           <li v-for="err in signedTx.receipt.errors[0]" :key="err">{{ possibleErrors[err] }}</li>
         </ul>
       </div>
-
-      <div class="alert alert-danger" v-if="error !== false">{{error}}</div>
     </div>
   </div>
 </template>
@@ -130,52 +128,11 @@ export default {
       this.error = "Please select an account first.";
       return;
     }
-    this.getContractABI();
+    this.getContractAbi();
 
     if (this.zilliqa === undefined) {
       this.zilliqa = new Zilliqa(this.network.url);
     }
-
-    window.EventBus.$on("sign-success", async payload => {
-      console.log(payload);
-
-      const contractId = await this.zilliqa.blockchain.getContractAddressFromTransactionID(
-        payload.txId
-      );
-
-      const contract = {
-        transId: payload.txId,
-        txData: payload.txData,
-        contractId: "0x" + contractId.result,
-        network: this.network.url,
-        file_id: this.file.id,
-        file_name: this.file.name,
-        deployed_by: this.account.address,
-        code: this.file.code
-      };
-
-      this.loading = false;
-
-      if (payload.receipt.success !== false) {
-        await this.$store
-          .dispatch("contracts/AddContract", contract)
-          .then(() => {
-            this.signedTx = {
-              receipt: payload.receipt,
-              transId: payload.txId,
-              contractAddress: "0x" + contractId.result
-            };
-          });
-      } else {
-        this.signedTx = {
-          receipt: payload.receipt,
-          transId: payload.txId,
-          contractAddress: "0x" + contractId.result
-        };
-      }
-
-      window.EventBus.$emit("refresh-balance");
-    });
   },
   methods: {
     handleClose() {
@@ -389,9 +346,9 @@ export default {
       this.abi = undefined;
       this.signedTx = undefined;
       this.error = false;
-      this.lading = false;
+      this.loading = false;
       this.startDeploy = false;
-      await this.getContractABI();
+      await this.getContractAbi();
     },
     async handleDeploy() {
       this.error = false;
@@ -441,7 +398,7 @@ export default {
         window.EventBus.$emit("refresh-balance");
       }
     },
-    async getContractABI() {
+    async getContractAbi() {
       axios
         .post(process.env.VUE_APP_SCILLA_CHECKER_URL, {
           code: this.file.code

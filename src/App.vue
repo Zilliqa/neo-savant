@@ -33,9 +33,6 @@
         :key="this.callContract"
       />
 
-      <!-- Transactions panels -->
-      <sign-transaction v-if="rightPanel === 'signTransaction'" :tx="signTransaction" />
-
       <div class="right-sidebar">
         <div class="action events-badge" @click="handleToggleRightPanel('events')">
           <img src="@/assets/notifications.svg" />
@@ -60,7 +57,6 @@ import TopBar from "@/components/TopBar/index";
 import DeployContract from "@/components/Panels/DeployContract";
 import CallContract from "@/components/Panels/CallContract";
 import AccountImport from "@/components/Panels/AccountImport";
-import SignTransaction from "@/components/Panels/SignTransaction";
 
 import BottomPanel from "@/components/BottomPanel";
 
@@ -84,8 +80,7 @@ export default {
       rightPanel: false,
       deployContract: false,
       callContract: false,
-      bottomPanel: true,
-      signTransaction: false
+      bottomPanel: true
     };
   },
   components: {
@@ -96,7 +91,6 @@ export default {
     DeployContract,
     CallContract,
     ImportContract,
-    SignTransaction,
     BottomPanel,
     EventsList,
     Settings,
@@ -192,11 +186,6 @@ export default {
 
     window.EventBus.$on("open-import-contract", () => {
       this.rightPanel = "importContract";
-    });
-
-    window.EventBus.$on("sign-transaction", payload => {
-      this.rightPanel = "signTransaction";
-      this.signTransaction = payload;
     });
   }
 };

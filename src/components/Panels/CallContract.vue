@@ -77,23 +77,26 @@
         </div>
         <!-- Transition parameters -> needs to be moved to own component -->
 
-        <div class="row">
-          <div class="col-12 mb-4">
-            <p class="font-weight-bold mb-0">Calling from: {{ account.address }}</p>
-            <p class="font-weight-bold">Network: {{ network.name }}</p>
-            <div v-if="network.url !== VUE_APP_ISOLATED_URL">
+        <div class="row mb-4">
+          <div class="col-12 mb-4" v-if="account.type === 'keystore'">
+            <div>
               <label>Enter your passphrase</label>
               <input type="password" v-model="passphrase" class="form-control" />
             </div>
           </div>
-          <div class="col-12 mb-4" v-if="!loading">
-            <button class="btn btn-secondary mr-2" @click="handleCall">Call Transition</button>
-            <button class="btn btn-danger" @click="handleCancel">Cancel</button>
+          <div class="col-12 d-flex" v-if="!loading">
+            <button class="btn btn-light text-danger text-small mr-2" @click="resetComponent">
+              <small>Reset</small>
+            </button>
+            <button class="btn btn-primary btn-block" @click="handleCall">
+              <i class="fas fa-paper-plane"></i>
+              Call transition
+            </button>
           </div>
         </div>
       </div>
 
-      <div class="alert alert-info" v-if="loading">{{loading}}</div>
+      <div class="alert alert-info" v-if="loading">{{loading}} <i class="fas fa-spin fa-spinner"></i></div>
       <div class="alert alert-danger" v-if="error">{{error}}</div>
 
       <div
@@ -105,7 +108,7 @@
         <vue-json-pretty :data="{...signedTx}"></vue-json-pretty>
       </div>
 
-      <div class="alert alert-danger" v-if="signedTx && signedTx.receipt.errors">
+      <div class="alert alert-danger" v-if="signedTx && signedTx.receipt.errors.length">
         <ul>
           <li v-for="err in signedTx.receipt.errors[0]" :key="err">{{ possibleErrors[err] }}</li>
         </ul>
@@ -117,15 +120,18 @@
 <script>
 import ContractInput from "../Inputs/ContractInput";
 
+import LedgerInterface from "@/utils/ledger-interface";
 import VueJsonPretty from "vue-json-pretty";
-import { BN, units, bytes, Long } from "@zilliqa-js/util";
-// import Ledger from '@/utils/zil-ledger-interface';
-// import TransportU2F from '@ledgerhq/hw-transport-u2f';
+import TransportU2F from "@ledgerhq/hw-transport-u2f";
+import { BN, bytes, Long, units } from "@zilliqa-js/util";
 import { Zilliqa } from "@zilliqa-js/zilliqa";
+import { getAddressFromPublicKey } from "@zilliqa-js/crypto";
 import { mapGetters } from "vuex";
 import axios from "axios";
 
 import { validateParams } from "@/utils/validation.js";
+
+const MAX_TRIES = 50;
 
 export default {
   data() {
@@ -148,6 +154,12 @@ export default {
       files: undefined,
       error: false,
       signedTx: undefined,
+      generatedKeys: false,
+      actionHappening: false,
+      txId: undefined,
+      watchTries: 0,
+      nonce: null,
+      publicKey: null,
       possibleErrors: {
         0: "CHECKER_FAILED",
         1: "RUNNER_FAILED",
@@ -166,7 +178,9 @@ export default {
     ...mapGetters("networks", { network: "selected" })
   },
   async mounted() {
-    this.zilliqa = new Zilliqa(this.network.url);
+    if (this.zilliqa === undefined) {
+      this.zilliqa = new Zilliqa(this.network.url);
+    }
 
     this.contractInit = (
       await this.zilliqa.blockchain.getSmartContractInit(this.contractId)
@@ -183,8 +197,208 @@ export default {
     this.abi = await this.getContractAbi();
   },
   methods: {
+    async resetComponent() {
+      this.abi = undefined;
+      this.signedTx = undefined;
+      this.error = false;
+      this.loading = false;
+      this.abi = this.getContractAbi();
+    },
     handleClose() {
       window.EventBus.$emit("close-right-panel");
+    },
+    async handleLedgerSign(tx) {
+      try {
+        this.loading = "Trying to create U2F transport.";
+        const transport = await TransportU2F.create();
+        this.loading = "Connect your Ledger Device and open Zilliqa App.";
+        this.ledger = new LedgerInterface(transport);
+        this.loading = "Confirm Public Key generation on Ledger Device";
+        const pubkey = await this.ledger.getPublicKey(this.account.keystore);
+
+        const address = getAddressFromPublicKey(pubkey.publicKey);
+
+        let balance = await this.zilliqa.blockchain.getBalance(address);
+
+        if (balance.error && balance.error.code === -5) {
+          throw new Error("Account has no balance.");
+        } else {
+          this.nonce = balance.result.nonce;
+          this.address = address;
+          this.publicKey = pubkey.publicKey;
+          const zils = units.fromQa(
+            new BN(balance.result.balance),
+            units.Units.Zil
+          );
+          this.loading = `Account balance: ${zils} ZIL`;
+          this.generatedKeys = true;
+
+          let nonce = parseInt(this.nonce) + 1;
+          this.loading = "";
+
+          const oldp = tx.txParams;
+          const newP = {
+            version: oldp.version,
+            toAddr: oldp.toAddr,
+            amount: oldp.amount,
+            code: oldp.code,
+            data: oldp.data,
+            gasLimit: oldp.gasLimit,
+            gasPrice: oldp.gasPrice,
+            nonce: nonce,
+            pubKey: this.publicKey,
+            signature: ""
+          };
+
+          this.loading = "Sign transaction from the Ledger Device";
+          const signed = await this.ledger.signTxn(this.keystore, newP);
+          const signature = signed.sig;
+
+          const newtx = {
+            id: "1",
+            jsonrpc: "2.0",
+            method: "CreateTransaction",
+            params: [
+              {
+                toAddr: oldp.toAddr,
+                amount: oldp.amount.toString(),
+                code: oldp.code,
+                data: oldp.data,
+                gasLimit: oldp.gasLimit.toString(),
+                gasPrice: oldp.gasPrice.toString(),
+                nonce: nonce,
+                pubKey: this.publicKey,
+                signature: signature,
+                version: oldp.version,
+                priority: false
+              }
+            ]
+          };
+
+          const response = await fetch(this.network.url, {
+            method: "POST",
+            mode: "cors",
+            cache: "no-cache",
+            credentials: "same-origin",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(newtx)
+          });
+
+          let data = await response.json();
+
+          if (data.result.TranID !== undefined) {
+            this.loading = "Trying to deploy transaction...";
+            this.txId = data.result.TranID;
+            this.watchTx();
+          }
+
+          if (data.result.error !== undefined) {
+            this.actionHappening = false;
+            throw new Error(data.result.error.message);
+          }
+
+          transport.close();
+
+          this.actionHappening = false;
+        }
+      } catch (error) {
+        this.errorr = error.message;
+      }
+    },
+    async handleKeystoreSign(tx) {
+      try {
+        this.loading = "Trying to sign and send transaction...";
+
+        if (this.passphrase === "" || this.passphrase === undefined) {
+          throw new Error("Enter your passphrase.");
+        }
+
+        await this.zilliqa.wallet.addByKeystore(
+          this.account.keystore,
+          this.passphrase
+        );
+
+        const txn = await this.zilliqa.blockchain.createTransaction(tx);
+        this.txId = txn.id;
+        this.watchTries = 0;
+        await this.watchTx();
+      } catch (error) {
+        this.errror = error.message;
+      }
+    },
+    async handlePrivateKeySign(tx) {
+      try {
+        this.loading = "Trying to sign and send transaction...";
+
+        await this.zilliqa.wallet.addByPrivateKey(this.account.keystore);
+
+        const txn = await this.zilliqa.blockchain.createTransaction(tx);
+        this.txId = txn.id;
+        this.watchTries = 0;
+        await this.watchTx();
+      } catch (error) {
+        this.errror = error.message;
+      }
+    },
+    async handleSign(tx) {
+      switch (this.account.type) {
+        case "ledger":
+          this.handleLedgerSign(tx);
+          break;
+        case "keystore":
+          this.handleKeystoreSign(tx);
+          break;
+        case "privatekey":
+          this.handlePrivateKeySign(tx);
+          break;
+        default:
+          this.error = "There has been an error in account detection.";
+          break;
+      }
+      if (this.account.type === "ledger") {
+        this.handleLedgerSign(tx);
+      }
+    },
+    async watchTx() {
+      if (this.txId !== undefined && this.watchTries <= MAX_TRIES) {
+        try {
+          const txn = await this.zilliqa.blockchain.getTransaction(this.txId);
+          if (txn.receipt) {
+            if (txn.receipt.success !== false) {
+              this.signedTx = {
+                receipt: txn.receipt,
+                transId: this.txId
+              };
+              if (txn.receipt.event_logs && txn.receipt.event_logs.length) {
+                await this.$store.dispatch(
+                  "events/AddEvents",
+                  txn.receipt.event_logs
+                );
+              }
+            } else {
+              this.signedTx = {
+                receipt: txn.receipt,
+                transId: this.txId
+              };
+            }
+            this.loading = false;
+            window.EventBus.$emit("refresh-balance");
+            this.signedTx = { receipt: txn.receipt, transId: this.txId };
+          } else {
+            this.watchTries = this.watchTries + 1;
+            await this.watchTx();
+          }
+        } catch (error) {
+          if (error.code === -20) {
+            this.watchTries = this.watchTries + 1;
+            setTimeout(async () => {
+              await this.watchTx();
+            }, 2000);
+          }
+        }
+      }
     },
     async refreshContractState() {
       this.contractState = (
@@ -233,49 +447,6 @@ export default {
       }
 
       try {
-        this.loading = "Trying to decrypt keystore file and access wallet...";
-
-        if (this.zilliqa === undefined) {
-          this.zilliqa = new Zilliqa(this.network.url);
-        }
-
-        let loaded = null;
-
-        if (this.network.url !== process.env.VUE_APP_ISOLATED_URL) {
-          if (this.passphrase === "" || this.passphrase === undefined) {
-            throw new Error("Please enter passphrase.");
-          }
-
-          loaded = await this.zilliqa.wallet.addByKeystore(
-            this.account.keystore,
-            this.passphrase
-          );
-        } else {
-          loaded = await this.zilliqa.wallet.addByPrivateKey(
-            this.account.keystore
-          );
-        }
-
-        // Verify if account is created on blockchain
-        const balance = await this.zilliqa.blockchain.getBalance(loaded);
-
-        if (balance.error !== undefined) {
-          throw new Error(balance.error.message);
-        }
-
-        const zils = units.fromQa(
-          new BN(balance.result.balance),
-          units.Units.Zil
-        );
-        if (zils < 20) {
-          throw new Error(
-            "You account should have more than 20 ZIL to be able to perform actions."
-          );
-        }
-
-        this.loading =
-          "Trying to sign and send transaction... this might take between 3-5 minutes.";
-
         const chainId = this.network.chainId; // chainId of the developer testnet
         const msgVersion = this.network.msgVersion; // current msgVersion
         const VERSION = bytes.pack(chainId, msgVersion);
@@ -283,12 +454,6 @@ export default {
         const init = this.exec.params.map(item => {
           return { vname: item.vname, value: item.value, type: item.type };
         });
-
-        /* init.push({
-          vname: "_scilla_version",
-          type: "Uint32",
-          value: "0"
-        }); */
 
         const tx = this.zilliqa.transactions.new(
           {
@@ -305,32 +470,7 @@ export default {
           true
         );
 
-        const signedTx = await this.zilliqa.blockchain.createTransaction(tx);
-
-        this.loading = false;
-
-        if (signedTx.receipt.success !== false) {
-          this.signedTx = {
-            receipt: signedTx.receipt,
-            transId: signedTx.id
-          };
-          if (
-            signedTx.receipt.event_logs &&
-            signedTx.receipt.event_logs.length
-          ) {
-            await this.$store.dispatch(
-              "events/AddEvents",
-              signedTx.receipt.event_logs
-            );
-          }
-        } else {
-          this.signedTx = {
-            receipt: signedTx.receipt,
-            transId: signedTx.id
-          };
-        }
-        window.EventBus.$emit("refresh-balance");
-        this.signedTx = { receipt: signedTx.receipt, transId: signedTx.id };
+        this.handleSign(tx);
       } catch (error) {
         this.loading = false;
         this.error = error.message;
