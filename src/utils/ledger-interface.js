@@ -1,6 +1,5 @@
 const txnEncoder = require('@zilliqa-js/account/dist/util').encodeTransactionProto;
 const { BN, Long } = require('@zilliqa-js/util');
-const chalk = require('chalk');
 
 const CLA = 0xe0;
 const INS = {
@@ -134,8 +133,8 @@ class LedgerInterface {
         }
 
         var txnBytes = txnEncoder(txnParams);
-        const message = JSON.stringify({ "Encoded transaction": txnBytes.toString('hex') }, null, 2);
-        console.log(chalk.green(message));
+        // const message = JSON.stringify({ "Encoded transaction": txnBytes.toString('hex') }, null, 2);
+        // console.log(chalk.green(message));
 
         const STREAM_LEN = 128; // Stream in batches of STREAM_LEN bytes each.
         var txn1Bytes;

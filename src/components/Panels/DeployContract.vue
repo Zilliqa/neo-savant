@@ -142,13 +142,11 @@ export default {
       if (this.txId !== undefined && this.watchTries <= MAX_TRIES) {
         try {
           const txn = await this.zilliqa.blockchain.getTransaction(this.txId);
-          console.log("txnn", txn);
           if (txn.receipt) {
             const contractAddress = await this.zilliqa.blockchain.getContractAddressFromTransactionID(
               this.txId
             );
             if (contractAddress.result) {
-              console.log(contractAddress);
               this.loading = false;
               const contract = {
                 transId: this.txId,
@@ -356,7 +354,6 @@ export default {
 
       if (validatedParams.errors) {
         this.abi.params = validatedParams.params;
-        console.log("errors");
         this.error = "Please fix the errors in your inputs";
         return false;
       }

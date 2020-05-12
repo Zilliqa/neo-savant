@@ -441,7 +441,6 @@ export default {
 
       if (validatedParams.errors) {
         this.exec.params = validatedParams.params;
-        console.log("errors");
         this.error = "Please fix the errors in your inputs";
         return false;
       }

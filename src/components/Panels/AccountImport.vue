@@ -233,7 +233,6 @@ export default {
       this.loading = false;
     },
     async useLedgerAccount(index) {
-      console.log()
       const account = this.accounts[index];
       await this.$store
           .dispatch("accounts/AddAccount", {
