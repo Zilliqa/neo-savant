@@ -32,7 +32,7 @@ const actions = {
 
         commit('setAccount', account);
     },
-    AddAccount({ commit, state, rootGetters }, account) {
+    AddAccount({ commit, state, rootGetters, dispatch }, account) {
         const network = rootGetters['networks/selected'];
 
         if (network.url === undefined) {
@@ -48,6 +48,7 @@ const actions = {
         }
 
         commit('addAccount', { ...account, network: network.url })
+        dispatch('SelectAccount', account);
     }
 };
 

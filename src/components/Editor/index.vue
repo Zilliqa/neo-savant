@@ -21,24 +21,27 @@
       </div>
       <div class="d-flex p-2 align-items-center" v-else>Deployed contracts are readonly.</div>
     </div>
-    <ace-editor
-      v-model="file.code"
-      :fontSize="editor.fontSize"
-      :showPrintMargin="true"
-      :showGutter="true"
-      :highlightActiveLine="true"
-      ref="aceEditor"
-      mode="scilla"
-      lang="scilla"
-      theme="tomorrow"
-      :annotations="annotations"
-      width="100%"
-      height="calc(100% - 60px)"
-      :onChange="handleInput"
-      :readOnly="readonly"
-      name="editor"
-      :editorProps="{$blockScrolling: true}"
-    />
+    <div class="editor-inner">
+      <ace-editor
+        v-model="file.code"
+        :fontSize="editor.fontSize"
+        :showPrintMargin="true"
+        :showGutter="true"
+        :highlightActiveLine="true"
+        ref="aceEditor"
+        mode="scilla"
+        lang="scilla"
+        theme="tomorrow"
+        :annotations="annotations"
+        width="100%"
+        :maxLines="20000"
+        height="calc(100% - 60px)"
+        :onChange="handleInput"
+        :readOnly="readonly"
+        name="editor"
+        :editorProps="{$blockScrolling: true}"
+      />
+    </div>
   </div>
 </template>
 
@@ -193,11 +196,20 @@ export default {
 .editor {
   height: 100%;
 
+  .ace_scrollbar.ace_scrollbar-h {
+    display: none !important;
+  }
+
   .actions-bar {
     padding: 0.5rem;
     padding-left: 0;
     font-size: 0.85rem;
     height: 50px;
+  }
+
+  .editor-inner {
+    height: calc(100% - 50px);
+    overflow-y: scroll;
   }
 
   .btn {

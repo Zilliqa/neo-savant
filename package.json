@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "vue-cli-service serve --https",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@ledgerhq/hw-transport-u2f": "^5.13.1",
     "@zilliqa-js/contract": "^0.9.0",
     "@zilliqa-js/crypto": "^0.8.8",
     "@zilliqa-js/util": "^0.8.8",

@@ -10,7 +10,6 @@ const generateZilliqaAccount = async () => {
     };
 }
 
-
 const generateMultipleZilliqaAccounts = async (count) => {
     let accounts = [];
     for (let i = 1; i <= count; i++) {

@@ -8,6 +8,7 @@ import files from './modules/files'
 import contracts from './modules/contracts'
 import events from './modules/events'
 import general from './modules/general'
+import transactions from './modules/transactions'
 // import console from './modules/console'
 
 Vue.use(Vuex)
@@ -24,7 +25,8 @@ export default new Vuex.Store({
     files,
     contracts,
     events,
-    general
+    general,
+    transactions
     // console
   },
   plugins: [vuexPersist.plugin]

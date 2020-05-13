@@ -3,36 +3,37 @@
     <notifications group="scilla" />
     <tools />
     <top-bar />
-    <div class="ide" :class="{'only2': !rightPanel}">
+    <div class="ide">
       <div id="left-panel" class="left-panel">
         <files-list />
         <contracts-list />
       </div>
-      <div class="main-panel">
-        <router-view />
-      </div>
-      <div class="right-panel" v-show="rightPanel">
-        <account-selector v-if="rightPanel === 'accountSelector'" />
-        <console v-if="rightPanel === 'console'" />
-        <events-list v-if="rightPanel === 'events'" />
-        <settings v-if="rightPanel === 'settings'" />
-        <deploy-contract
-          v-if="rightPanel === 'deployContract'"
-          :file="this.deployContract"
-          :key="this.deployContract.id"
-        />
-        <call-contract
-          v-if="rightPanel === 'callContract'"
-          :contractId="this.callContract"
-          :key="this.callContract"
-        />
-        <import-contract v-if="rightPanel === 'importContract'" />
-      </div>
-      <div class="right-sidebar">
-        <div class="action" @click="handleToggleRightPanel('console')">
-          <img src="@/assets/terminal.svg" />
+      <div class="right-panel">
+        <div class="main-panel" :class="{'has-bottom-panel': bottomPanel}">
+          <router-view />
         </div>
+        <bottom-panel :active="bottomPanel" v-on:toggle="handleToggleBottomPanel" />
+      </div>
 
+      <account-import v-if="rightPanel === 'accountImport'" />
+
+      <events-list v-if="rightPanel === 'events'" />
+      <settings v-if="rightPanel === 'settings'" />
+
+      <!-- Contract panels -->
+      <import-contract v-if="rightPanel === 'importContract'" />
+      <deploy-contract
+        v-if="rightPanel === 'deployContract'"
+        :file="this.deployContract"
+        :key="this.deployContract.id"
+      />
+      <call-contract
+        v-if="rightPanel === 'callContract'"
+        :contractId="this.callContract"
+        :key="this.callContract"
+      />
+
+      <div class="right-sidebar">
         <div class="action events-badge" @click="handleToggleRightPanel('events')">
           <img src="@/assets/notifications.svg" />
 
@@ -51,10 +52,14 @@
 import FilesList from "@/components/Files/List";
 import ContractsList from "@/components/Contracts/List";
 import TopBar from "@/components/TopBar/index";
-import AccountSelector from "@/components/AccountSelector";
-import Console from "@/components/Console";
-import DeployContract from "@/components/DeployContract";
-import CallContract from "@/components/CallContract";
+
+// Panels
+import DeployContract from "@/components/Panels/DeployContract";
+import CallContract from "@/components/Panels/CallContract";
+import AccountImport from "@/components/Panels/AccountImport";
+
+import BottomPanel from "@/components/BottomPanel";
+
 import ImportContract from "@/components/ImportContract";
 import EventsList from "@/components/EventsList";
 import Settings from "@/components/Settings";
@@ -72,22 +77,21 @@ export default {
   name: "App",
   data() {
     return {
-      rightPanel: "console",
+      rightPanel: false,
       deployContract: false,
       callContract: false,
-      zilliqa: undefined,
-      VERSION: undefined
+      bottomPanel: true
     };
   },
   components: {
     FilesList,
     ContractsList,
     TopBar,
-    AccountSelector,
-    Console,
+    AccountImport,
     DeployContract,
     CallContract,
     ImportContract,
+    BottomPanel,
     EventsList,
     Settings,
     Tools
@@ -110,6 +114,9 @@ export default {
       } else {
         this.rightPanel = type;
       }
+    },
+    handleToggleBottomPanel() {
+      this.bottomPanel = !this.bottomPanel;
     }
   },
   async created() {
@@ -146,7 +153,7 @@ export default {
           this.$store.dispatch("accounts/AddAccount", {
             address: item.address,
             keystore: item.privateKey,
-            type: "keystore"
+            type: "privatekey"
           });
         });
       }
@@ -156,12 +163,9 @@ export default {
     window.EventBus.$on("close-right-panel", () => {
       this.rightPanel = false;
     });
-    window.EventBus.$on("open-account-selector", () => {
-      this.rightPanel = "accountSelector";
-    });
 
-    window.EventBus.$on("close-account-selector", () => {
-      this.rightPanel = false;
+    window.EventBus.$on("open-account-import", () => {
+      this.rightPanel = "accountImport";
     });
 
     window.EventBus.$on("open-deploy-contract", file => {
@@ -197,49 +201,115 @@ export default {
 }
 
 .panel-content {
-  position: relative;
+  position: absolute;
+  top: 0;
+  right: 30px; // 50px RightSidebar - 20px scroll sidebar
+  height: 100%;
+  width: 500px;
+  min-width: 450px;
+  min-height: 350px;
+  z-index: 98;
+  border-left: 1px solid saturate($primary, 10);
+  background-color: #fff;
 
-  .close-button {
-    position: absolute;
-    right: 1rem;
-    top: 1rem;
-    width: 20px;
-    opacity: 0.5;
-    &:hover {
-      cursor: pointer;
-      opacity: 1;
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: saturate($primary, 10);
+    padding: 0.5rem calc(0.5rem + 20px) 0.5rem 0.5rem;
+    border-top: 1px dashed #ccc;
+
+    .title {
+      font-size: 1rem;
+      color: #fff;
     }
+
+    .close-button-new {
+      cursor: pointer;
+      height: 16px;
+    }
+  }
+
+  .body {
+    height: calc(100% - 3rem);
+    overflow-y: scroll;
+    overflow-x: hidden;
   }
 }
 
 .btn {
+  border-radius: 0px !important;
   font-size: 0.85rem;
+  transition: all 0.2s ease-in-out;
+
+  &.btn-block {
+    i.fas {
+      transition: all 0.2s ease-in-out;
+      margin-left: 0.2rem;
+    }
+
+    &:hover {
+      i.fas {
+        transition: all 0.2s ease-in-out;
+        margin-left: 0.5rem;
+      }
+    }
+  }
+
+  &.btn-primary {
+    background-color: $primary;
+    border-color: $primary;
+
+    &:hover {
+      background-color: lighten($color: $primary, $amount: 8);
+      border-color: lighten($color: $primary, $amount: 8);
+    }
+  }
+
+  &.btn-outline {
+    background-color: transparent;
+    &:hover {
+      background-color: transparent;
+      background-color: transparentize($color: $secondary, $amount: 0.9);
+    }
+  }
+}
+
+input.form-control {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-color: #eee !important;
+  border: 0 !important;
+  border-radius: 0 !important;
 }
 
 .ide {
   position: relative;
-  display: grid;
-  grid-template-columns: 1fr 2fr 2fr;
+  display: flex;
   height: 100%;
-
-  &.only2 {
-    grid-template-columns: 1fr 4fr;
-  }
 
   .left-panel {
     padding: 1.5rem 0;
     height: 100%;
     border-right: 1px solid #ccc;
+    width: 300px;
   }
-  .main-panel {
-    height: 100%;
-  }
+
   .right-panel {
     height: 100%;
-    border-left: 1px solid #ccc;
-    padding-right: 50px;
-    max-height: calc(100vh - 60px);
-    overflow: scroll;
+    flex-grow: 1;
+
+    .main-panel {
+      height: calc(
+        100% - 1.25rem - 1px
+      ); // full height - bottom panel header - border
+
+      &.has-bottom-panel {
+        height: calc(100% - 150px); // full height - bottom panel
+      }
+    }
   }
   .right-sidebar {
     position: absolute;
@@ -274,139 +344,5 @@ export default {
       }
     }
   }
-}
-.tooltip {
-  display: block !important;
-  z-index: 10000;
-}
-
-.tooltip .tooltip-inner {
-  background: black;
-  color: white;
-  border-radius: 16px;
-  padding: 5px 10px 4px;
-}
-
-.tooltip .tooltip-arrow {
-  width: 0;
-  height: 0;
-  border-style: solid;
-  position: absolute;
-  margin: 5px;
-  border-color: black;
-  z-index: 1;
-}
-
-.tooltip[x-placement^="top"] {
-  margin-bottom: 5px;
-}
-
-.tooltip[x-placement^="top"] .tooltip-arrow {
-  border-width: 5px 5px 0 5px;
-  border-left-color: transparent !important;
-  border-right-color: transparent !important;
-  border-bottom-color: transparent !important;
-  bottom: -5px;
-  left: calc(50% - 5px);
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-.tooltip[x-placement^="bottom"] {
-  margin-top: 5px;
-}
-
-.tooltip[x-placement^="bottom"] .tooltip-arrow {
-  border-width: 0 5px 5px 5px;
-  border-left-color: transparent !important;
-  border-right-color: transparent !important;
-  border-top-color: transparent !important;
-  top: -5px;
-  left: calc(50% - 5px);
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-.tooltip[x-placement^="right"] {
-  margin-left: 5px;
-}
-
-.tooltip[x-placement^="right"] .tooltip-arrow {
-  border-width: 5px 5px 5px 0;
-  border-left-color: transparent !important;
-  border-top-color: transparent !important;
-  border-bottom-color: transparent !important;
-  left: -5px;
-  top: calc(50% - 5px);
-  margin-left: 0;
-  margin-right: 0;
-}
-
-.tooltip[x-placement^="left"] {
-  margin-right: 5px;
-}
-
-.tooltip[x-placement^="left"] .tooltip-arrow {
-  border-width: 5px 0 5px 5px;
-  border-top-color: transparent !important;
-  border-right-color: transparent !important;
-  border-bottom-color: transparent !important;
-  right: -5px;
-  top: calc(50% - 5px);
-  margin-left: 0;
-  margin-right: 0;
-}
-
-.tooltip.popover .popover-inner {
-  background: #f9f9f9;
-  color: black;
-  padding: 24px;
-  border-radius: 5px;
-  box-shadow: 0 5px 30px rgba(black, 0.1);
-}
-
-.tooltip.popover .popover-arrow {
-  border-color: #f9f9f9;
-}
-
-.tooltip[aria-hidden="true"] {
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity 0.15s, visibility 0.15s;
-}
-
-.tooltip[aria-hidden="false"] {
-  visibility: visible;
-  opacity: 1;
-  transition: opacity 0.15s;
-}
-
-.tooltip {
-  &.popover {
-    $color: #f9f9f9;
-    width: 450px;
-    max-width: 450px;
-
-    .popover-inner {
-      background: $color;
-      color: black;
-      padding: 24px;
-      border-radius: 5px;
-      box-shadow: 0 5px 30px rgba(black, 0.1);
-      max-width: 500px;
-      text-align: left;
-    }
-
-    .popover-arrow {
-      border-color: $color;
-    }
-  }
-
-  .tooltip-arrow {
-    z-index: 1;
-  }
-}
-.tooltip-arrow {
-  z-index: 1;
 }
 </style>
