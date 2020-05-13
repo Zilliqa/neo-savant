@@ -1,16 +1,21 @@
 <template>
-  <div class="events-list panel-content p-4">
-    
-    <div class="mb-4 event-item" v-for="(event,index) in events" :key="index">
-      <div class="remove-button" @click="handleRemove(index)">
-        <img src="@/assets/rubbish.svg" />
+  <div class="events-list panel-content">
+    <div class="header">
+      <div class="title">Events</div>
+      <img src="@/assets/close-color.svg" @click="handleClose" class="close-button-new" />
+    </div>
+    <div class="body p-4">
+      <div class="mb-4 event-item" v-for="(event,index) in events" :key="index">
+        <div class="remove-button" @click="handleRemove(index)">
+          <img src="@/assets/rubbish.svg" />
+        </div>
+        <p class="item-header pb-2">
+          {{ event.address }}
+          <br />
+          <span class="font-weight-bold">{{ event._eventname }}</span>
+        </p>
+        <vue-json-pretty :data="event" />
       </div>
-      <p class="header pb-2">
-        {{ event.address }}
-        <br />
-        <span class="font-weight-bold">{{ event._eventname }}</span>
-      </p>
-      <vue-json-pretty :data="event" />
     </div>
   </div>
 </template>
@@ -55,7 +60,7 @@ export default {
     border: 1px dashed #ccc;
     position: relative;
 
-    .header {
+    .item-header {
       border-bottom: 1px dashed #ccc;
     }
 
