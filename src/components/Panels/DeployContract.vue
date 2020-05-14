@@ -230,7 +230,7 @@ export default {
           };
 
           this.loading = "Sign transaction from the Ledger Device";
-          const signed = await this.ledger.signTxn(this.keystore, newP);
+          const signed = await this.ledger.signTxn(this.account.keystore, newP);
           const signature = signed.sig;
 
           const newtx = {
