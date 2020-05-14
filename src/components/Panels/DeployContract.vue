@@ -82,6 +82,7 @@ import { mapGetters } from "vuex";
 import axios from "axios";
 
 import { validateParams } from "@/utils/validation.js";
+import { isNumber } from "@zilliqa-js/util/dist/validation";
 
 const MAX_TRIES = 60;
 
@@ -365,7 +366,15 @@ export default {
       }
 
       const init = this.abi.params.map(item => {
-        return { vname: item.vname, value: item.value, type: item.type };
+        try {
+          let val = JSON.parse(item.value);
+          if (isNumber(val)) {
+            val = val.toString();
+          }
+          return { vname: item.vname, value: val, type: item.type };
+        } catch (error) {
+          return { vname: item.vname, value: item.value, type: item.type };
+        }
       });
 
       init.push({
