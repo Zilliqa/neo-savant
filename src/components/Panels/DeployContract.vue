@@ -45,7 +45,10 @@
         </div>
       </div>
 
-      <div class="alert alert-info" v-if="loading">{{loading}} <i class="fas fa-spin fa-spinner"></i></div>
+      <div class="alert alert-info" v-if="loading">
+        {{loading}}
+        <i class="fas fa-spin fa-spinner"></i>
+      </div>
       <div class="alert alert-danger" v-if="error">{{error}}</div>
 
       <div
@@ -182,6 +185,9 @@ export default {
             setTimeout(async () => {
               await this.watchTx();
             }, 2000);
+          } else {
+            this.error = error.message;
+            throw error;
           }
         }
       }
@@ -230,7 +236,7 @@ export default {
           };
 
           this.loading = "Sign transaction from the Ledger Device";
-          const signed = await this.ledger.signTxn(this.keystore, newP);
+          const signed = await this.ledger.signTxn(this.account.keystore, newP);
           const signature = signed.sig;
 
           const newtx = {
