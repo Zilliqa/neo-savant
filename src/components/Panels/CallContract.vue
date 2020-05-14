@@ -131,7 +131,7 @@ import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { getAddressFromPublicKey } from "@zilliqa-js/crypto";
 import { mapGetters } from "vuex";
 import axios from "axios";
-
+import { isNumber } from "@zilliqa-js/util/dist/validation";
 import { validateParams } from "@/utils/validation.js";
 
 const MAX_TRIES = 50;
@@ -456,8 +456,16 @@ export default {
         const msgVersion = this.network.msgVersion; // current msgVersion
         const VERSION = bytes.pack(chainId, msgVersion);
 
-        const init = this.exec.params.map(item => {
-          return { vname: item.vname, value: item.value, type: item.type };
+        const init = this.abi.params.map(item => {
+          try {
+            let val = JSON.parse(item.value);
+            if (isNumber(val)) {
+              val = val.toString();
+            }
+            return { vname: item.vname, value: val, type: item.type };
+          } catch (error) {
+            return { vname: item.vname, value: item.value, type: item.type };
+          }
         });
 
         const tx = this.zilliqa.transactions.new(
