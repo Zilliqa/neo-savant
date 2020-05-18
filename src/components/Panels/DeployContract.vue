@@ -82,7 +82,6 @@ import { mapGetters } from "vuex";
 import axios from "axios";
 
 import { validateParams } from "@/utils/validation.js";
-import { isNumber } from "@zilliqa-js/util/dist/validation";
 
 const MAX_TRIES = 60;
 
@@ -186,9 +185,6 @@ export default {
             setTimeout(async () => {
               await this.watchTx();
             }, 2000);
-          } else {
-            this.error = error.message;
-            throw error;
           }
         }
       }
@@ -366,15 +362,18 @@ export default {
       }
 
       const init = this.abi.params.map(item => {
+        let ret = { vname: item.vname, value: item.value, type: item.type };
+
         try {
           let val = JSON.parse(item.value);
-          if (isNumber(val)) {
+          if (typeof val == "number") {
             val = val.toString();
           }
-          return { vname: item.vname, value: val, type: item.type };
+          ret = { vname: item.vname, value: val, type: item.type };
         } catch (error) {
-          return { vname: item.vname, value: item.value, type: item.type };
+          ret = { vname: item.vname, value: item.value, type: item.type };
         }
+        return ret;
       });
 
       init.push({
