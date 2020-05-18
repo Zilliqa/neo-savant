@@ -1,28 +1,36 @@
 <template>
-  <div class="account-selector p-4" v-if="account !== undefined && account.address">
-    <div class="deploy-form" v-if="!loading">
-      <div class="row mb-4">
-        <div class="col-12">
-          <label>Contract Address</label>
-          <input type="text" v-model="address" class="form-control" />
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-12 mb-4" v-if="!loading">
-          <button class="btn btn-secondary mr-2" @click="handleImport">Import Contract</button>
-        </div>
-      </div>
+  <div class="panel-content">
+    <div class="header">
+      <div class="title">Import Contract</div>
+      <img src="@/assets/close-color.svg" @click="handleClose" class="close-button-new" />
     </div>
+    <div class="body p-4">
+      <div class="account-selector" v-if="account !== undefined && account.address">
+        <div class="deploy-form" v-if="!loading">
+          <div class="row mb-4">
+            <div class="col-12">
+              <label>Contract Address</label>
+              <input type="text" v-model="address" class="form-control" />
+            </div>
+          </div>
 
-    <div class="alert alert-info" v-if="loading">{{loading}}</div>
-    <div class="alert alert-danger" v-if="error">{{error}}</div>
+          <div class="row">
+            <div class="col-12 mb-4" v-if="!loading">
+              <button class="btn btn-secondary mr-2" @click="handleImport">Import Contract</button>
+            </div>
+          </div>
+        </div>
 
-    <div class="alert alert-success" v-if="success">Contract successfully imported.</div>
+        <div class="alert alert-info" v-if="loading">{{loading}}</div>
+        <div class="alert alert-danger" v-if="error">{{error}}</div>
 
-    <button class="btn btn-danger" @click="reset" v-if="loading || error || success">Reset</button>
+        <div class="alert alert-success" v-if="success">Contract successfully imported.</div>
+
+        <button class="btn btn-danger" @click="reset" v-if="loading || error || success">Reset</button>
+      </div>
+      <div class="alert alert-info m-4" v-else>Please select an account first.</div>
+    </div>
   </div>
-  <div class="alert alert-info m-4" v-else>Please select an account first.</div>
 </template>
 
 <script>
@@ -49,6 +57,9 @@ export default {
     ...mapGetters("networks", { network: "selected" })
   },
   methods: {
+    handleClose() {
+      window.EventBus.$emit("close-right-panel");
+    },
     reset() {
       this.loading = false;
       this.error = false;
