@@ -21,7 +21,7 @@
       <settings v-if="rightPanel === 'settings'" />
 
       <!-- Contract panels -->
-      <import-contract v-if="rightPanel === 'importContract'" />
+      <contract-import v-if="rightPanel === 'importContract'" />
       <deploy-contract
         v-if="rightPanel === 'deployContract'"
         :file="this.deployContract"
@@ -57,10 +57,10 @@ import TopBar from "@/components/TopBar/index";
 import DeployContract from "@/components/Panels/DeployContract";
 import CallContract from "@/components/Panels/CallContract";
 import AccountImport from "@/components/Panels/AccountImport";
+import ContractImport from "@/components/Panels/ContractImport";
 
 import BottomPanel from "@/components/BottomPanel";
 
-import ImportContract from "@/components/ImportContract";
 import EventsList from "@/components/EventsList";
 import Settings from "@/components/Settings";
 
@@ -90,7 +90,7 @@ export default {
     AccountImport,
     DeployContract,
     CallContract,
-    ImportContract,
+    ContractImport,
     BottomPanel,
     EventsList,
     Settings,
