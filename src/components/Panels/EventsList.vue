@@ -10,11 +10,10 @@
           <img src="@/assets/rubbish.svg" />
         </div>
         <p class="item-header pb-2">
-          {{ event.address }}
-          <br />
-          <span class="font-weight-bold">{{ event._eventname }}</span>
+          <address-display :address="event.address"></address-display>
+          _eventname: <span class="font-weight-bold">{{ event._eventname }}</span>
         </p>
-        <vue-json-pretty :data="event" />
+        <vue-json-pretty :data="event.params" />
       </div>
     </div>
   </div>
@@ -23,9 +22,10 @@
 <script>
 import { mapGetters } from "vuex";
 import VueJsonPretty from "vue-json-pretty";
+import AddressDisplay from "../UI/AddressDisplay";
 
 export default {
-  components: { VueJsonPretty },
+  components: { VueJsonPretty, AddressDisplay },
   data() {
     return {};
   },
@@ -66,14 +66,24 @@ export default {
 
     .remove-button {
       position: absolute;
-      top: 0.5rem;
-      right: 0.5rem;
+      top: 0;
+      right: 0;
+      padding: 5px;
       opacity: 0.5;
-      width: 20px;
+      display: none;
+      width: 30px;
+      background-color: $primary;
 
       &:hover {
         cursor: pointer;
         opacity: 1;
+      }
+    }
+
+    &:hover {
+      border: 1px solid $primary;
+      .remove-button {
+        display: block;
       }
     }
   }
