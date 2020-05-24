@@ -61,8 +61,8 @@ import ContractImport from "@/components/Panels/ContractImport";
 
 import BottomPanel from "@/components/BottomPanel";
 
-import EventsList from "@/components/EventsList";
-import Settings from "@/components/Settings";
+import EventsList from "@/components/Panels/EventsList";
+import Settings from "@/components/Panels/Settings";
 
 import Tools from "@/components/Tools";
 
