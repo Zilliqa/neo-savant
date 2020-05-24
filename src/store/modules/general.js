@@ -1,5 +1,6 @@
 const state = {
     mainPanel: null,
+    appVersion: process.env.PACKAGE_VERSION || '0',
     editor: {
         fontSize: 14
     }
@@ -7,7 +8,10 @@ const state = {
 
 const getters = {
     mainPanel: state => state.mainPanel,
-    editor: state => state.editor
+    editor: state => state.editor,
+    appVersion: (state) => {
+        return state.appVersion
+    }
 };
 
 const actions = {

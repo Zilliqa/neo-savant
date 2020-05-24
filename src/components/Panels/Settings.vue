@@ -23,6 +23,10 @@
         <h5>Reset</h5>
         <button class="btn btn-danger" @click="handleHardReset">Reset IDE to default</button>
       </div>
+
+      <div class="settings-group mt-5">
+        <label>Version {{ appVersion }}</label>
+      </div>
     </div>
   </div>
 </template>
@@ -41,7 +45,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters("general", { editor: "editor" })
+    ...mapGetters("general", { editor: "editor", appVersion: "appVersion" })
   },
   methods: {
     handleHardReset() {
