@@ -31,7 +31,7 @@ const actions = {
         commit('files/unselect', null, { root: true })
         commit('select', contract);
     },
-    AddContract({ commit, state, rootGetters }, contract) {
+    AddContract({ commit, state, rootGetters, dispatch }, contract) {
         const network = rootGetters['networks/selected'];
 
         if (network.url === undefined) {
@@ -47,6 +47,33 @@ const actions = {
         }
 
         commit('addContract', { ...contract, network: network.url })
+        dispatch('AddTag', { id: contract.contractId, tag: { value: contract.file_name, color: 'secondary' } });
+    },
+    AddTag({ commit, state, rootGetters }, { id, tag }) {
+        const network = rootGetters['networks/selected'];
+
+        const contract = state.contracts.findIndex(function (item) {
+            return (item.network === network.url && item.contractId === id)
+        });
+
+        if (contract === undefined) {
+            throw Error('Contract not found.');
+        }
+
+        commit('addTag', { index: contract, tag });
+    },
+    RemoveTag({ commit, state, rootGetters }, { contractId, tagIndex }) {
+        const network = rootGetters['networks/selected'];
+
+        const contract = state.contracts.findIndex(function (item) {
+            return (item.network === network.url && item.contractId === contractId)
+        });
+
+        if (contract === undefined) {
+            throw Error('Contract not found.');
+        }
+
+        commit('removeTag', { index: contract, tagIndex });
     },
     RemoveContract({ commit, state, rootGetters }, { id }) {
 
@@ -77,6 +104,16 @@ const mutations = {
     },
     addContract(state, payload) {
         state.contracts.push(payload);
+    },
+    addTag(state, payload) {
+        if (state.contracts[payload.index].tags) {
+            state.contracts[payload.index].tags.push(payload.tag);
+        } else {
+            state.contracts[payload.index].tags = [payload.tag];
+        }
+    },
+    removeTag(state, payload) {
+        state.contracts[payload.index].tags.splice(payload.tagIndex, 1);
     },
     remove(state, payload) {
         state.contracts.splice(payload.index, 1);
