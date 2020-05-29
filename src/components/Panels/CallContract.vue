@@ -63,7 +63,7 @@
         <!-- Transition parameters -->
         <div class="row mb-4">
           <div class="col-12">
-            <p class="font-weight-bold">Tansition parameters ({{ exec.vname }})</p>
+            <p class="font-weight-bold">Transition parameters ({{ exec.vname }})</p>
           </div>
           <div class="col-12 mb-4" v-for="param in exec.params" :key="param.vname">
             <contract-input
