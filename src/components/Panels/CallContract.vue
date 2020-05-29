@@ -330,6 +330,20 @@ export default {
         this.errror = error.message;
       }
     },
+    async handleZilPaySign({ payload }) {
+      const { _tag, params } = JSON.parse(payload.data);
+      const contract = window.zilPay.contracts.at(payload.toAddr)
+
+      try {
+        const [result] = await contract.call(_tag, params, payload);
+
+        this.txId = result.ID;
+        this.watchTries = 0;
+        await this.watchTx();
+      } catch (err) {
+        this.errror = err.message;
+      }
+    },
     async handlePrivateKeySign(tx) {
       try {
         this.loading = "Trying to sign and send transaction...";
@@ -354,6 +368,9 @@ export default {
           break;
         case "privatekey":
           this.handlePrivateKeySign(tx);
+          break;
+        case "zilpay":
+          this.handleZilPaySign(tx);
           break;
         default:
           this.error = "There has been an error in account detection.";
