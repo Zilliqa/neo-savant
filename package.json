@@ -22,6 +22,7 @@
     "uuid": "^3.4.0",
     "v-tooltip": "^2.0.3",
     "vue": "^2.6.10",
+    "vue-color": "^2.7.1",
     "vue-command": "^7.1.7",
     "vue-context": "^5.0.0",
     "vue-json-pretty": "^1.6.3",
