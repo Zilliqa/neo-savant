@@ -82,10 +82,12 @@ import { mapGetters } from "vuex";
 import axios from "axios";
 
 import { validateParams } from "@/utils/validation.js";
+import ZilPayMixin from '@/mixins/zilpay';
 
 const MAX_TRIES = 60;
 
 export default {
+  mixins: [ZilPayMixin],
   data() {
     return {
       abi: undefined,
@@ -310,16 +312,11 @@ export default {
         this.errror = error.message;
       }
     },
-    async handleZilPaySign({ payload }) {
-      const contract = window.zilPay.contracts.new(
-        payload.code,
-        payload.data
-      )
-
+    async handleZilPaySign(tx) {
       try {
-        const [result] = await contract.deploy(payload);
+        const result = await this.signZilPayTx(tx)
 
-        this.txId = result.ID;
+        this.txId = result.TranID;
         this.watchTries = 0;
         await this.watchTx();
       } catch (err) {

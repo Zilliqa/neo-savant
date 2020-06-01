@@ -132,10 +132,12 @@ import { getAddressFromPublicKey } from "@zilliqa-js/crypto";
 import { mapGetters } from "vuex";
 import axios from "axios";
 import { validateParams } from "@/utils/validation.js";
+import ZilPayMixin from '@/mixins/zilpay';
 
 const MAX_TRIES = 50;
 
 export default {
+  mixins: [ZilPayMixin],
   data() {
     return {
       VUE_APP_ISOLATED_URL: process.env.VUE_APP_ISOLATED_URL,
@@ -330,14 +332,11 @@ export default {
         this.errror = error.message;
       }
     },
-    async handleZilPaySign({ payload }) {
-      const { _tag, params } = JSON.parse(payload.data);
-      const contract = window.zilPay.contracts.at(payload.toAddr)
-
+    async handleZilPaySign(tx) {
       try {
-        const [result] = await contract.call(_tag, params, payload);
+        const result = await this.signZilPayTx(tx)
 
-        this.txId = result.ID;
+        this.txId = result.TranID;
         this.watchTries = 0;
         await this.watchTx();
       } catch (err) {

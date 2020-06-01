@@ -113,6 +113,13 @@ export default {
       }
 
       window.EventBus.$emit("refresh-balance");
+    },
+    async signZilPayTx(tx) {
+      await this.testZilPay()
+
+      const { blockchain } = window.zilPay
+
+      return await blockchain.createTransaction(tx)
     }
   }
 }
