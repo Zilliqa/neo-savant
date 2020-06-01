@@ -13,7 +13,7 @@
         v-for="(tag,index) in tags"
         :key="index"
         class="badge mr-1"
-        :class="`badge-${tag.color}`"
+        :style="{'background-color': tag.color, 'color' : lightOrDark(tag.color) === 'light' ? '#000' : '#fff'}"
         @click="handleRemoveTag(index)"
       >
         <span class="remove">X</span>
@@ -23,12 +23,31 @@
 
     <vue-context class="context-menu" ref="menu">
       <li>
-        <a href="#" @click.prevent="handleAddTag">Add Tag</a>
+        <a href="#" @click.prevent="handleOpenTagModal">Add Tag</a>
       </li>
       <li>
         <a href="#" @click.prevent="handleRemove">Remove</a>
       </li>
     </vue-context>
+
+    <modal v-if="tagModal">
+      <div slot="header">Add tag to contract</div>
+      <div slot="body">
+        <label>Tag value</label>
+        <input
+          type="text"
+          class="form-control mb-4"
+          placeholder="Enter tag value"
+          v-model="tagValue"
+        />
+        <label>Tag color</label>
+        <compact-picker v-model="tagColor" />
+      </div>
+      <div slot="footer" class="d-flex">
+        <button class="btn btn-light text-danger text-small mr-2" @click="closeModal">Close</button>
+        <button class="btn btn-primary btn-block" @click="handleAddTag">Add Tag</button>
+      </div>
+    </modal>
   </div>
 </template>
 
@@ -36,21 +55,33 @@
 import Swal from "sweetalert2";
 import VueContext from "vue-context";
 import AddressDisplay from "../UI/AddressDisplay";
+import { Compact } from "vue-color";
+import Modal from "../UI/Modal";
+import {lightOrDark} from "../../utils/ui.js";
 
 export default {
-  props: ["contract", "selected"],
-  components: { VueContext, AddressDisplay },
   data() {
     return {
+      lightOrDark,
+      tagModal: false,
+      tagValue: "",
+      tagColor: "#ff0000",
       tags: this.contract.tags
     };
   },
+  props: ["contract", "selected"],
+  components: { VueContext, AddressDisplay, Modal, "compact-picker": Compact },
   watch: {
     "contract.tags": function(val) {
       this.tags = val;
     }
   },
   methods: {
+    closeModal() {
+      this.tagValue = "";
+      this.tagColor = "#ff0000";
+      this.tagModal = false;
+    },
     handleRemove() {
       const confirmed = confirm(
         "Are you sure you want to remove this contract?"
@@ -87,31 +118,18 @@ export default {
         }
       });
     },
+    async handleOpenTagModal() {
+      this.tagModal = true;
+    },
     async handleAddTag() {
-      const { value: formValues } = await Swal.fire({
-        title: "Add contract Tag",
-        html: `
-          <input id="swal-input1" class="swal2-input" />
-          <select id="swal-input2" class="swal2-input">
-          <option value="secondary">Select color</option>
-          <option value="success">green</option>
-          <option value="danger">red</option>
-          <option value="info">blue</option>
-          </select>`,
-        focusConfirm: false,
-        preConfirm: () => {
-          return {
-            value: document.getElementById("swal-input1").value,
-            color: document.getElementById("swal-input2").value
-          };
+      await this.$store.dispatch("contracts/AddTag", {
+        id: this.contract.contractId,
+        tag: {
+          value: this.tagValue,
+          color: this.tagColor.hex ?? "#ff0000"
         }
       });
-      if (formValues) {
-        await this.$store.dispatch("contracts/AddTag", {
-          id: this.contract.contractId,
-          tag: formValues
-        });
-      }
+      this.closeModal();
     }
   }
 };
