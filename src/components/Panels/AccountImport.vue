@@ -172,6 +172,7 @@ import TransportU2F from "@ledgerhq/hw-transport-u2f";
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { mapGetters } from "vuex";
 import { fromBech32Address } from "@zilliqa-js/crypto";
+import ZilPayMixin from '@/mixins/zilpay'
 
 export default {
   data() {
@@ -187,6 +188,7 @@ export default {
       accounts: []
     };
   },
+  mixins: [ZilPayMixin],
   computed: {
     ...mapGetters("networks", { network: "selected" }),
     ...mapGetters("networks", ["list"]),
@@ -223,61 +225,21 @@ export default {
       }
     },
     async handleConnectZilPay() {
-      if (typeof window.zilPay === 'undefined') {
-        this.error = 'ZilPay has not installed!';
-
-        return null;
-      }
-
-      const { wallet } = window.zilPay;
-
       this.error = null;
       this.loading = 'Waiting for access ZilPay...';
 
-      const connected = await wallet.connect()
+      try {
+        await this.getZilPayNetwork()
+        await this.getZilPayAccount()
 
-      if (!connected) {
-        this.error = 'User rejected.'
-        this.loading = false
-
-        return null;
+        this.runZilPayObservable()
+      } catch (err) {
+        this.error = err.message;
       }
 
-      const net = {
-        mainnet: this.list[2],
-        private: this.list[0],
-        testnet: this.list[1]
-      }
-
-      await this.$store.dispatch("networks/SelectNetwork", net[wallet.net]);
-
-      await this.$store.dispatch("accounts/AddAccount", {
-        address: wallet.defaultAccount.base16,
-        type: "zilpay"
-      }).catch(() => null);
-
-      window.EventBus.$emit("refresh-balance");
-      window.EventBus.$emit("close-right-panel");
-
-      this.$notify({
-        group: "scilla",
-        type: "success",
-        position: "bottom right",
-        title: "Accounts",
-        text: "Account successfully imported"
-      });
-      this.importAccount = false;
       this.loading = false;
-
-      // console.log(this.acountsList)
-
-      wallet.observableNetwork().subscribe((selectedNet) => {
-        this.$store.dispatch("networks/SelectNetwork", net[selectedNet]);
-        window.EventBus.$emit("refresh-balance");
-      });
-      wallet.observableAccount().subscribe(async (account) => {
-        this.$store.dispatch("accounts/SelectAccount", { address: account.base16 });
-      });
+      this.importAccount = false;
+      window.EventBus.$emit("close-right-panel");
     },
     async generateLedgerAccount() {
       this.loading = "Trying to create U2F transport.";

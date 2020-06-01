@@ -72,6 +72,7 @@ import { generateMultipleZilliqaAccounts } from "./utils/zilliqa";
 import { animateCSS } from "./utils/ui";
 
 import { Zilliqa } from "@zilliqa-js/zilliqa";
+import ZilPayMixin from '@/mixins/zilpay';
 
 export default {
   name: "App",
@@ -83,6 +84,7 @@ export default {
       bottomPanel: true
     };
   },
+  mixins: [ZilPayMixin],
   components: {
     FilesList,
     ContractsList,
@@ -98,7 +100,7 @@ export default {
   },
   computed: {
     ...mapGetters("events", { events: "list" }),
-    ...mapGetters("accounts", { accounts: "list" }),
+    ...mapGetters("accounts", { accounts: "list", selectedAccount: "selected" }),
     ...mapGetters("networks", { network: "selected", networksList: "list" }),
     ...mapGetters("contracts", { contracts: "list" })
   },
@@ -187,6 +189,13 @@ export default {
     window.EventBus.$on("open-import-contract", () => {
       this.rightPanel = "importContract";
     });
+
+    if (this.selectedAccount.type === "zilpay") {
+      this
+        .getZilPayNetwork()
+        .then(() => this.getZilPayAccount())
+        .then(() => this.runZilPayObservable())
+    }
   }
 };
 </script>
