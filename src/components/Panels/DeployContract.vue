@@ -453,6 +453,7 @@ export default {
 .accounts-list {
   .item {
     border: 1px dashed #ccc;
+    
     background-color: rgba(0, 0, 0, 0.02);
     border-radius: 8px;
     transition: all 0.2s ease-in-out;

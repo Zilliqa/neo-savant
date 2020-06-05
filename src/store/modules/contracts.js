@@ -47,7 +47,7 @@ const actions = {
         }
 
         commit('addContract', { ...contract, network: network.url })
-        dispatch('AddTag', { id: contract.contractId, tag: { value: contract.file_name, color: 'secondary' } });
+        dispatch('AddTag', { id: contract.contractId, tag: { value: contract.file_name, color: '#ccc' } });
     },
     AddTag({ commit, state, rootGetters }, { id, tag }) {
         const network = rootGetters['networks/selected'];
