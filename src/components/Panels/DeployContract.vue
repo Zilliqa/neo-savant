@@ -362,18 +362,21 @@ export default {
       }
 
       const init = this.abi.params.map(item => {
-        let ret = { vname: item.vname, value: item.value, type: item.type };
+        let val = item.value;
 
         try {
-          let val = JSON.parse(item.value);
+          val = JSON.parse(item.value);
+
           if (typeof val == "number") {
             val = val.toString();
           }
-          ret = { vname: item.vname, value: val, type: item.type };
-        } catch (error) {
-          ret = { vname: item.vname, value: item.value, type: item.type };
-        }
-        return ret;
+          // eslint-disable-next-line no-empty
+        } catch (e) {}
+
+        return {
+          ...item,
+          value: val
+        };
       });
 
       init.push({
@@ -420,6 +423,13 @@ export default {
 
             this.abi = contract_info;
 
+            this.abi.params = this.abi.params.map(item => {
+              return {
+                ...item,
+                value: ""
+              };
+            });
+
             // this.checked = true;
             this.$notify({
               group: "scilla",
@@ -453,7 +463,7 @@ export default {
 .accounts-list {
   .item {
     border: 1px dashed #ccc;
-    
+
     background-color: rgba(0, 0, 0, 0.02);
     border-radius: 8px;
     transition: all 0.2s ease-in-out;
