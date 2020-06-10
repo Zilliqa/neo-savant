@@ -132,10 +132,12 @@ import { getAddressFromPublicKey } from "@zilliqa-js/crypto";
 import { mapGetters } from "vuex";
 import axios from "axios";
 import { validateParams } from "@/utils/validation.js";
+import ZilPayMixin from '@/mixins/zilpay';
 
 const MAX_TRIES = 50;
 
 export default {
+  mixins: [ZilPayMixin],
   data() {
     return {
       VUE_APP_ISOLATED_URL: process.env.VUE_APP_ISOLATED_URL,
@@ -330,6 +332,17 @@ export default {
         this.errror = error.message;
       }
     },
+    async handleZilPaySign(tx) {
+      try {
+        const result = await this.signZilPayTx(tx)
+
+        this.txId = result.TranID;
+        this.watchTries = 0;
+        await this.watchTx();
+      } catch (err) {
+        this.errror = err.message;
+      }
+    },
     async handlePrivateKeySign(tx) {
       try {
         this.loading = "Trying to sign and send transaction...";
@@ -354,6 +367,9 @@ export default {
           break;
         case "privatekey":
           this.handlePrivateKeySign(tx);
+          break;
+        case "zilpay":
+          this.handleZilPaySign(tx);
           break;
         default:
           this.error = "There has been an error in account detection.";
