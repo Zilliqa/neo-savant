@@ -314,6 +314,7 @@ export default {
     },
     async handleZilPaySign(tx) {
       try {
+        this.loading = "Trying to sign and send transaction...";
         const result = await this.signZilPayTx(tx)
 
         this.txId = result.TranID;
