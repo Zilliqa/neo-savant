@@ -56,13 +56,11 @@
           @click="handleTypeSelect('zilpay')"
           :class="{'active': type === 'zilpay'}"
         >
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 14 14"
-        >
-          <path d="M6.32792 13.1646C4.32771 12.9648 2.51437 11.911 1.53674 10.3802C1.13789 9.75563 0.829738 8.96695 0.732742 8.32242C0.689244 8.03337 0.659574 7.35988 0.67331 6.97335C0.723011 5.57476 1.04901 4.49007 1.70838 3.52939C1.93925 3.19303 2.09005 3.01664 2.4147 2.70322C2.93356 2.20229 3.45541 1.84856 4.19499 1.49647C4.85489 1.1823 5.39115 1.01847 6.08881 0.917878C6.44445 0.866602 7.25635 0.871656 7.62669 0.927436C8.8088 1.10554 9.84909 1.61228 10.8414 2.49339C11.9007 3.43392 12.603 4.53237 12.8593 5.6495C12.9556 6.06916 12.9728 6.23472 12.9739 6.75054C12.975 7.27344 12.9615 7.41699 12.8679 7.88393L12.8081 8.18186L12.5857 8.22506C11.9779 8.3431 11.1995 8.55442 10.7086 8.73464C10.3298 8.8737 10.2529 8.90514 9.70428 9.14537C9.17807 9.37578 8.9396 9.46688 8.65442 9.54643C8.05838 9.71269 7.42202 9.72679 6.99213 9.58324C6.41355 9.39004 5.98081 8.92826 5.88666 8.40357C5.85505 8.22737 5.87398 7.88402 5.9255 7.69946C6.04945 7.25538 6.3235 6.79789 6.74812 6.3262C6.82666 6.23894 6.89261 6.16922 6.89466 6.17127C6.89667 6.17322 6.92209 6.36298 6.95106 6.59273C6.98002 6.82249 7.00512 7.0125 7.00684 7.01498C7.00856 7.01748 7.08238 6.99384 7.1709 6.96249C7.68938 6.77885 8.22375 6.74511 8.76734 6.86168C9.03328 6.91871 9.52366 7.07371 10.0008 7.25155C10.1849 7.32017 10.3915 7.38784 10.4599 7.40194C10.7858 7.46908 11.3184 7.40278 11.6578 7.2529C11.7504 7.21204 11.7573 7.20405 11.782 7.11004C11.8154 6.98271 11.8158 6.62062 11.7825 6.46029L11.7571 6.33713L11.381 6.08636C9.11582 4.5758 7.21542 3.68076 5.60025 3.36375C5.16101 3.27754 4.39573 3.20359 4.39573 3.24735C4.39573 3.25785 4.39112 3.27808 4.38548 3.29232C4.37806 3.3111 4.59873 3.42503 5.18849 3.70692C5.63578 3.92072 6.00191 4.09981 6.0021 4.10492C6.00231 4.11003 5.84538 4.16728 5.65341 4.23215C5.10646 4.41697 4.73985 4.56303 4.36689 4.74472C4.05839 4.89501 3.61191 5.15445 3.61155 5.18365C3.61147 5.18981 3.77851 5.21007 3.98275 5.2287L4.3541 5.26257L4.14994 5.47743C3.87469 5.76712 3.71531 5.95259 3.32718 6.43492L2.9985 6.84337L3.28583 6.84848C3.44385 6.85129 3.57297 6.85965 3.57275 6.86705C3.57252 6.87444 3.43986 7.31911 3.27793 7.85519C3.11601 8.39128 2.98516 8.83152 2.98715 8.83351C2.98915 8.83545 3.12724 8.80753 3.29403 8.77137C3.49136 8.72858 3.60154 8.71229 3.60945 8.72471C3.61615 8.73522 3.65058 9.16838 3.68599 9.68729C3.7214 10.2062 3.75313 10.6339 3.75651 10.6376C3.7599 10.6414 3.88011 10.5474 4.02367 10.4288C4.16722 10.3101 4.29029 10.2131 4.29716 10.2132C4.30402 10.2132 4.54206 10.5638 4.82613 10.992C5.1102 11.4203 5.34883 11.7711 5.35641 11.7716C5.364 11.7722 5.47505 11.6509 5.60319 11.5022C5.78964 11.2858 5.84073 11.2367 5.8589 11.2562C5.87138 11.2696 5.96677 11.385 6.07086 11.5126C6.17496 11.6403 6.35928 11.8419 6.48047 11.9607L6.70082 12.1768L7.16949 12.1771C7.89772 12.1777 8.35944 12.2531 8.97276 12.472L9.15957 12.5387L9.0971 12.5843C8.72846 12.8533 8.26108 13.0313 7.66686 13.1292C7.47959 13.16 7.32613 13.1699 6.95907 13.1747C6.7013 13.1781 6.41722 13.1736 6.3278 13.1646L6.32792 13.1646V13.1646Z"/>
-        </svg>
+          <svg width="14" height="14" viewBox="0 0 14 14">
+            <path
+              d="M6.32792 13.1646C4.32771 12.9648 2.51437 11.911 1.53674 10.3802C1.13789 9.75563 0.829738 8.96695 0.732742 8.32242C0.689244 8.03337 0.659574 7.35988 0.67331 6.97335C0.723011 5.57476 1.04901 4.49007 1.70838 3.52939C1.93925 3.19303 2.09005 3.01664 2.4147 2.70322C2.93356 2.20229 3.45541 1.84856 4.19499 1.49647C4.85489 1.1823 5.39115 1.01847 6.08881 0.917878C6.44445 0.866602 7.25635 0.871656 7.62669 0.927436C8.8088 1.10554 9.84909 1.61228 10.8414 2.49339C11.9007 3.43392 12.603 4.53237 12.8593 5.6495C12.9556 6.06916 12.9728 6.23472 12.9739 6.75054C12.975 7.27344 12.9615 7.41699 12.8679 7.88393L12.8081 8.18186L12.5857 8.22506C11.9779 8.3431 11.1995 8.55442 10.7086 8.73464C10.3298 8.8737 10.2529 8.90514 9.70428 9.14537C9.17807 9.37578 8.9396 9.46688 8.65442 9.54643C8.05838 9.71269 7.42202 9.72679 6.99213 9.58324C6.41355 9.39004 5.98081 8.92826 5.88666 8.40357C5.85505 8.22737 5.87398 7.88402 5.9255 7.69946C6.04945 7.25538 6.3235 6.79789 6.74812 6.3262C6.82666 6.23894 6.89261 6.16922 6.89466 6.17127C6.89667 6.17322 6.92209 6.36298 6.95106 6.59273C6.98002 6.82249 7.00512 7.0125 7.00684 7.01498C7.00856 7.01748 7.08238 6.99384 7.1709 6.96249C7.68938 6.77885 8.22375 6.74511 8.76734 6.86168C9.03328 6.91871 9.52366 7.07371 10.0008 7.25155C10.1849 7.32017 10.3915 7.38784 10.4599 7.40194C10.7858 7.46908 11.3184 7.40278 11.6578 7.2529C11.7504 7.21204 11.7573 7.20405 11.782 7.11004C11.8154 6.98271 11.8158 6.62062 11.7825 6.46029L11.7571 6.33713L11.381 6.08636C9.11582 4.5758 7.21542 3.68076 5.60025 3.36375C5.16101 3.27754 4.39573 3.20359 4.39573 3.24735C4.39573 3.25785 4.39112 3.27808 4.38548 3.29232C4.37806 3.3111 4.59873 3.42503 5.18849 3.70692C5.63578 3.92072 6.00191 4.09981 6.0021 4.10492C6.00231 4.11003 5.84538 4.16728 5.65341 4.23215C5.10646 4.41697 4.73985 4.56303 4.36689 4.74472C4.05839 4.89501 3.61191 5.15445 3.61155 5.18365C3.61147 5.18981 3.77851 5.21007 3.98275 5.2287L4.3541 5.26257L4.14994 5.47743C3.87469 5.76712 3.71531 5.95259 3.32718 6.43492L2.9985 6.84337L3.28583 6.84848C3.44385 6.85129 3.57297 6.85965 3.57275 6.86705C3.57252 6.87444 3.43986 7.31911 3.27793 7.85519C3.11601 8.39128 2.98516 8.83152 2.98715 8.83351C2.98915 8.83545 3.12724 8.80753 3.29403 8.77137C3.49136 8.72858 3.60154 8.71229 3.60945 8.72471C3.61615 8.73522 3.65058 9.16838 3.68599 9.68729C3.7214 10.2062 3.75313 10.6339 3.75651 10.6376C3.7599 10.6414 3.88011 10.5474 4.02367 10.4288C4.16722 10.3101 4.29029 10.2131 4.29716 10.2132C4.30402 10.2132 4.54206 10.5638 4.82613 10.992C5.1102 11.4203 5.34883 11.7711 5.35641 11.7716C5.364 11.7722 5.47505 11.6509 5.60319 11.5022C5.78964 11.2858 5.84073 11.2367 5.8589 11.2562C5.87138 11.2696 5.96677 11.385 6.07086 11.5126C6.17496 11.6403 6.35928 11.8419 6.48047 11.9607L6.70082 12.1768L7.16949 12.1771C7.89772 12.1777 8.35944 12.2531 8.97276 12.472L9.15957 12.5387L9.0971 12.5843C8.72846 12.8533 8.26108 13.0313 7.66686 13.1292C7.47959 13.16 7.32613 13.1699 6.95907 13.1747C6.7013 13.1781 6.41722 13.1736 6.3278 13.1646L6.32792 13.1646V13.1646Z"
+            />
+          </svg>
           ZilPay
         </div>
       </div>
@@ -108,9 +106,7 @@
         </div>
 
         <div class="mb-4" v-if="type === 'zilpay'">
-          <button class="btn btn-primary btn-block" @click="handleConnectZilPay">
-            connect
-          </button>
+          <button class="btn btn-primary btn-block" @click="handleConnectZilPay">connect</button>
         </div>
 
         <div class="mb-4" v-if="type === 'keystore'">
@@ -169,10 +165,11 @@
 import { BN, units } from "@zilliqa-js/util";
 import LedgerInterface from "@/utils/ledger-interface";
 import TransportU2F from "@ledgerhq/hw-transport-u2f";
+import TransportWebAuthn from "@ledgerhq/hw-transport-webauthn";
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { mapGetters } from "vuex";
 import { fromBech32Address } from "@zilliqa-js/crypto";
-import ZilPayMixin from '@/mixins/zilpay'
+import ZilPayMixin from "@/mixins/zilpay";
 
 export default {
   data() {
@@ -192,7 +189,7 @@ export default {
   computed: {
     ...mapGetters("networks", { network: "selected" }),
     ...mapGetters("networks", ["list"]),
-    ...mapGetters("accounts", { acountsList: "list" }),
+    ...mapGetters("accounts", { acountsList: "list" })
   },
   methods: {
     handleClose() {
@@ -226,13 +223,13 @@ export default {
     },
     async handleConnectZilPay() {
       this.error = null;
-      this.loading = 'Waiting for access ZilPay...';
+      this.loading = "Waiting for access ZilPay...";
 
       try {
-        await this.getZilPayNetwork()
-        await this.getZilPayAccount()
+        await this.getZilPayNetwork();
+        await this.getZilPayAccount();
 
-        this.runZilPayObservable()
+        this.runZilPayObservable();
       } catch (err) {
         this.error = err.message;
       }
@@ -242,8 +239,17 @@ export default {
       window.EventBus.$emit("close-right-panel");
     },
     async generateLedgerAccount() {
-      this.loading = "Trying to create U2F transport.";
-      const transport = await TransportU2F.create();
+      let transport = null;
+
+      this.loading = "Trying to create WebAuthn transport.";
+      const isWebAuthn = await TransportWebAuthn.isSupported();
+      if (isWebAuthn) {
+        transport = await TransportWebAuthn.create();
+      } else {
+        this.loading = "Trying to create U2F transport.";
+        transport = await TransportU2F.create();
+      }
+
       this.loading = "Trying to initialize Ledger Transport";
       const zil = new LedgerInterface(transport);
       this.loading = "Please confirm action on Ledger Device";
@@ -256,6 +262,7 @@ export default {
         this.accounts.push({
           index: this.currentIndex + 1,
           address: fromBech32Address(address.pubAddr),
+          publicKey: address.publicKey,
           balance: 0
         });
       } else {
@@ -266,6 +273,7 @@ export default {
         this.accounts.push({
           index: this.currentIndex + 1,
           address: fromBech32Address(address.pubAddr),
+          publicKey: address.publicKey,
           balance: zils
         });
       }
@@ -276,24 +284,25 @@ export default {
     async useLedgerAccount(index) {
       const account = this.accounts[index];
       await this.$store
-          .dispatch("accounts/AddAccount", {
-            address: account.address,
-            keystore: account.index,
-            type: "ledger"
-          })
-          .then(() => {
-            window.EventBus.$emit("refresh-balance");
-            window.EventBus.$emit("close-right-panel");
-            this.$notify({
-              group: "scilla",
-              type: "success",
-              position: "bottom right",
-              title: "Accounts",
-              text: "Account successfully imported"
-            });
-            this.importAccount = false;
-            this.loading = false;
+        .dispatch("accounts/AddAccount", {
+          address: account.address,
+          keystore: account.index,
+          pubkey: account.publicKey,
+          type: "ledger"
+        })
+        .then(() => {
+          window.EventBus.$emit("refresh-balance");
+          window.EventBus.$emit("close-right-panel");
+          this.$notify({
+            group: "scilla",
+            type: "success",
+            position: "bottom right",
+            title: "Accounts",
+            text: "Account successfully imported"
           });
+          this.importAccount = false;
+          this.loading = false;
+        });
       window.EventBus.$emit("login-success", {
         keystore: account.index,
         address: account.address

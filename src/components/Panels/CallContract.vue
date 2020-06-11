@@ -128,11 +128,10 @@ import VueJsonPretty from "vue-json-pretty";
 import TransportU2F from "@ledgerhq/hw-transport-u2f";
 import { BN, bytes, Long, units } from "@zilliqa-js/util";
 import { Zilliqa } from "@zilliqa-js/zilliqa";
-import { getAddressFromPublicKey } from "@zilliqa-js/crypto";
 import { mapGetters } from "vuex";
 import axios from "axios";
 import { validateParams } from "@/utils/validation.js";
-import ZilPayMixin from '@/mixins/zilpay';
+import ZilPayMixin from "@/mixins/zilpay";
 
 const MAX_TRIES = 50;
 
@@ -213,23 +212,22 @@ export default {
     },
     async handleLedgerSign(tx) {
       try {
+        this.error = false;
         this.loading = "Trying to create U2F transport.";
         const transport = await TransportU2F.create();
         this.loading = "Connect your Ledger Device and open Zilliqa App.";
         this.ledger = new LedgerInterface(transport);
-        this.loading = "Confirm Public Key generation on Ledger Device";
-        const pubkey = await this.ledger.getPublicKey(this.account.keystore);
 
-        const address = getAddressFromPublicKey(pubkey.publicKey);
-
-        let balance = await this.zilliqa.blockchain.getBalance(address);
+        this.publicKey = this.account.pubkey;
+        let balance = await this.zilliqa.blockchain.getBalance(
+          this.account.address
+        );
 
         if (balance.error && balance.error.code === -5) {
           throw new Error("Account has no balance.");
         } else {
           this.nonce = balance.result.nonce;
-          this.address = address;
-          this.publicKey = pubkey.publicKey;
+
           const zils = units.fromQa(
             new BN(balance.result.balance),
             units.Units.Zil
@@ -298,6 +296,11 @@ export default {
             this.watchTx();
           }
 
+          if (data.error !== undefined) {
+            this.actionHappening = false;
+            throw new Error(data.error.message);
+          }
+
           if (data.result.error !== undefined) {
             this.actionHappening = false;
             throw new Error(data.result.error.message);
@@ -308,7 +311,7 @@ export default {
           this.actionHappening = false;
         }
       } catch (error) {
-        this.errorr = error.message;
+        this.error = error.message;
       }
     },
     async handleKeystoreSign(tx) {
@@ -335,7 +338,7 @@ export default {
     async handleZilPaySign(tx) {
       try {
         this.loading = "Trying to sign and send transaction...";
-        const result = await this.signZilPayTx(tx)
+        const result = await this.signZilPayTx(tx);
 
         this.txId = result.TranID;
         this.watchTries = 0;
@@ -458,7 +461,7 @@ export default {
       });
     },
     async handleCall() {
-      this.errors = false;
+      this.error = false;
       const validatedParams = validateParams([...this.exec.params]);
 
       if (validatedParams.errors) {
