@@ -255,7 +255,7 @@ export default {
                 pubKey: this.publicKey,
                 signature: signature,
                 version: oldp.version,
-                priority: false
+                priority: true
               }
             ]
           };
