@@ -214,7 +214,7 @@ export default {
       this.rightPanel = "importContract";
     });
 
-    if (this.selectedAccount.type === "zilpay") {
+    if (this.selectedAccount !== undefined && this.selectedAccount.type === "zilpay") {
       this
         .getZilPayNetwork()
         .then(() => this.getZilPayAccount())
