@@ -27,6 +27,7 @@ class LedgerInterface {
 
     constructor(transport, scrambleKey = "w0w") {
         this.transport = transport;
+        transport.setExchangeTimeout(180000);
         transport.decorateAppAPIMethods(
             this,
             [
@@ -85,8 +86,11 @@ class LedgerInterface {
             .send(CLA, INS.getPublicAddress, P1, P2, payload)
             .then(response => {
                 // After the first PubKeyByteLen bytes, the remaining is the bech32 address string.
-                const pubAddr = response.slice(PubKeyByteLen, PubKeyByteLen + Bech32AddrLen).toString("utf-8");
-                return { pubAddr };
+                const pubAddr = response
+                    .slice(PubKeyByteLen, PubKeyByteLen + Bech32AddrLen)
+                    .toString('utf-8');
+                const publicKey = response.toString('hex').slice(0, PubKeyByteLen * 2);
+                return { pubAddr, publicKey };
             });
     }
 

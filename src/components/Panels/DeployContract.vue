@@ -77,15 +77,16 @@ import TransportU2F from "@ledgerhq/hw-transport-u2f";
 import VueJsonPretty from "vue-json-pretty";
 import { BN, bytes, Long, units } from "@zilliqa-js/util";
 import { Zilliqa } from "@zilliqa-js/zilliqa";
-import { getAddressFromPublicKey } from "@zilliqa-js/crypto";
 import { mapGetters } from "vuex";
 import axios from "axios";
 
 import { validateParams } from "@/utils/validation.js";
+import ZilPayMixin from "@/mixins/zilpay";
 
 const MAX_TRIES = 60;
 
 export default {
+  mixins: [ZilPayMixin],
   data() {
     return {
       abi: undefined,
@@ -191,23 +192,24 @@ export default {
     },
     async handleLedgerSign(tx) {
       try {
+        let transport = null;
+
+        this.loading = "Trying to create WebAuthn transport.";
+
         this.loading = "Trying to create U2F transport.";
-        const transport = await TransportU2F.create();
+        transport = await TransportU2F.create();
+
         this.loading = "Connect your Ledger Device and open Zilliqa App.";
         this.ledger = new LedgerInterface(transport);
-        this.loading = "Confirm Public Key generation on Ledger Device";
-        const pubkey = await this.ledger.getPublicKey(this.account.keystore);
+        this.publicKey = this.account.pubkey;
 
-        const address = getAddressFromPublicKey(pubkey.publicKey);
-
-        let balance = await this.zilliqa.blockchain.getBalance(address);
+        let balance = await this.zilliqa.blockchain.getBalance(this.account.address);
 
         if (balance.error && balance.error.code === -5) {
           throw new Error("Account has no balance.");
         } else {
           this.nonce = balance.result.nonce;
-          this.address = address;
-          this.publicKey = pubkey.publicKey;
+
           const zils = units.fromQa(
             new BN(balance.result.balance),
             units.Units.Zil
@@ -235,6 +237,7 @@ export default {
           this.loading = "Sign transaction from the Ledger Device";
           const signed = await this.ledger.signTxn(this.account.keystore, newP);
           const signature = signed.sig;
+          this.loading = "Transaction signed, now trying to deploy...";
 
           const newtx = {
             id: "1",
@@ -252,7 +255,7 @@ export default {
                 pubKey: this.publicKey,
                 signature: signature,
                 version: oldp.version,
-                priority: false
+                priority: true
               }
             ]
           };
@@ -270,6 +273,12 @@ export default {
 
           let data = await response.json();
 
+          if (data.error !== undefined) {
+            this.actionHappening = false;
+            this.error = data.error.message;
+            throw new Error(data.error.message);
+          }
+
           if (data.result.TranID !== undefined) {
             this.loading = "Trying to deploy transaction...";
             this.txId = data.result.TranID;
@@ -278,6 +287,7 @@ export default {
 
           if (data.result.error !== undefined) {
             this.actionHappening = false;
+              this.error = data.result.error.message;
             throw new Error(data.result.error.message);
           }
 
@@ -307,7 +317,19 @@ export default {
         this.watchTries = 0;
         await this.watchTx();
       } catch (error) {
-        this.errror = error.message;
+        this.error = error.message;
+      }
+    },
+    async handleZilPaySign(tx) {
+      try {
+        this.loading = "Trying to sign and send transaction...";
+        const result = await this.signZilPayTx(tx);
+
+        this.txId = result.TranID;
+        this.watchTries = 0;
+        await this.watchTx();
+      } catch (err) {
+        this.error = err.message;
       }
     },
     async handlePrivateKeySign(tx) {
@@ -321,7 +343,7 @@ export default {
         this.watchTries = 0;
         await this.watchTx();
       } catch (error) {
-        this.errror = error.message;
+        this.error = error.message;
       }
     },
     async handleSign(tx) {
@@ -334,6 +356,9 @@ export default {
           break;
         case "privatekey":
           this.handlePrivateKeySign(tx);
+          break;
+        case "zilpay":
+          this.handleZilPaySign(tx);
           break;
         default:
           this.error = "There has been an error in account detection.";
@@ -362,18 +387,22 @@ export default {
       }
 
       const init = this.abi.params.map(item => {
-        let ret = { vname: item.vname, value: item.value, type: item.type };
+        let val = item.value;
 
         try {
-          let val = JSON.parse(item.value);
+          val = JSON.parse(item.value);
+
           if (typeof val == "number") {
             val = val.toString();
           }
-          ret = { vname: item.vname, value: val, type: item.type };
-        } catch (error) {
-          ret = { vname: item.vname, value: item.value, type: item.type };
-        }
-        return ret;
+          // eslint-disable-next-line no-empty
+        } catch (e) {}
+
+        return {
+          vname: item.vname,
+          type: item.type,
+          value: val
+        };
       });
 
       init.push({
@@ -420,6 +449,13 @@ export default {
 
             this.abi = contract_info;
 
+            this.abi.params = this.abi.params.map(item => {
+              return {
+                ...item,
+                value: ""
+              };
+            });
+
             // this.checked = true;
             this.$notify({
               group: "scilla",
@@ -453,6 +489,7 @@ export default {
 .accounts-list {
   .item {
     border: 1px dashed #ccc;
+
     background-color: rgba(0, 0, 0, 0.02);
     border-radius: 8px;
     transition: all 0.2s ease-in-out;

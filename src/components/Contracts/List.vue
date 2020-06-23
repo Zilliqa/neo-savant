@@ -71,7 +71,7 @@ export default {
     padding-left: 1rem;
     &:hover,
     &.selected {
-      background-color: #ea8a0c33;
+      background-color: lighten($primary, $amount: 40);
     }
   }
 }
