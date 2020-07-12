@@ -94,6 +94,10 @@ export default {
 
       const { wallet } = window.zilPay
       const account = wallet.defaultAccount
+
+      if (!wallet.isConnect || !wallet.isEnable) {
+        throw new Error("ZilPay could not be accessed. Please log in")
+      }
       const hasAccount = this.acountsList.some((acc) => account.base16 === acc.address)
 
       if (hasAccount) {
