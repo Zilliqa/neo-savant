@@ -51,13 +51,19 @@
       </div>
       <div class="alert alert-danger" v-if="error">{{error}}</div>
 
-      <div
-        class="alert"
-        :class="{'alert-success': signedTx.receipt.success === true, 'alert-danger': signedTx.receipt.success === false}"
-        style="overflow-x:scroll;"
-        v-if="signedTx"
-      >
-        <vue-json-pretty :data="{...signedTx}"></vue-json-pretty>
+      <div class="alert" v-if="signedTx">
+        <h5>Receipt</h5>
+        <div
+          class="alert"
+          :class="{'alert-success': signedTx.receipt.success === true, 'alert-danger': signedTx.receipt.success === false}"
+          style="overflow-x:scroll;"
+        >
+          <vue-json-pretty :data="signedTx.receipt"></vue-json-pretty>
+        </div>
+        <h5 class="mt-4">Transaction ID</h5>
+        <explorer-link :txid="signedTx.transId" />
+        <h5 class="mt-4">Contract Address</h5>
+        <explorer-link :address="signedTx.contractAddress" />
       </div>
 
       <div class="alert alert-danger" v-if="signedTx && signedTx.receipt.errors.length">
@@ -72,6 +78,7 @@
 <script>
 import ContractInput from "@/components/Inputs/ContractInput";
 import TransactionParameters from "@/components/Inputs/TransactionParameters";
+import ExplorerLink from "@/components/UI/ExplorerLink";
 import LedgerInterface from "@/utils/ledger-interface";
 import TransportU2F from "@ledgerhq/hw-transport-u2f";
 import VueJsonPretty from "vue-json-pretty";
@@ -121,7 +128,12 @@ export default {
       }
     };
   },
-  components: { VueJsonPretty, ContractInput, TransactionParameters },
+  components: {
+    VueJsonPretty,
+    ContractInput,
+    TransactionParameters,
+    ExplorerLink
+  },
   props: ["file"],
   computed: {
     ...mapGetters("accounts", { account: "selected" }),
@@ -203,7 +215,9 @@ export default {
         this.ledger = new LedgerInterface(transport);
         this.publicKey = this.account.pubkey;
 
-        let balance = await this.zilliqa.blockchain.getBalance(this.account.address);
+        let balance = await this.zilliqa.blockchain.getBalance(
+          this.account.address
+        );
 
         if (balance.error && balance.error.code === -5) {
           throw new Error("Account has no balance.");
@@ -287,7 +301,7 @@ export default {
 
           if (data.result.error !== undefined) {
             this.actionHappening = false;
-              this.error = data.result.error.message;
+            this.error = data.result.error.message;
             throw new Error(data.result.error.message);
           }
 

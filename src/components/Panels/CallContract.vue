@@ -15,7 +15,7 @@
             class="btn btn-secondary mr-2 mb-2"
             v-for="transition in abi.transitions"
             :key="transition.vname"
-            @click="exec = transition"
+            @click="handleTransitionSelect(transition)"
             :class="{'faded': exec && exec.vname !== transition.vname}"
           >{{ transition.vname }}</button>
         </div>
@@ -42,7 +42,7 @@
         </div>
       </div>
 
-      <div class="deploy-form" v-if="abi && exec">
+      <div class="deploy-form" v-if="abi && exec && !signedTx">
         <div class="row mb-4">
           <div class="col-12">
             <p class="font-weight-bold">Transaction parameters</p>
@@ -102,13 +102,19 @@
       </div>
       <div class="alert alert-danger" v-if="error">{{error}}</div>
 
-      <div
-        class="alert"
-        :class="{'alert-success': signedTx.receipt.success === true, 'alert-danger': signedTx.receipt.success === false}"
-        style="overflow-x:scroll;"
-        v-if="signedTx"
-      >
-        <vue-json-pretty :data="{...signedTx}"></vue-json-pretty>
+      <div v-if="signedTx">
+        <p class="font-weight-bold">Receipt</p>
+        <div
+          class="alert"
+          :class="{'alert-success': signedTx.receipt.success === true, 'alert-danger': signedTx.receipt.success === false}"
+          style="overflow-x:scroll;"
+        >
+          <vue-json-pretty
+            :data="{...signedTx.receipt, 'event_logs': signedTx.receipt.event_logs.length }"
+          ></vue-json-pretty>
+        </div>
+        <p class="font-weight-bold mt-5">Transaction ID</p>
+        <explorer-link :txid="signedTx.transId" />
       </div>
 
       <div class="alert alert-danger" v-if="signedTx && signedTx.receipt.errors.length">
@@ -122,7 +128,7 @@
 
 <script>
 import ContractInput from "../Inputs/ContractInput";
-
+import ExplorerLink from "../UI/ExplorerLink";
 import LedgerInterface from "@/utils/ledger-interface";
 import VueJsonPretty from "vue-json-pretty";
 import TransportU2F from "@ledgerhq/hw-transport-u2f";
@@ -173,7 +179,7 @@ export default {
       }
     };
   },
-  components: { VueJsonPretty, ContractInput },
+  components: { VueJsonPretty, ContractInput, ExplorerLink },
   props: ["contractId"],
   computed: {
     ...mapGetters("accounts", { account: "selected" }),
@@ -206,6 +212,10 @@ export default {
       this.error = false;
       this.loading = false;
       this.abi = this.getContractAbi();
+    },
+    handleTransitionSelect(transition) {
+      this.exec = transition;
+      this.signedTx = undefined;
     },
     handleClose() {
       window.EventBus.$emit("close-right-panel");
