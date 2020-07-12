@@ -1,5 +1,21 @@
 <template>
-  <div class="network-selector d-flex">
+  <v-popover
+    offset="16"
+    trigger="hover"
+    placement="top"
+    class="network-selector d-flex"
+    v-if="account && account.type === 'zilpay'"
+  >
+    <!-- This will be the popover target (for the events and position) -->
+    <div class="tooltip-target b3 selected-network d-flex align-items-center">
+      <img src="@/assets/server.svg" height="24px" class="mr-2" />
+      {{selected.name}}
+    </div>
+    <template
+      slot="popover"
+    >The account currently selected is managed by external extension ZilPay. You have to change the network from the extension itself.</template>
+  </v-popover>
+  <div class="network-selector not-zilpay d-flex" v-else>
     <div class="selected-network d-flex align-items-center">
       <img src="@/assets/server.svg" height="24px" class="mr-2" />
       {{selected.name}}
@@ -21,7 +37,8 @@ import { mapGetters } from "vuex";
 
 export default {
   computed: {
-    ...mapGetters("networks", ["selected", "list"])
+    ...mapGetters("networks", ["selected", "list"]),
+    ...mapGetters("accounts", { account: "selected" })
   },
   methods: {
     handleSelect(network) {
@@ -39,6 +56,9 @@ export default {
     cursor: pointer;
     background-color: lighten($primary, 10);
   }
+  .trigger {
+    display: flex !important;
+  }
 
   color: #000;
   position: relative;
@@ -46,7 +66,7 @@ export default {
     display: none;
   }
 
-  &:hover {
+  &.not-zilpay:hover {
     .networks-list {
       position: absolute;
       left: 0;
