@@ -8,7 +8,7 @@
       <div class="alert alert-info" v-if="!abi">Loading contract ABI</div>
 
       <div class="contract-transitions" v-if="abi">
-        <p class="mb-2">Transitions</p>
+        <p class="font-weight-bold mb-2">Transitions</p>
 
         <div class="transitions mb-4">
           <button
