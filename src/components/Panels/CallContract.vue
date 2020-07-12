@@ -1,7 +1,9 @@
 <template>
   <div class="panel-content">
     <div class="header">
-      <div class="title">{{ contractId }}</div>
+      <div class="title">
+        <address-display :address="contractId" />
+      </div>
       <img src="@/assets/close-color.svg" @click="handleClose" class="close-button-new" />
     </div>
     <div class="body p-4">
@@ -134,6 +136,7 @@
 
 <script>
 import ContractInput from "../Inputs/ContractInput";
+import AddressDisplay from "../UI/AddressDisplay";
 import ExplorerLink from "../UI/ExplorerLink";
 import LedgerInterface from "@/utils/ledger-interface";
 import VueJsonPretty from "vue-json-pretty";
@@ -185,7 +188,7 @@ export default {
       }
     };
   },
-  components: { VueJsonPretty, ContractInput, ExplorerLink },
+  components: { VueJsonPretty, ContractInput, ExplorerLink, AddressDisplay },
   props: ["contractId"],
   computed: {
     ...mapGetters("accounts", { account: "selected" }),
