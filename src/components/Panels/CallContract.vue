@@ -5,9 +5,15 @@
       <img src="@/assets/close-color.svg" @click="handleClose" class="close-button-new" />
     </div>
     <div class="body p-4">
-      <div class="alert alert-info" v-if="!abi">Loading contract ABI</div>
+      <p class="font-weight-bold mb-0">Contract Address</p>
+      <explorer-link :address="contractId" />
 
-      <div class="contract-transitions" v-if="abi">
+      <div class="mt-4 alert alert-info" v-if="!abi">
+        Loading contract ABI
+        <i class="fas fa-spinner fa-spin"></i>
+      </div>
+
+      <div class="contract-transitions mt-4" v-if="abi">
         <p class="font-weight-bold mb-2">Transitions</p>
 
         <div class="transitions mb-4">
@@ -22,7 +28,7 @@
       </div>
 
       <div v-if="!exec && contractState">
-        <p class="mt-4 mb-2 d-flex align-items-center">
+        <p class="mb-0 d-flex align-items-center font-weight-bold">
           Contract State
           <img
             src="@/assets/refresh.svg"
@@ -35,10 +41,10 @@
         </div>
       </div>
 
-      <div v-if="contractInit && !exec">
-        <p class="mb-2">Contract Init</p>
+      <div class="mt-4" v-if="contractInit && !exec">
+        <p class="font-weight-bold mb-0">Contract Init</p>
         <div style="width: 100%; overflow-x:scroll;">
-          <vue-json-pretty :deep="2" :data="contractInit"></vue-json-pretty>
+          <vue-json-pretty :deep="0" :data="contractInit"></vue-json-pretty>
         </div>
       </div>
 
