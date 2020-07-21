@@ -1,7 +1,7 @@
 const state = {
     selected: undefined,
     accounts: [
-        
+
     ]
 };
 
@@ -15,22 +15,28 @@ const getters = {
 };
 
 const actions = {
-    SelectAccount({ commit, state, rootGetters }, { address }) {
+    SelectAccount({ commit, state, rootGetters }, payload) {
         const network = rootGetters['networks/selected'];
 
-        if (network.url === undefined) {
-            throw Error('Network not selected');
+        if (payload !== undefined) {
+            const { address } = payload;
+
+            if (network.url === undefined) {
+                throw Error('Network not selected');
+            }
+
+            const account = state.accounts.find(function (item) {
+                return (item.network === network.url && item.address === address)
+            });
+
+            if (account === undefined) {
+                throw Error('Account does not exist on network.');
+            }
+
+            commit('setAccount', account);
+        } else {
+            commit('setAccount', undefined);
         }
-
-        const account = state.accounts.find(function (item) {
-            return (item.network === network.url && item.address === address)
-        });
-
-        if (account === undefined) {
-            throw Error('Account does not exist on network.');
-        }
-
-        commit('setAccount', account);
     },
     AddAccount({ commit, state, rootGetters, dispatch }, account) {
         const network = rootGetters['networks/selected'];

@@ -1,20 +1,14 @@
 <template>
-  <v-popover
-    offset="16"
-    trigger="hover"
-    placement="top"
-    class="network-selector d-flex"
-    v-if="account && account.type === 'zilpay'"
-  >
-    <!-- This will be the popover target (for the events and position) -->
-    <div class="tooltip-target b3 selected-network d-flex align-items-center">
-      <img src="@/assets/server.svg" height="24px" class="mr-2" />
-      {{selected.name}}
-    </div>
-    <template
-      slot="popover"
-    >The account currently selected is managed by external extension ZilPay. You have to change the network from the extension itself.</template>
-  </v-popover>
+  <div class="network-selector d-flex" v-if="account && account.type === 'zilpay'">
+    <v-popover trigger="click" class="d-flex align-items-center">
+      <!-- This will be the popover target (for the events and position) -->
+      <div class="selected-network d-flex align-items-center">
+        <img src="@/assets/server.svg" height="24px" class="mr-2" />
+        {{selected.name}}
+      </div>
+      <template slot="popover" class="text-center">Accounts and Networks are managed by ZilPay Extension.<br/><br/><button class="btn btn-success" @click="handleAccountManagerSwitch">Switch back to IDE Account Manager</button></template>
+    </v-popover>
+  </div>
   <div class="network-selector not-zilpay d-flex" v-else>
     <div class="selected-network d-flex align-items-center">
       <img src="@/assets/server.svg" height="24px" class="mr-2" />
@@ -41,6 +35,10 @@ export default {
     ...mapGetters("accounts", { account: "selected" })
   },
   methods: {
+    async handleAccountManagerSwitch() {
+      await this.$store.dispatch("accounts/SelectAccount", undefined);
+      window.EventBus.$emit("refresh-balance");
+    },
     handleSelect(network) {
       this.$store.dispatch("networks/SelectNetwork", network);
     }
