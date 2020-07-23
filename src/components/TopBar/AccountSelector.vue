@@ -1,12 +1,33 @@
 <template>
-  <div class="account-selector d-flex align-items-center mr-4">
+  <div class="account-selector d-flex" v-if="selected && selected.type === 'zilpay'">
+    <v-popover trigger="click" class="d-flex align-items-center">
+      <!-- This will be the popover target (for the events and position) -->
+      <div class="selected-account">
+        <div class="selected-item d-flex align-items-center" v-if="selected !== undefined">
+          <img src="@/assets/user.svg" height="24px" class="account-icon mr-2" />
+          <copy-to-clipboard class="copy-to-clipboard mr-2" :text="selected.address"></copy-to-clipboard>
+          <address-display :address="selected.address"></address-display>
+        </div>
+        <div class="selected-item d-flex mr-5" @click="handleSelect" v-else>
+          <img src="@/assets/user.svg" height="24px" class="mr-5" /> Select an account
+        </div>
+      </div>
+      <template slot="popover" class="text-center">
+        Accounts and Networks are managed by ZilPay Extension.
+        <br />
+        <br />
+        <button class="btn btn-success" @click="handleAccountManagerSwitch">Switch back to IDE Account Manager</button>
+      </template>
+    </v-popover>
+  </div>
+  <div class="account-selector d-flex align-items-center mr-4" v-else>
     <div class="selected-account">
       <div class="selected-item d-flex align-items-center" v-if="selected !== undefined">
         <img src="@/assets/user.svg" height="24px" class="account-icon mr-2" />
         <copy-to-clipboard class="copy-to-clipboard mr-2" :text="selected.address"></copy-to-clipboard>
         <address-display :address="selected.address"></address-display>
       </div>
-      <div class="selected-item d-flex mr-5" @click="handleSelect" v-else>
+      <div class="selected-item d-flex mr-5" v-else>
         <img src="@/assets/user.svg" height="24px" class="mr-5" /> Select an account
       </div>
 
@@ -56,6 +77,10 @@ export default {
   },
   components: { CopyToClipboard, AddressDisplay },
   methods: {
+    async handleAccountManagerSwitch() {
+      await this.$store.dispatch("accounts/SelectAccount", undefined);
+      window.EventBus.$emit("refresh-balance");
+    },
     async handleSelect({ address }) {
       await this.$store.dispatch("accounts/SelectAccount", { address });
       window.EventBus.$emit("refresh-balance");

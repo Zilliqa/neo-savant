@@ -356,8 +356,9 @@ export default {
     },
     async handleZilPaySign(tx) {
       try {
-        this.loading = "Trying to sign and send transaction...";
+        this.loading = "Please sign transaction on ZilPay...";
         const result = await this.signZilPayTx(tx);
+        this.loading = "Waiting for transaction to reach the network...";
 
         this.txId = result.TranID;
         this.watchTries = 0;
