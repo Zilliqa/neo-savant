@@ -138,7 +138,7 @@
           </div>
         </div>
 
-        <div class="loading my-4" v-if="loading">
+        <div class="alert alert-info loading my-4" v-if="loading && !error">
           <div class="icon text-center">
             <i class="fas fa-spinner fa-spin"></i>
             {{ loading }}
@@ -223,20 +223,20 @@ export default {
     },
     async handleConnectZilPay() {
       this.error = null;
-      this.loading = "Waiting for access ZilPay...";
+      this.loading = "Waiting for ZilPay access";
 
       try {
         await this.getZilPayNetwork();
         await this.getZilPayAccount();
 
         this.runZilPayObservable();
+
+        this.loading = false;
+        this.importAccount = false;
+        window.EventBus.$emit("close-right-panel");
       } catch (err) {
         this.error = err.message;
       }
-
-      this.loading = false;
-      this.importAccount = false;
-      window.EventBus.$emit("close-right-panel");
     },
     async generateLedgerAccount() {
       let transport = null;

@@ -94,7 +94,19 @@ export default {
 
       const { wallet } = window.zilPay
       const account = wallet.defaultAccount
-      const hasAccount = this.acountsList.some((acc) => account.base16 === acc.address)
+
+      if (!wallet.isConnect || !wallet.isEnable) {
+        this.$notify({
+          group: "scilla",
+          type: "error",
+          position: "bottom right",
+          title: "Accounts",
+          text: "ZilPay could not be accessed. Please log in."
+        });
+        throw new Error("ZilPay could not be accessed. Please log in.");
+      }
+      
+      const hasAccount = this.acountsList.find((acc) => account.base16 === acc.address)
 
       if (hasAccount) {
         this.$store.dispatch("accounts/SelectAccount", { address: account.base16 });
@@ -115,11 +127,10 @@ export default {
       window.EventBus.$emit("refresh-balance");
     },
     async signZilPayTx(tx) {
-      await this.testZilPay()
-
+      await this.testZilPay();
       const { blockchain } = window.zilPay
-
-      return await blockchain.createTransaction(tx)
+      const result = await blockchain.createTransaction(tx);
+      return result;
     }
   }
 }

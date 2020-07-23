@@ -203,7 +203,9 @@ export default {
         this.ledger = new LedgerInterface(transport);
         this.publicKey = this.account.pubkey;
 
-        let balance = await this.zilliqa.blockchain.getBalance(this.account.address);
+        let balance = await this.zilliqa.blockchain.getBalance(
+          this.account.address
+        );
 
         if (balance.error && balance.error.code === -5) {
           throw new Error("Account has no balance.");
@@ -287,7 +289,7 @@ export default {
 
           if (data.result.error !== undefined) {
             this.actionHappening = false;
-              this.error = data.result.error.message;
+            this.error = data.result.error.message;
             throw new Error(data.result.error.message);
           }
 
@@ -322,13 +324,14 @@ export default {
     },
     async handleZilPaySign(tx) {
       try {
-        this.loading = "Trying to sign and send transaction...";
+        this.loading = "Please sign transaction on ZilPay...";
         const result = await this.signZilPayTx(tx);
-
+        this.loading = "Waiting for transaction to reach the network...";
         this.txId = result.TranID;
         this.watchTries = 0;
         await this.watchTx();
       } catch (err) {
+        this.loading = false;
         this.error = err.message;
       }
     },
