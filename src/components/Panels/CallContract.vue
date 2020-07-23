@@ -1,28 +1,36 @@
 <template>
   <div class="panel-content">
     <div class="header">
-      <div class="title">{{ contractId }}</div>
+      <div class="title">
+        <address-display :address="contractId" />
+      </div>
       <img src="@/assets/close-color.svg" @click="handleClose" class="close-button-new" />
     </div>
     <div class="body p-4">
-      <div class="alert alert-info" v-if="!abi">Loading contract ABI</div>
+      <p class="font-weight-bold mb-0">Contract Address</p>
+      <explorer-link :address="contractId" />
 
-      <div class="contract-transitions" v-if="abi">
-        <p class="mb-2">Transitions</p>
+      <div class="mt-4 alert alert-info" v-if="!abi">
+        Loading contract ABI
+        <i class="fas fa-spinner fa-spin"></i>
+      </div>
+
+      <div class="contract-transitions mt-4" v-if="abi">
+        <p class="font-weight-bold mb-2">Transitions</p>
 
         <div class="transitions mb-4">
           <button
             class="btn btn-secondary mr-2 mb-2"
             v-for="transition in abi.transitions"
             :key="transition.vname"
-            @click="exec = transition"
+            @click="handleTransitionSelect(transition)"
             :class="{'faded': exec && exec.vname !== transition.vname}"
           >{{ transition.vname }}</button>
         </div>
       </div>
 
       <div v-if="!exec && contractState">
-        <p class="mt-4 mb-2 d-flex align-items-center">
+        <p class="mb-0 d-flex align-items-center font-weight-bold">
           Contract State
           <img
             src="@/assets/refresh.svg"
@@ -35,14 +43,14 @@
         </div>
       </div>
 
-      <div v-if="contractInit && !exec">
-        <p class="mb-2">Contract Init</p>
+      <div class="mt-4" v-if="contractInit && !exec">
+        <p class="font-weight-bold mb-0">Contract Init</p>
         <div style="width: 100%; overflow-x:scroll;">
-          <vue-json-pretty :deep="2" :data="contractInit"></vue-json-pretty>
+          <vue-json-pretty :deep="0" :data="contractInit"></vue-json-pretty>
         </div>
       </div>
 
-      <div class="deploy-form" v-if="abi && exec">
+      <div class="deploy-form" v-if="abi && exec && !signedTx">
         <div class="row mb-4">
           <div class="col-12">
             <p class="font-weight-bold">Transaction parameters</p>
@@ -102,13 +110,19 @@
       </div>
       <div class="alert alert-danger" v-if="error">{{error}}</div>
 
-      <div
-        class="alert"
-        :class="{'alert-success': signedTx.receipt.success === true, 'alert-danger': signedTx.receipt.success === false}"
-        style="overflow-x:scroll;"
-        v-if="signedTx"
-      >
-        <vue-json-pretty :data="{...signedTx}"></vue-json-pretty>
+      <div v-if="signedTx">
+        <p class="font-weight-bold">Receipt</p>
+        <div
+          class="alert"
+          :class="{'alert-success': signedTx.receipt.success === true, 'alert-danger': signedTx.receipt.success === false}"
+          style="overflow-x:scroll;"
+        >
+          <vue-json-pretty
+            :data="{...signedTx.receipt, 'event_logs': signedTx.receipt.event_logs.length }"
+          ></vue-json-pretty>
+        </div>
+        <p class="font-weight-bold mt-5">Transaction ID</p>
+        <explorer-link :txid="signedTx.transId" />
       </div>
 
       <div class="alert alert-danger" v-if="signedTx && signedTx.receipt.errors.length">
@@ -122,7 +136,8 @@
 
 <script>
 import ContractInput from "../Inputs/ContractInput";
-
+import AddressDisplay from "../UI/AddressDisplay";
+import ExplorerLink from "../UI/ExplorerLink";
 import LedgerInterface from "@/utils/ledger-interface";
 import VueJsonPretty from "vue-json-pretty";
 import TransportU2F from "@ledgerhq/hw-transport-u2f";
@@ -173,7 +188,7 @@ export default {
       }
     };
   },
-  components: { VueJsonPretty, ContractInput },
+  components: { VueJsonPretty, ContractInput, ExplorerLink, AddressDisplay },
   props: ["contractId"],
   computed: {
     ...mapGetters("accounts", { account: "selected" }),
@@ -206,6 +221,10 @@ export default {
       this.error = false;
       this.loading = false;
       this.abi = this.getContractAbi();
+    },
+    handleTransitionSelect(transition) {
+      this.exec = transition;
+      this.signedTx = undefined;
     },
     handleClose() {
       window.EventBus.$emit("close-right-panel");
@@ -340,12 +359,12 @@ export default {
         this.loading = "Please sign transaction on ZilPay...";
         const result = await this.signZilPayTx(tx);
         this.loading = "Waiting for transaction to reach the network...";
-
         this.txId = result.TranID;
         this.watchTries = 0;
         await this.watchTx();
       } catch (err) {
-        this.errror = err.message;
+        this.loading = false;
+        this.error = err.message;
       }
     },
     async handlePrivateKeySign(tx) {

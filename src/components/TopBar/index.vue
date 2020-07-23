@@ -19,6 +19,7 @@
             </li>
           </ul>
         </li>
+        <explorer-link />
       </div>
       <div class="details d-flex">
         <account-balance />
@@ -33,10 +34,16 @@
 import NetworkSelector from "./NetworkSelector";
 import AccountSelector from "./AccountSelector";
 import AccountBalance from "./AccountBalance";
+import ExplorerLink from "../UI/ExplorerLink";
 
 export default {
   name: "TopBar",
-  components: { NetworkSelector, AccountSelector, AccountBalance },
+  components: {
+    NetworkSelector,
+    AccountSelector,
+    AccountBalance,
+    ExplorerLink
+  },
   methods: {
     handleOpenTools(toolName) {
       window.EventBus.$emit("open-tools", toolName);
@@ -78,6 +85,7 @@ export default {
   .tools-menu {
     list-style: none;
     margin-left: 1rem;
+    margin-right: 1rem;
     position: relative;
 
     .submenu {
