@@ -359,12 +359,12 @@ export default {
         this.loading = "Please sign transaction on ZilPay...";
         const result = await this.signZilPayTx(tx);
         this.loading = "Waiting for transaction to reach the network...";
-
         this.txId = result.TranID;
         this.watchTries = 0;
         await this.watchTx();
       } catch (err) {
-        this.errror = err.message;
+        this.loading = false;
+        this.error = err.message;
       }
     },
     async handlePrivateKeySign(tx) {
