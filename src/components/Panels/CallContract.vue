@@ -111,7 +111,9 @@
       <div class="alert alert-danger" v-if="error">{{error}}</div>
 
       <div v-if="signedTx">
-        <p class="font-weight-bold">Receipt</p>
+        <p class="font-weight-bold">Transaction ID</p>
+        <explorer-link :txid="signedTx.transId" />
+        <p class="font-weight-bold mt-4">Receipt</p>
         <div
           class="alert"
           :class="{'alert-success': signedTx.receipt.success === true, 'alert-danger': signedTx.receipt.success === false}"
@@ -121,8 +123,6 @@
             :data="{...signedTx.receipt, 'event_logs': signedTx.receipt.event_logs.length }"
           ></vue-json-pretty>
         </div>
-        <p class="font-weight-bold mt-5">Transaction ID</p>
-        <explorer-link :txid="signedTx.transId" />
       </div>
 
       <div class="alert alert-danger" v-if="signedTx && signedTx.receipt.errors.length">

@@ -52,7 +52,11 @@
       <div class="alert alert-danger" v-if="error">{{error}}</div>
 
       <div class="alert" v-if="signedTx">
-        <h5>Receipt</h5>
+        <p class="font-weight-bold">Transaction ID</p>
+        <explorer-link :txid="signedTx.transId" />
+        <p class="font-weight-bold mt-4">Contract Address</p>
+        <explorer-link :address="signedTx.contractAddress" />
+        <p class="font-weight-bold mt-4">Receipt</p>
         <div
           class="alert"
           :class="{'alert-success': signedTx.receipt.success === true, 'alert-danger': signedTx.receipt.success === false}"
@@ -60,10 +64,6 @@
         >
           <vue-json-pretty :data="signedTx.receipt"></vue-json-pretty>
         </div>
-        <h5 class="mt-4">Transaction ID</h5>
-        <explorer-link :txid="signedTx.transId" />
-        <h5 class="mt-4">Contract Address</h5>
-        <explorer-link :address="signedTx.contractAddress" />
       </div>
 
       <div class="alert alert-danger" v-if="signedTx && signedTx.receipt.errors.length">
