@@ -1,5 +1,15 @@
 <template>
-  <div class="network-selector d-flex">
+  <div class="network-selector d-flex" v-if="account && account.type === 'zilpay'">
+    <v-popover trigger="click" class="d-flex align-items-center">
+      <!-- This will be the popover target (for the events and position) -->
+      <div class="selected-network d-flex align-items-center">
+        <img src="@/assets/server.svg" height="24px" class="mr-2" />
+        {{selected.name}}
+      </div>
+      <template slot="popover" class="text-center">Accounts and Networks are managed by ZilPay Extension.<br/><br/><button class="btn btn-success" @click="handleAccountManagerSwitch">Switch back to IDE Account Manager</button></template>
+    </v-popover>
+  </div>
+  <div class="network-selector not-zilpay d-flex" v-else>
     <div class="selected-network d-flex align-items-center">
       <img src="@/assets/server.svg" height="24px" class="mr-2" />
       {{selected.name}}
@@ -21,9 +31,14 @@ import { mapGetters } from "vuex";
 
 export default {
   computed: {
-    ...mapGetters("networks", ["selected", "list"])
+    ...mapGetters("networks", ["selected", "list"]),
+    ...mapGetters("accounts", { account: "selected" })
   },
   methods: {
+    async handleAccountManagerSwitch() {
+      await this.$store.dispatch("accounts/SelectAccount", undefined);
+      window.EventBus.$emit("refresh-balance");
+    },
     handleSelect(network) {
       this.$store.dispatch("networks/SelectNetwork", network);
     }
@@ -39,6 +54,9 @@ export default {
     cursor: pointer;
     background-color: lighten($primary, 10);
   }
+  .trigger {
+    display: flex !important;
+  }
 
   color: #000;
   position: relative;
@@ -46,7 +64,7 @@ export default {
     display: none;
   }
 
-  &:hover {
+  &.not-zilpay:hover {
     .networks-list {
       position: absolute;
       left: 0;
