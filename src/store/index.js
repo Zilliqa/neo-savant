@@ -15,7 +15,19 @@ Vue.use(Vuex)
 
 const vuexPersist = new VuexPersist({
   key: 'savant-ide',
-  storage: window.localStorage
+  storage: window.localStorage,
+  reducer: state => ({
+    accounts: state.accounts,
+    contracts: state.contracts,
+    events: state.events,
+    files: state.files,
+    general: {
+      editor: state.general.editor
+    },
+    networks: state.networks,
+    transactions: state.transactions
+    // getRidOfThisModule: state.getRidOfThisModule (No one likes it.)
+  })
 })
 
 export default new Vuex.Store({
