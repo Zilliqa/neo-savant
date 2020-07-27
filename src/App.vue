@@ -337,7 +337,7 @@ input.form-control {
       right: 0;
       width: 12px;
       height: 100%;
-      z-index: 9999;
+      z-index: 100;
       padding-top: 0.5rem;
       display: flex;
       flex-direction: column;
