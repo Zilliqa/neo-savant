@@ -29,17 +29,22 @@
         </div>
       </div>
 
-      <div v-if="!exec && contractState">
+      <div v-if="!exec">
         <p class="mb-0 d-flex align-items-center font-weight-bold">
           Contract State
           <img
             src="@/assets/refresh.svg"
             class="refresh-state-button"
             @click="refreshContractState"
+            v-if="contractState"
           />
         </p>
-        <div style="width: 100%; overflow-x:scroll;">
+        <div style="width: 100%; overflow-x:scroll;" v-if="contractState">
           <vue-json-pretty :deep="1" :data="contractState"></vue-json-pretty>
+        </div>
+        <div v-else>
+          <i class="fas fa-spinner fa-spin" v-if="refreshingState"></i>
+          <button class="btn btn-primary" @click="refreshContractState" v-else>Load contract state</button>
         </div>
       </div>
 
@@ -160,6 +165,7 @@ export default {
       contractState: undefined,
       contractInit: undefined,
       contractCode: undefined,
+      refreshingState: false,
       init: {},
       amount: 0,
       gasPrice: 1000000000,
@@ -204,7 +210,7 @@ export default {
       await this.zilliqa.blockchain.getSmartContractInit(this.contractId)
     ).result;
 
-    await this.refreshContractState();
+    //await this.refreshContractState();
 
     const contractCode = await this.zilliqa.blockchain.getSmartContractCode(
       this.contractId
@@ -446,9 +452,11 @@ export default {
       }
     },
     async refreshContractState() {
+      this.refreshingState = true;
       this.contractState = (
         await this.zilliqa.blockchain.getSmartContractState(this.contractId)
       ).result;
+      this.refreshingState = false;
     },
     async handleCancel() {
       this.exec = false;
