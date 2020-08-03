@@ -53,6 +53,10 @@
         :key="this.callContract"
       />
 
+      <faucet-panel
+        v-if="rightPanel === 'openFaucet'"
+      />
+
       <div class="right-sidebar">
         <div class="action events-badge" @click="handleToggleRightPanel('events')">
           <img src="@/assets/notifications.svg" />
@@ -78,6 +82,7 @@ import DeployContract from "@/components/Panels/DeployContract";
 import CallContract from "@/components/Panels/CallContract";
 import AccountImport from "@/components/Panels/AccountImport";
 import ContractImport from "@/components/Panels/ContractImport";
+import FaucetPanel from "@/components/Panels/Faucet";
 
 import BottomPanel from "@/components/BottomPanel";
 
@@ -117,7 +122,8 @@ export default {
     BottomPanel,
     EventsList,
     Settings,
-    Tools
+    Tools,
+    FaucetPanel
   },
   computed: {
     ...mapGetters("events", { events: "list" }),
@@ -208,6 +214,10 @@ export default {
     window.EventBus.$on("open-call-contract", ({ contractId }) => {
       this.callContract = contractId;
       this.rightPanel = "callContract";
+    });
+
+    window.EventBus.$on("open-faucet", () => {
+      this.rightPanel = "openFaucet";
     });
 
     window.EventBus.$on("open-import-contract", () => {
