@@ -39,8 +39,11 @@
             v-if="contractState"
           />
         </p>
-        <div style="width: 100%; overflow-x:scroll;" v-if="contractState">
-          <vue-json-pretty :deep="1" :data="contractState"></vue-json-pretty>
+        <div v-if="contractState">
+          <vue-json-pretty :deep="1" :data="contractState" v-if="contractState.toString().length > 10000"></vue-json-pretty>
+          <pre style="max-height: 600px; overflow:scroll;">
+            {{contractState}}
+          </pre>
         </div>
         <div v-else>
           <i class="fas fa-spinner fa-spin" v-if="refreshingState"></i>
