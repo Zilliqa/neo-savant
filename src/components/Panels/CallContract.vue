@@ -40,8 +40,8 @@
           />
         </p>
         <div v-if="contractState">
-          <vue-json-pretty :deep="1" :data="contractState" v-if="contractState.toString().length > 10000"></vue-json-pretty>
-          <pre style="max-height: 600px; overflow:scroll;">
+          <vue-json-pretty :deep="1" :data="contractState" v-if="contractStateLength < 50000"></vue-json-pretty>
+          <pre style="max-height: 600px; overflow:scroll;" v-else>
             {{contractState}}
           </pre>
         </div>
@@ -166,6 +166,7 @@ export default {
       abi: undefined,
       exec: false,
       contractState: undefined,
+      contractStateLength: 0,
       contractInit: undefined,
       contractCode: undefined,
       refreshingState: false,
@@ -459,6 +460,7 @@ export default {
       this.contractState = (
         await this.zilliqa.blockchain.getSmartContractState(this.contractId)
       ).result;
+      this.contractStateLength = JSON.stringify(this.contractState).length;
       this.refreshingState = false;
     },
     async handleCancel() {
