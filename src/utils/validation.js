@@ -43,7 +43,7 @@ const validateParam = ({ type, value }) => {
             return true;
         }
         case 'Uint': {
-            if (value && !Number.isInteger(parseInt(value)) && parseInt(value) < 0) {
+            if ((value && !Number.isInteger(parseInt(value))) || parseInt(value) < 0) {
                 throw new Error('Uint should be a positive integer number.');
             }
             return true;
