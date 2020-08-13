@@ -21,8 +21,9 @@
       </div>
       <div class="d-flex p-2 align-items-center" v-else>Deployed contracts are readonly.</div>
     </div>
-    <div class="editor-inner">
-      <ace-editor v-if="file && !file.contractId"
+    <div class="editor-inner d-flex">
+      <ace-editor
+        v-if="file && !file.contractId"
         v-model="file.code"
         :fontSize="editor.fontSize"
         :showPrintMargin="true"
@@ -40,7 +41,7 @@
         name="editor"
         :editorProps="{$blockScrolling: true}"
       />
-      <pre class="p-5" v-else>
+      <pre class="p-5" style="max-width: 700px; overflow:scroll;" v-else>
         {{ file.code }}
       </pre>
     </div>
