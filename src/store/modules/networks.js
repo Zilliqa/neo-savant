@@ -36,6 +36,15 @@ const actions = {
         commit('setNetwork', network);
         commit('accounts/setAccount', undefined, { root: true });
         window.EventBus.$emit('refresh-balance');
+    },
+    AddNetwork({ commit, state, dispatch }, networkDetails) {
+
+        if (state.networks.find(item => item.url === networkDetails.url) !== undefined) {
+            throw new Error("Network already exists.");
+        }
+
+        commit('addNetwork', networkDetails)
+        dispatch('SelectNetwork', networkDetails.url);
     }
 };
 
@@ -44,6 +53,9 @@ const mutations = {
     setNetwork(state, payload) {
         state.selected = payload;
     },
+    addNetwork(state, payload) {
+        state.networks.push(payload);
+    }
 };
 
 
