@@ -25,8 +25,8 @@
           <span v-if="leftPanel">TOGGLE</span>
           <span v-else>FILES / CONTRACTS</span>
         </div>
-        <files-list />
-        <contracts-list />
+        <files-list class="files-container" />
+        <contracts-list class="contracts-container" />
       </div>
       <div class="right-panel">
         <div class="main-panel" :class="{'has-bottom-panel': bottomPanel}">
@@ -330,6 +330,18 @@ input.form-control {
     border-right: 1px solid #ccc;
     overflow: hidden;
     width: 12px;
+    display:flex;
+    flex-direction:column;
+
+    .files-container {
+      height: 100%;
+    }
+
+    .contracts-container {
+      width: calc(100% + 24px);
+      height: 100%;
+      overflow-y: scroll;
+    }
 
     .toggler {
       position: absolute;
@@ -337,7 +349,7 @@ input.form-control {
       right: 0;
       width: 12px;
       height: 100%;
-      z-index: 9999;
+      z-index: 100;
       padding-top: 0.5rem;
       display: flex;
       flex-direction: column;
