@@ -39,6 +39,7 @@
 
       <events-list v-if="rightPanel === 'events'" />
       <settings v-if="rightPanel === 'settings'" />
+      <add-custom-network v-if="rightPanel === 'addCustomNetwork'"/>
 
       <!-- Contract panels -->
       <contract-import v-if="rightPanel === 'importContract'" />
@@ -83,6 +84,7 @@ import BottomPanel from "@/components/BottomPanel";
 
 import EventsList from "@/components/Panels/EventsList";
 import Settings from "@/components/Panels/Settings";
+import AddCustomNetwork from "@/components/Panels/AddCustomNetwork";
 
 import Tools from "@/components/Tools";
 
@@ -117,6 +119,7 @@ export default {
     BottomPanel,
     EventsList,
     Settings,
+    AddCustomNetwork,
     Tools
   },
   computed: {
@@ -212,6 +215,10 @@ export default {
 
     window.EventBus.$on("open-import-contract", () => {
       this.rightPanel = "importContract";
+    });
+
+    window.EventBus.$on("open-add-custom-network", () => {
+      this.rightPanel = "addCustomNetwork";
     });
 
     if (this.selectedAccount !== undefined && this.selectedAccount.type === "zilpay") {
