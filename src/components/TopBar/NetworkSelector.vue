@@ -6,7 +6,15 @@
         <img src="@/assets/server.svg" height="24px" class="mr-2" />
         {{selected.name}}
       </div>
-      <template slot="popover" class="text-center">Accounts and Networks are managed by ZilPay Extension.<br/><br/><button class="btn btn-success" @click="handleAccountManagerSwitch">Switch back to IDE Account Manager</button></template>
+      <template slot="popover" class="text-center">
+        Accounts and Networks are managed by ZilPay Extension.
+        <br />
+        <br />
+        <button
+          class="btn btn-success"
+          @click="handleAccountManagerSwitch"
+        >Switch back to IDE Account Manager</button>
+      </template>
     </v-popover>
   </div>
   <div class="network-selector not-zilpay d-flex" v-else>
@@ -22,6 +30,10 @@
         :key="network.name"
         @click="handleSelect(network)"
       >{{network.name}}</div>
+
+      <div class="item font-weight-bold" @click="handleAddNetwork">
+        <i class="fas fa-plus-square"></i> Add network
+      </div>
     </div>
   </div>
 </template>
@@ -32,7 +44,7 @@ import { mapGetters } from "vuex";
 export default {
   computed: {
     ...mapGetters("networks", ["selected", "list"]),
-    ...mapGetters("accounts", { account: "selected" })
+    ...mapGetters("accounts", { account: "selected" }),
   },
   methods: {
     async handleAccountManagerSwitch() {
@@ -41,8 +53,11 @@ export default {
     },
     handleSelect(network) {
       this.$store.dispatch("networks/SelectNetwork", network);
+    },
+    handleAddNetwork() {
+      window.EventBus.$emit('open-add-custom-network');
     }
-  }
+  },
 };
 </script>
 

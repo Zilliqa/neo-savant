@@ -21,8 +21,9 @@
       </div>
       <div class="d-flex p-2 align-items-center" v-else>Deployed contracts are readonly.</div>
     </div>
-    <div class="editor-inner">
+    <div class="editor-inner d-flex">
       <ace-editor
+        v-if="file && !file.contractId"
         v-model="file.code"
         :fontSize="editor.fontSize"
         :showPrintMargin="true"
@@ -37,10 +38,12 @@
         :maxLines="20000"
         height="calc(100% - 60px)"
         :onChange="handleInput"
-        :readOnly="readonly"
         name="editor"
         :editorProps="{$blockScrolling: true}"
       />
+      <pre class="p-5" style="max-width: 700px; overflow:scroll;" v-else>
+        {{ file.code }}
+      </pre>
     </div>
   </div>
 </template>
@@ -70,12 +73,12 @@ export default {
       changed: false,
       annotations: [],
       readonly: false,
-      SCILLA_CHECKER_URL: process.env.VUE_APP_SCILLA_CHECKER_URL
+      SCILLA_CHECKER_URL: process.env.VUE_APP_SCILLA_CHECKER_URL,
     };
   },
   computed: {
     ...mapGetters("networks", { network: "selected" }),
-    ...mapGetters("general", { editor: "editor" })
+    ...mapGetters("general", { editor: "editor" }),
   },
   methods: {
     handleInput(payload) {
@@ -85,7 +88,7 @@ export default {
     async handleSave() {
       await this.$store.dispatch("files/UpdateCode", {
         id: this.file.id,
-        code: this.file.code
+        code: this.file.code,
       });
       this.changed = false;
     },
@@ -96,19 +99,19 @@ export default {
       this.annotations = [];
 
       window.EventBus.$emit("console-log", {
-        message: `Running checker on ${this.file} contract.`
+        message: `Running checker on ${this.file} contract.`,
       });
 
       axios
         .post(this.SCILLA_CHECKER_URL, {
-          code: this.file.code
+          code: this.file.code,
         })
-        .then(response => {
+        .then((response) => {
           if (response.data.result === "success") {
             const message = JSON.parse(response.data.message);
 
             if (message.warnings !== []) {
-              const markers = message.warnings.map(err => {
+              const markers = message.warnings.map((err) => {
                 const row = parseInt(err.start_location.line, 10);
                 const column = parseInt(err.start_location.column, 10);
 
@@ -116,7 +119,7 @@ export default {
                   row: row === 0 ? 0 : row - 1,
                   column,
                   type: "warning",
-                  text: err.warning_message
+                  text: err.warning_message,
                 };
               });
 
@@ -126,30 +129,30 @@ export default {
             }
             // this.checked = true;
             window.EventBus.$emit("console-log", {
-              message: `Contract check successfully passed.`
+              message: `Contract check successfully passed.`,
             });
             this.$notify({
               group: "scilla",
               type: "success",
               position: "bottom right",
               title: "Scilla Checker",
-              text: "Contract has been successfully checked"
+              text: "Contract has been successfully checked",
             });
           }
         })
-        .catch(error => {
+        .catch((error) => {
           window.EventBus.$emit("console-log", {
             message: `There are errors in your contract.`,
-            type: "error"
+            type: "error",
           });
           this.$notify({
             group: "scilla",
             type: "error",
             position: "bottom right",
             title: "Scilla Checker",
-            text: "There are errors in your contract. Check the editor."
+            text: "There are errors in your contract. Check the editor.",
           });
-          const markers = error.response.data.message.map(err => {
+          const markers = error.response.data.message.map((err) => {
             const row = parseInt(err.line, 10);
             const col = parseInt(err.column, 10);
 
@@ -157,7 +160,7 @@ export default {
               row: row === 0 ? 0 : row - 1,
               column: col,
               type: "error",
-              text: err.msg
+              text: err.msg,
             };
           });
 
@@ -165,10 +168,10 @@ export default {
 
           this.annotations = markers;
         });
-    }
+    },
   },
   components: {
-    AceEditor
+    AceEditor,
   },
   mounted() {
     this.changed = false;
@@ -177,7 +180,7 @@ export default {
       this.handleCheck();
     });
 
-    window.EventBus.$on("change-editor-fontSize", payload => {
+    window.EventBus.$on("change-editor-fontSize", (payload) => {
       this.fontSize = payload;
     });
 
@@ -188,7 +191,7 @@ export default {
       }); */
       this.$store.dispatch("contracts/SelectContract", { contractId });
     });
-  }
+  },
 };
 </script>
 
