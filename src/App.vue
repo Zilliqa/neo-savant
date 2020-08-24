@@ -401,11 +401,11 @@ input.form-control {
 
     .main-panel {
       height: calc(
-        100% - 1.25rem - 1px
+        100% - 1.25rem - 1px - 28px
       ); // full height - bottom panel header - border
 
       &.has-bottom-panel {
-        height: calc(100% - 150px); // full height - bottom panel
+        height: calc(100% - 132px); // full height - bottom panel (150px) + editor tabs bar (~28px)
       }
     }
   }

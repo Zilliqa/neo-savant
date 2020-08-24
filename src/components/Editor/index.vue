@@ -198,7 +198,7 @@ export default {
 
 <style lang="scss" scoped>
 .editor {
-  height: 100%;
+  height: calc(100% - 28px); // - tabs height
 
   .ace_scrollbar.ace_scrollbar-h {
     display: none !important;
