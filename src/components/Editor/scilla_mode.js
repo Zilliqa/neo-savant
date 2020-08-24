@@ -2,13 +2,13 @@
 ace.define(
   'ace/mode/scilla_highlight_rules',
   ['require', 'exports', 'module', 'ace/lib/oop', 'ace/mode/text_highlight_rules'],
-  function(acequire, exports, module) {
+  function (acequire, exports, module) {
     'use strict';
 
     var oop = acequire('../lib/oop');
     var TextHighlightRules = acequire('./text_highlight_rules').TextHighlightRules;
 
-    var ScillaHighlightRules = function() {
+    var ScillaHighlightRules = function () {
       var keywords =
         'contract|library|import|builtin|' +
         'transition|fun|field|tfun|in|end|' +
@@ -132,21 +132,21 @@ ace.define(
 ace.define(
   'ace/mode/matching_brace_outdent',
   ['require', 'exports', 'module', 'ace/range'],
-  function(acequire, exports, module) {
+  function (acequire, exports, module) {
     'use strict';
 
     var Range = acequire('../range').Range;
 
-    var MatchingBraceOutdent = function() {};
+    var MatchingBraceOutdent = function () { };
 
-    (function() {
-      this.checkOutdent = function(line, input) {
+    (function () {
+      this.checkOutdent = function (line, input) {
         if (!/^\s+$/.test(line)) return false;
 
         return /^\s*\}/.test(input);
       };
 
-      this.autoOutdent = function(doc, row) {
+      this.autoOutdent = function (doc, row) {
         var line = doc.getLine(row);
         var match = line.match(/^(\s*\})/);
 
@@ -161,7 +161,7 @@ ace.define(
         doc.replace(new Range(row, 0, row, column - 1), indent);
       };
 
-      this.$getIndent = function(line) {
+      this.$getIndent = function (line) {
         return line.match(/^\s*/)[0];
       };
     }.call(MatchingBraceOutdent.prototype));
@@ -169,6 +169,57 @@ ace.define(
     exports.MatchingBraceOutdent = MatchingBraceOutdent;
   },
 );
+
+ace.define('ace/mode/folding/scilla_folding_rules',
+  ['require', 'exports', 'module', 'ace/lib/oop', 'ace/range', 'ace/fold_mode'],
+  function (acequire, exports, module) {
+    "use strict";
+
+    var oop = acequire("../../lib/oop");
+    var Range = acequire("../../range").Range;
+    var BaseFoldMode = acequire("./fold_mode").FoldMode;
+
+    var FoldMode = exports.FoldMode = function () { };
+    oop.inherits(FoldMode, BaseFoldMode);
+
+    (function () {
+
+      // regular expressions that identify starting and stopping points
+      this.foldingStartMarker = /^(transition|procedure).*$/;
+      this.foldingStopMarker = /^(\s*end)|(end)$/;
+
+      this.getFoldWidgetRange = function (session, foldStyle, row) {
+        var line = session.getLine(row);
+
+        var match = line.match(this.foldingStartMarker);
+        if (match) {
+          var i = match.index;
+
+          const startRow = row;
+          const startColumn = i;
+
+          var maxRow = session.getLength();
+          var level = match[1].length;
+
+          while (++row < maxRow) {
+            line = session.getLine(row);
+            var m = this.foldingStartMarker.exec(line);
+            if (!m) continue;
+            if (m[1].length <= level) break;
+          }
+          var endRow = row;
+
+          if (endRow > startRow) {
+            if (endRow < maxRow) endRow--
+            return new Range(startRow, match[0].length, endRow, line.length);
+          }
+
+        }
+      };
+
+    }).call(FoldMode.prototype);
+  }
+)
 
 ace.define(
   'ace/mode/scilla',
@@ -181,8 +232,9 @@ ace.define(
     'ace/mode/scilla_highlight_rules',
     'ace/mode/matching_brace_outdent',
     'ace/range',
+    'ace/mode/folding/scilla_folding_rules'
   ],
-  function(acequire, exports, module) {
+  function (acequire, exports, module) {
     'use strict';
 
     var oop = acequire('../lib/oop');
@@ -190,19 +242,23 @@ ace.define(
     var ScillaHighlightRules = acequire('./scilla_highlight_rules').ScillaHighlightRules;
     var MatchingBraceOutdent = acequire('./matching_brace_outdent').MatchingBraceOutdent;
     var Range = acequire('../range').Range;
+    var MyFoldMode = acequire('./folding/scilla_folding_rules').FoldMode;
 
-    var Mode = function() {
+
+    var Mode = function () {
       this.HighlightRules = ScillaHighlightRules;
       this.$behaviour = this.$defaultBehaviour;
 
+      this.foldingRules = new MyFoldMode();
       this.$outdent = new MatchingBraceOutdent();
     };
     oop.inherits(Mode, TextMode);
 
     var indenter = /(?:[({[=:]|[-=]>|\b(?:else|try|with))\s*$/;
 
-    (function() {
-      this.toggleCommentLines = function(state, doc, startRow, endRow) {
+    (function () {
+
+      this.toggleCommentLines = function (state, doc, startRow, endRow) {
         var i, line;
         var outdent = true;
         var re = /^\s*\(\*(.*)\*\)/;
@@ -225,7 +281,7 @@ ace.define(
         }
       };
 
-      this.getNextLineIndent = function(state, line, tab) {
+      this.getNextLineIndent = function (state, line, tab) {
         var indent = this.$getIndent(line);
         var tokens = this.getTokenizer().getLineTokens(line, state).tokens;
 
@@ -238,11 +294,11 @@ ace.define(
         return indent;
       };
 
-      this.checkOutdent = function(state, line, input) {
+      this.checkOutdent = function (state, line, input) {
         return this.$outdent.checkOutdent(line, input);
       };
 
-      this.autoOutdent = function(state, doc, row) {
+      this.autoOutdent = function (state, doc, row) {
         this.$outdent.autoOutdent(doc, row);
       };
 
