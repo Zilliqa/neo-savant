@@ -41,6 +41,9 @@
         :onChange="handleInput"
         name="editor"
         :editorProps="{$blockScrolling: true}"
+        :setOptions="{
+          enableLiveAutocompletion: true,
+          enableSnippets: true}"
       />
       <pre class="p-5" style="max-width: 700px; overflow:scroll;" v-else>
         {{ file.code }}
@@ -58,6 +61,7 @@ import { Ace as AceEditor } from "vue2-brace-editor";
 import "./scilla_mode";
 import "brace/ext/searchbox";
 import "brace/ext/keybinding_menu";
+import "brace/ext/language_tools";
 import "brace/keybinding/emacs";
 import "brace/keybinding/vim";
 import "brace/mode/javascript";

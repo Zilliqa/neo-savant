@@ -221,6 +221,11 @@ ace.define('ace/mode/folding/scilla_folding_rules',
   }
 )
 
+ace.define("ace/snippets/scilla", ["require", "exports", "module"], (e, t, n) => {
+  // eslint-disable-next-line
+  (t.snippetText = '# AddNode\n\ snippet addn\n\ {\n\ "nodeName": "${1:node_name}",\n\ "algorithmName": "${2:algo_name}",\n\ "input": []\n\ }\n\ '), (t.scope = "scilla");
+});
+
 ace.define(
   'ace/mode/scilla',
   [
@@ -231,6 +236,7 @@ ace.define(
     'ace/mode/text',
     'ace/mode/scilla_highlight_rules',
     'ace/mode/matching_brace_outdent',
+    'ace/snippets',
     'ace/range',
     'ace/mode/folding/scilla_folding_rules'
   ],
@@ -243,6 +249,8 @@ ace.define(
     var MatchingBraceOutdent = acequire('./matching_brace_outdent').MatchingBraceOutdent;
     var Range = acequire('../range').Range;
     var MyFoldMode = acequire('./folding/scilla_folding_rules').FoldMode;
+
+    var snippetManager = acequire("ace/snippets").snippetManager;
 
 
     var Mode = function () {
