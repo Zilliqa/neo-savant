@@ -124,20 +124,20 @@ export default {
         5: "NO_GAS_REMAINING_FOUND",
         7: "CALL_CONTRACT_FAILED",
         8: "CREATE_CONTRACT_FAILED",
-        9: "JSON_OUTPUT_CORRUPTED"
-      }
+        9: "JSON_OUTPUT_CORRUPTED",
+      },
     };
   },
   components: {
     VueJsonPretty,
     ContractInput,
     TransactionParameters,
-    ExplorerLink
+    ExplorerLink,
   },
   props: ["file"],
   computed: {
     ...mapGetters("accounts", { account: "selected" }),
-    ...mapGetters("networks", { network: "selected" })
+    ...mapGetters("networks", { network: "selected" }),
   },
   async mounted() {
     if (this.account === null || this.account === undefined) {
@@ -172,7 +172,7 @@ export default {
                 file_id: this.file.id,
                 file_name: this.file.name,
                 deployed_by: this.account.address,
-                code: this.file.code
+                code: this.file.code,
               };
 
               await this.$store
@@ -181,7 +181,7 @@ export default {
                   this.signedTx = {
                     receipt: txn.receipt,
                     transId: this.txId,
-                    contractAddress: "0x" + contractAddress.result
+                    contractAddress: "0x" + contractAddress.result,
                   };
                 });
             } else {
@@ -245,7 +245,7 @@ export default {
             gasPrice: oldp.gasPrice,
             nonce: nonce,
             pubKey: this.publicKey,
-            signature: ""
+            signature: "",
           };
 
           this.loading = "Sign transaction from the Ledger Device";
@@ -269,9 +269,9 @@ export default {
                 pubKey: this.publicKey,
                 signature: signature,
                 version: oldp.version,
-                priority: true
-              }
-            ]
+                priority: true,
+              },
+            ],
           };
 
           const response = await fetch(this.network.url, {
@@ -280,9 +280,9 @@ export default {
             cache: "no-cache",
             credentials: "same-origin",
             headers: {
-              "Content-Type": "application/json"
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify(newtx)
+            body: JSON.stringify(newtx),
           });
 
           let data = await response.json();
@@ -401,14 +401,14 @@ export default {
         return false;
       }
 
-      const init = this.abi.params.map(item => {
+      const init = this.abi.params.map((item) => {
         let val = item.value;
 
         try {
           val = JSON.parse(item.value);
 
           if (typeof val == "number") {
-            val = val.toString();
+            val = item.value;
           }
           // eslint-disable-next-line no-empty
         } catch (e) {}
@@ -416,14 +416,14 @@ export default {
         return {
           vname: item.vname,
           type: item.type,
-          value: val
+          value: val,
         };
       });
 
       init.push({
         vname: "_scilla_version",
         type: "Uint32",
-        value: "0"
+        value: "0",
       });
 
       try {
@@ -440,7 +440,7 @@ export default {
             gasPrice: new BN(this.gasPrice), // in Qa
             gasLimit: Long.fromNumber(this.gasLimit),
             code: this.file.code,
-            data: JSON.stringify(init).replace(/\\"/g, '"')
+            data: JSON.stringify(init).replace(/\\"/g, '"'),
           },
           true
         );
@@ -456,18 +456,18 @@ export default {
     async getContractAbi() {
       axios
         .post(process.env.VUE_APP_SCILLA_CHECKER_URL, {
-          code: this.file.code
+          code: this.file.code,
         })
-        .then(response => {
+        .then((response) => {
           if (response.data.result === "success") {
             const { contract_info } = JSON.parse(response.data.message);
 
             this.abi = contract_info;
 
-            this.abi.params = this.abi.params.map(item => {
+            this.abi.params = this.abi.params.map((item) => {
               return {
                 ...item,
-                value: ""
+                value: "",
               };
             });
 
@@ -477,7 +477,7 @@ export default {
               type: "success",
               position: "bottom right",
               title: "Scilla Checker",
-              text: "Contract has been successfully checked"
+              text: "Contract has been successfully checked",
             });
           }
         })
@@ -487,7 +487,7 @@ export default {
             type: "error",
             position: "bottom right",
             title: "Scilla Checker",
-            text: "There are errors in your contract. Check the editor."
+            text: "There are errors in your contract. Check the editor.",
           });
         });
     },
@@ -495,8 +495,8 @@ export default {
       this.amount = parseInt(payload.amount);
       this.gasLimit = parseInt(payload.gasLimit);
       this.gasPrice = parseInt(payload.gasPrice);
-    }
-  }
+    },
+  },
 };
 </script>
 
