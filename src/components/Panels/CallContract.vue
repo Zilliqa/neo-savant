@@ -194,8 +194,8 @@ export default {
         5: "NO_GAS_REMAINING_FOUND",
         7: "CALL_CONTRACT_FAILED",
         8: "CREATE_CONTRACT_FAILED",
-        9: "JSON_OUTPUT_CORRUPTED"
-      }
+        9: "JSON_OUTPUT_CORRUPTED",
+      },
     };
   },
   components: { VueJsonPretty, ContractInput, ExplorerLink, AddressDisplay },
@@ -203,7 +203,7 @@ export default {
   computed: {
     ...mapGetters("accounts", { account: "selected" }),
     ...mapGetters("contracts", { contract: "selected" }),
-    ...mapGetters("networks", { network: "selected" })
+    ...mapGetters("networks", { network: "selected" }),
   },
   async mounted() {
     if (this.zilliqa === undefined) {
@@ -278,7 +278,7 @@ export default {
             gasPrice: oldp.gasPrice,
             nonce: nonce,
             pubKey: this.publicKey,
-            signature: ""
+            signature: "",
           };
 
           this.loading = "Sign transaction from the Ledger Device";
@@ -301,9 +301,9 @@ export default {
                 pubKey: this.publicKey,
                 signature: signature,
                 version: oldp.version,
-                priority: true
-              }
-            ]
+                priority: true,
+              },
+            ],
           };
 
           const response = await fetch(this.network.url, {
@@ -312,9 +312,9 @@ export default {
             cache: "no-cache",
             credentials: "same-origin",
             headers: {
-              "Content-Type": "application/json"
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify(newtx)
+            body: JSON.stringify(newtx),
           });
 
           let data = await response.json();
@@ -421,7 +421,7 @@ export default {
             if (txn.receipt.success !== false) {
               this.signedTx = {
                 receipt: txn.receipt,
-                transId: this.txId
+                transId: this.txId,
               };
               if (txn.receipt.event_logs && txn.receipt.event_logs.length) {
                 await this.$store.dispatch(
@@ -432,7 +432,7 @@ export default {
             } else {
               this.signedTx = {
                 receipt: txn.receipt,
-                transId: this.txId
+                transId: this.txId,
               };
             }
             this.loading = false;
@@ -474,9 +474,9 @@ export default {
     getContractAbi() {
       axios
         .post(process.env.VUE_APP_SCILLA_CHECKER_URL, {
-          code: this.contractCode
+          code: this.contractCode,
         })
-        .then(response => {
+        .then((response) => {
           if (response.data.result === "success") {
             const { contract_info } = JSON.parse(response.data.message);
 
@@ -485,11 +485,11 @@ export default {
         });
     },
     toScillaParams(fields) {
-      return Object.keys(fields).map(name => {
+      return Object.keys(fields).map((name) => {
         return {
           vname: name,
           value: this.init[name],
-          type: fields[name].type
+          type: fields[name].type,
         };
       });
     },
@@ -508,13 +508,13 @@ export default {
         const msgVersion = this.network.msgVersion; // current msgVersion
         const VERSION = bytes.pack(chainId, msgVersion);
 
-        const init = this.exec.params.map(item => {
+        const init = this.exec.params.map((item) => {
           let ret = { vname: item.vname, value: item.value, type: item.type };
 
           try {
             let val = JSON.parse(item.value);
             if (typeof val == "number") {
-              val = val.toString();
+              val = item.value;
             }
             ret = { vname: item.vname, value: val, type: item.type };
           } catch (error) {
@@ -532,8 +532,8 @@ export default {
             gasLimit: Long.fromNumber(this.gasLimit),
             data: JSON.stringify({
               _tag: this.exec.vname,
-              params: init
-            })
+              params: init,
+            }),
           },
           true
         );
@@ -544,8 +544,8 @@ export default {
         this.error = error.message;
         window.EventBus.$emit("refresh-balance");
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
