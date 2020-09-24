@@ -2,16 +2,32 @@
   <div class="events-list panel-content">
     <div class="header">
       <div class="title">Events</div>
-      <img src="@/assets/close-color.svg" @click="handleClose" class="close-button-new" />
+      <img
+        src="@/assets/close-color.svg"
+        @click="handleClose"
+        class="close-button-new"
+      />
     </div>
     <div class="body p-4">
-      <div class="mb-4 event-item" v-for="(event,index) in events" :key="index">
+      <div
+        class="text-danger text-right mb-4 clear-events"
+        @click="handleClearEvents"
+        v-if="events.length"
+      >
+        clear events
+      </div>
+      <div
+        class="mb-4 event-item"
+        v-for="(event, index) in events"
+        :key="index"
+      >
         <div class="remove-button" @click="handleRemove(index)">
           <img src="@/assets/rubbish.svg" />
         </div>
         <p class="item-header pb-2">
           <address-display :address="event.address"></address-display>
-          _eventname: <span class="font-weight-bold">{{ event._eventname }}</span>
+          _eventname:
+          <span class="font-weight-bold">{{ event._eventname }}</span>
         </p>
         <vue-json-pretty :data="event.params" />
       </div>
@@ -30,9 +46,20 @@ export default {
     return {};
   },
   computed: {
-    ...mapGetters("events", { events: "list" })
+    ...mapGetters("events", { events: "list" }),
   },
   methods: {
+    handleClearEvents() {
+      this.$store.dispatch("events/ClearEvents").then(() => {
+        this.$notify({
+          group: "scilla",
+          type: "success",
+          position: "bottom right",
+          title: "Events",
+          text: "Events cleared",
+        });
+      });
+    },
     handleClose() {
       window.EventBus.$emit("close-right-panel");
     },
@@ -43,15 +70,18 @@ export default {
           type: "success",
           position: "bottom right",
           title: "Events",
-          text: "Event removed"
+          text: "Event removed",
         });
       });
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style lang="scss" scoped>
+.clear-events {
+  cursor: pointer;
+}
 .events-list {
   position: relative;
 
