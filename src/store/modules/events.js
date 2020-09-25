@@ -16,6 +16,9 @@ const actions = {
     },
     RemoveEvent({ commit }, { index }) {
         commit('remove', { index });
+    },
+    ClearEvents({ commit }) {
+        commit('clear');
     }
 };
 
@@ -29,6 +32,9 @@ const mutations = {
     },
     remove(state, { index }) {
         state.events.splice(index, 1);
+    },
+    clear(state) {
+        state.events = [];
     }
 };
 

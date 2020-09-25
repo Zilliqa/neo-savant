@@ -149,6 +149,10 @@ export default {
     if (this.zilliqa === undefined) {
       this.zilliqa = new Zilliqa(this.network.url);
     }
+
+    // get minimum gas price from network
+    const minimumGasPrice = await this.zilliqa.blockchain.getMinimumGasPrice();
+    this.gasPrice = minimumGasPrice.result;
   },
   methods: {
     handleClose() {

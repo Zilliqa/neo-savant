@@ -210,6 +210,10 @@ export default {
       this.zilliqa = new Zilliqa(this.network.url);
     }
 
+    // get minimum gas price from network
+    const minimumGasPrice = await this.zilliqa.blockchain.getMinimumGasPrice();
+    this.gasPrice = minimumGasPrice.result;
+
     this.contractInit = (
       await this.zilliqa.blockchain.getSmartContractInit(this.contractId)
     ).result;
