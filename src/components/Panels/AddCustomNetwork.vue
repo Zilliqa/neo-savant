@@ -17,12 +17,16 @@
               <input type="text" v-model="url" class="form-control" />
             </div>
             <div class="col-12">
+              <label>Faucet address</label>
+              <input type="text" v-model="faucet" class="form-control" />
+            </div>
+            <div class="col-12">
               <label>Chain ID</label>
-              <input type="text" v-model="chainId" class="form-control" />
+              <input type="text" v-model.number="chainId" class="form-control" />
             </div>
             <div class="col-12">
               <label>MSG VERSION</label>
-              <input type="text" v-model="msgVersion" class="form-control" />
+              <input type="text" v-model.number="msgVersion" class="form-control" />
             </div>
           </div>
 
@@ -50,8 +54,9 @@ export default {
     return {
       name: "",
       url: "",
-      chainId: "1",
-      msgVersion: "1",
+      faucet: "",
+      chainId: 1,
+      msgVersion: 1,
       loading: false,
       error: false,
       success: false,
@@ -78,8 +83,9 @@ export default {
         .dispatch("networks/AddNetwork", {
           name: this.name,
           url: this.url,
-          chainId: this.chainId,
-          msgVersion: this.msgVersion,
+          faucet: this.faucet,
+          chainId: parseInt(this.chainId),
+          msgVersion: parseInt(this.msgVersion),
         })
         .then(() => {
           window.EventBus.$emit("close-right-panel");
