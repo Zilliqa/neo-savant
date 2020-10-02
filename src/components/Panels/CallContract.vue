@@ -4,7 +4,11 @@
       <div class="title">
         <address-display :address="contractId" />
       </div>
-      <img src="@/assets/close-color.svg" @click="handleClose" class="close-button-new" />
+      <img
+        src="@/assets/close-color.svg"
+        @click="handleClose"
+        class="close-button-new"
+      />
     </div>
     <div class="body p-4">
       <p class="font-weight-bold mb-0">Contract Address</p>
@@ -24,8 +28,10 @@
             v-for="transition in abi.transitions"
             :key="transition.vname"
             @click="handleTransitionSelect(transition)"
-            :class="{'faded': exec && exec.vname !== transition.vname}"
-          >{{ transition.vname }}</button>
+            :class="{ faded: exec && exec.vname !== transition.vname }"
+          >
+            {{ transition.vname }}
+          </button>
         </div>
       </div>
 
@@ -40,20 +46,26 @@
           />
         </p>
         <div v-if="contractState">
-          <vue-json-pretty :deep="1" :data="contractState" v-if="contractStateLength < 50000"></vue-json-pretty>
-          <pre style="max-height: 600px; overflow:scroll;" v-else>
-            {{contractState}}
+          <vue-json-pretty
+            :deep="1"
+            :data="contractState"
+            v-if="contractStateLength < 50000"
+          ></vue-json-pretty>
+          <pre style="max-height: 600px; overflow: scroll" v-else>
+            {{ contractState }}
           </pre>
         </div>
         <div v-else>
           <i class="fas fa-spinner fa-spin" v-if="refreshingState"></i>
-          <button class="btn btn-primary" @click="refreshContractState" v-else>Load contract state</button>
+          <button class="btn btn-primary" @click="refreshContractState" v-else>
+            Load contract state
+          </button>
         </div>
       </div>
 
       <div class="mt-4" v-if="contractInit && !exec">
         <p class="font-weight-bold mb-0">Contract Init</p>
-        <div style="width: 100%; overflow-x:scroll;">
+        <div style="width: 100%; overflow-x: scroll">
           <vue-json-pretty :deep="0" :data="contractInit"></vue-json-pretty>
         </div>
       </div>
@@ -79,9 +91,15 @@
         <!-- Transition parameters -->
         <div class="row mb-4">
           <div class="col-12">
-            <p class="font-weight-bold">Transition parameters ({{ exec.vname }})</p>
+            <p class="font-weight-bold">
+              Transition parameters ({{ exec.vname }})
+            </p>
           </div>
-          <div class="col-12 mb-4" v-for="param in exec.params" :key="param.vname">
+          <div
+            class="col-12 mb-4"
+            v-for="param in exec.params"
+            :key="param.vname"
+          >
             <contract-input
               :error="param.validationErrors"
               :vname="param.vname"
@@ -97,11 +115,18 @@
           <div class="col-12 mb-4" v-if="account.type === 'keystore'">
             <div>
               <label>Enter your passphrase</label>
-              <input type="password" v-model="passphrase" class="form-control" />
+              <input
+                type="password"
+                v-model="passphrase"
+                class="form-control"
+              />
             </div>
           </div>
           <div class="col-12 d-flex" v-if="!loading">
-            <button class="btn btn-light text-danger text-small mr-2" @click="resetComponent">
+            <button
+              class="btn btn-light text-danger text-small mr-2"
+              @click="resetComponent"
+            >
               <small>Reset</small>
             </button>
             <button class="btn btn-primary btn-block" @click="handleCall">
@@ -113,10 +138,10 @@
       </div>
 
       <div class="alert alert-info" v-if="loading">
-        {{loading}}
+        {{ loading }}
         <i class="fas fa-spin fa-spinner"></i>
       </div>
-      <div class="alert alert-danger" v-if="error">{{error}}</div>
+      <div class="alert alert-danger" v-if="error">{{ error }}</div>
 
       <div v-if="signedTx">
         <p class="font-weight-bold">Transaction ID</p>
@@ -124,18 +149,31 @@
         <p class="font-weight-bold mt-4">Receipt</p>
         <div
           class="alert"
-          :class="{'alert-success': signedTx.receipt.success === true, 'alert-danger': signedTx.receipt.success === false}"
-          style="overflow-x:scroll;"
+          :class="{
+            'alert-success': signedTx.receipt.success === true,
+            'alert-danger': signedTx.receipt.success === false,
+          }"
+          style="overflow-x: scroll"
         >
           <vue-json-pretty
-            :data="{...signedTx.receipt, 'event_logs': signedTx.receipt.event_logs.length }"
+            :data="{
+              ...signedTx.receipt,
+              event_logs: signedTx.receipt.event_logs
+                ? signedTx.receipt.event_logs.length
+                : [],
+            }"
           ></vue-json-pretty>
         </div>
       </div>
 
-      <div class="alert alert-danger" v-if="signedTx && signedTx.receipt.errors.length">
+      <div
+        class="alert alert-danger"
+        v-if="signedTx && signedTx.receipt.errors.length"
+      >
         <ul>
-          <li v-for="err in signedTx.receipt.errors[0]" :key="err">{{ possibleErrors[err] }}</li>
+          <li v-for="err in signedTx.receipt.errors[0]" :key="err">
+            {{ possibleErrors[err] }}
+          </li>
         </ul>
       </div>
     </div>
@@ -433,11 +471,6 @@ export default {
                   txn.receipt.event_logs
                 );
               }
-            } else {
-              this.signedTx = {
-                receipt: txn.receipt,
-                transId: this.txId,
-              };
             }
             this.loading = false;
             window.EventBus.$emit("refresh-balance");
