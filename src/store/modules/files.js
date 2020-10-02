@@ -4,16 +4,21 @@ import { defaultFiles } from '@/contracts';
 
 const state = {
     selected: undefined,
+    open: [],
     files: defaultFiles
 };
 
 const getters = {
     selected: state => state.selected,
-    list: state => state.files
+    list: state => state.files,
+    open: state => state.open
 };
 
 const actions = {
     SelectFile({ commit, state }, payload) {
+
+        // Remove any selected contract
+        commit('contracts/unselect', null, { root: true });
 
         const id = payload.id;
 
@@ -21,7 +26,14 @@ const actions = {
             return item.id === id
         });
 
-        commit('contracts/unselect', null, { root: true });
+        const alreadyOpen = state.open.find(function (item) {
+            return item.id === id
+        });
+
+        if (!alreadyOpen) {
+            commit('open', file);
+        }
+
         commit('select', file);
     },
     CreateFile({ commit }) {
@@ -61,6 +73,23 @@ const actions = {
         }
 
         commit('remove', { index: file });
+    },
+    CloseFile({ commit, state }, { id }) {
+        const file = state.open.findIndex(item => item.id === id);
+
+        if (file === undefined) {
+            throw Error('File not found.');
+        }
+
+        if (id === state.selected.id) {
+            commit('unselect');
+        }
+
+        commit('close', { index: file });
+        
+        if (state.open.length) {
+            commit('select', state.open[0]);
+        }
     }
 };
 
@@ -83,6 +112,12 @@ const mutations = {
     },
     remove(state, payload) {
         state.files.splice(payload.index, 1);
+    },
+    open(state, payload) {
+        state.open.push(payload);
+    },
+    close(state, payload) {
+        state.open.splice(payload.index, 1);
     }
 };
 

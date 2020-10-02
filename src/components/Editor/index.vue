@@ -21,6 +21,7 @@
       </div>
       <div class="d-flex p-2 align-items-center" v-else>Deployed contracts are readonly.</div>
     </div>
+    <tabs :changed="changed" />
     <div class="editor-inner d-flex">
       <ace-editor
         v-if="file && !file.contractId"
@@ -40,6 +41,9 @@
         :onChange="handleInput"
         name="editor"
         :editorProps="{$blockScrolling: true}"
+        :setOptions="{
+          enableLiveAutocompletion: true,
+          enableSnippets: true}"
       />
       <pre class="p-5" style="max-width: 700px; overflow:scroll;" v-else>
         {{ file.code }}
@@ -57,6 +61,7 @@ import { Ace as AceEditor } from "vue2-brace-editor";
 import "./scilla_mode";
 import "brace/ext/searchbox";
 import "brace/ext/keybinding_menu";
+import "brace/ext/language_tools";
 import "brace/keybinding/emacs";
 import "brace/keybinding/vim";
 import "brace/mode/javascript";
@@ -64,6 +69,8 @@ import "brace/theme/tomorrow";
 
 import axios from "axios";
 import { mapGetters } from "vuex";
+
+import Tabs from "./Tabs";
 
 export default {
   props: ["file"],
@@ -82,7 +89,7 @@ export default {
   },
   methods: {
     handleInput(payload) {
-      this.changed = true;
+      this.changed = this.file.id;
       this.file.code = payload;
     },
     async handleSave() {
@@ -172,6 +179,7 @@ export default {
   },
   components: {
     AceEditor,
+    Tabs,
   },
   mounted() {
     this.changed = false;
@@ -197,7 +205,7 @@ export default {
 
 <style lang="scss" scoped>
 .editor {
-  height: 100%;
+  height: calc(100% - 28px); // - tabs height
 
   .ace_scrollbar.ace_scrollbar-h {
     display: none !important;
