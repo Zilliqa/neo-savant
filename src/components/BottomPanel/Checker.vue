@@ -2,12 +2,19 @@
   <div class="checker-results">
     <div class="content">
       <ul>
-        <li v-for="(item,index) in events" :key="index">
-          <span
-            class="badge"
-            :class="{'badge-warning': item.type === 'warning', 'badge-danger': item.type === 'error'}"
-          >{{item.row + 1}}, {{item.column}}</span>
-          {{item.text}}
+        <li v-for="(item, index) in events" :key="index">
+          <div class="pl-3" v-if="item.text">
+            <span
+              class="badge"
+              :class="{
+                'badge-warning': item.type === 'warning',
+                'badge-danger': item.type === 'error',
+              }"
+              >{{ item.row + 1 }}, {{ item.column }}</span
+            >
+            {{ item.text }}
+          </div>
+          <div v-else>{{ item }}</div>
         </li>
       </ul>
     </div>
@@ -18,25 +25,32 @@
 export default {
   data() {
     return {
-      events: []
+      events: [],
     };
   },
   mounted() {
-    window.EventBus.$on("checker-events", ({ warnings, errors }) => {
+    window.EventBus.$on("checker-events-clear", () => {
       this.events = [];
+    });
+
+    window.EventBus.$on("checker-events", ({ warnings, errors, message }) => {
       if (warnings !== undefined) {
-        warnings.forEach(item => {
+        warnings.forEach((item) => {
           this.events.push(item);
         });
       }
 
       if (errors !== undefined) {
-        errors.forEach(item => {
+        errors.forEach((item) => {
           this.events.push(item);
         });
       }
+
+      if (message !== undefined) {
+        this.events.push(message);
+      }
     });
-  }
+  },
 };
 </script>
 

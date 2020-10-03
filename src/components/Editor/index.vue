@@ -17,9 +17,13 @@
             <img src="@/assets/save.svg" /> SAVE
           </button>
         </div>
-        <div class="message d-flex align-items-center" v-if="changed">Remember to save changes</div>
+        <div class="message d-flex align-items-center" v-if="changed">
+          Remember to save changes
+        </div>
       </div>
-      <div class="d-flex p-2 align-items-center" v-else>Deployed contracts are readonly.</div>
+      <div class="d-flex p-2 align-items-center" v-else>
+        Deployed contracts are readonly.
+      </div>
     </div>
     <tabs :changed="changed" />
     <div class="editor-inner d-flex">
@@ -40,10 +44,11 @@
         height="calc(100% - 60px)"
         :onChange="handleInput"
         name="editor"
-        :editorProps="{$blockScrolling: true}"
+        :editorProps="{ $blockScrolling: true }"
         :setOptions="{
           enableLiveAutocompletion: true,
-          enableSnippets: true}"
+          enableSnippets: true,
+        }"
       />
       <pre class="p-5" style="max-width: 700px; overflow:scroll;" v-else>
         {{ file.code }}
@@ -67,10 +72,11 @@ import "brace/keybinding/vim";
 import "brace/mode/javascript";
 import "brace/theme/tomorrow";
 
-import axios from "axios";
 import { mapGetters } from "vuex";
 
 import Tabs from "./Tabs";
+
+import scillaChecker from "@/mixins/scilla-checker";
 
 export default {
   props: ["file"],
@@ -79,10 +85,10 @@ export default {
       code: null,
       changed: false,
       annotations: [],
-      readonly: false,
-      SCILLA_CHECKER_URL: process.env.VUE_APP_SCILLA_CHECKER_URL,
+      readonly: false
     };
   },
+  mixins: [scillaChecker],
   computed: {
     ...mapGetters("networks", { network: "selected" }),
     ...mapGetters("general", { editor: "editor" }),
@@ -103,78 +109,7 @@ export default {
       window.EventBus.$emit("open-deploy-contract", this.file);
     },
     async handleCheck() {
-      this.annotations = [];
-
-      window.EventBus.$emit("console-log", {
-        message: `Running checker on ${this.file} contract.`,
-      });
-
-      axios
-        .post(this.SCILLA_CHECKER_URL, {
-          code: this.file.code,
-        })
-        .then((response) => {
-          if (response.data.result === "success") {
-            const message = JSON.parse(response.data.message);
-
-            if (message.warnings !== []) {
-              const markers = message.warnings.map((err) => {
-                const row = parseInt(err.start_location.line, 10);
-                const column = parseInt(err.start_location.column, 10);
-
-                return {
-                  row: row === 0 ? 0 : row - 1,
-                  column,
-                  type: "warning",
-                  text: err.warning_message,
-                };
-              });
-
-              window.EventBus.$emit("checker-events", { warnings: markers });
-
-              this.annotations = markers;
-            }
-            // this.checked = true;
-            window.EventBus.$emit("console-log", {
-              message: `Contract check successfully passed.`,
-            });
-            this.$notify({
-              group: "scilla",
-              type: "success",
-              position: "bottom right",
-              title: "Scilla Checker",
-              text: "Contract has been successfully checked",
-            });
-          }
-        })
-        .catch((error) => {
-          window.EventBus.$emit("console-log", {
-            message: `There are errors in your contract.`,
-            type: "error",
-          });
-          this.$notify({
-            group: "scilla",
-            type: "error",
-            position: "bottom right",
-            title: "Scilla Checker",
-            text: "There are errors in your contract. Check the editor.",
-          });
-          const markers = error.response.data.message.map((err) => {
-            const row = parseInt(err.line, 10);
-            const col = parseInt(err.column, 10);
-
-            return {
-              row: row === 0 ? 0 : row - 1,
-              column: col,
-              type: "error",
-              text: err.msg,
-            };
-          });
-
-          window.EventBus.$emit("checker-events", { errors: markers });
-
-          this.annotations = markers;
-        });
+      this.annotations = await this.runScillaChecker(this.file.code);
     },
   },
   components: {

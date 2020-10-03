@@ -84,6 +84,8 @@ export default {
                   text: "There is a problem with isolated server faucet."
                 });
               }
+            }).catch(err => {
+              console.log(err);
             });
         }
 
