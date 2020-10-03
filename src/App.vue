@@ -3,43 +3,31 @@
     <notifications group="scilla" />
     <tools />
     <top-bar />
+    <left-sidebar />
     <div class="ide">
-      <div id="left-panel" class="left-panel" :class="{'open': leftPanel}">
-        <div class="toggler" @click="handleToggleLeftPanel">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-            x="0px"
-            y="0px"
-            viewBox="0 0 511.641 511.641"
-            style="enable-background:new 0 0 511.641 511.641;"
-            xml:space="preserve"
-            :class="{'panel-open':leftPanel}"
-          >
-            <path
-              d="M148.32,255.76L386.08,18c4.053-4.267,3.947-10.987-0.213-15.04c-4.16-3.947-10.667-3.947-14.827,0L125.707,248.293
-			c-4.16,4.16-4.16,10.88,0,15.04L371.04,508.667c4.267,4.053,10.987,3.947,15.04-0.213c3.947-4.16,3.947-10.667,0-14.827
-			L148.32,255.76z"
-            />
-          </svg>
-          <span v-if="leftPanel">TOGGLE</span>
-          <span v-else>FILES / CONTRACTS</span>
-        </div>
-        <files-list class="files-container" />
-        <contracts-list class="contracts-container" />
+      <div
+        id="left-panel"
+        class="left-panel"
+        :class="{ open: leftPanel }"
+        v-if="leftPanel !== false"
+      >
+        <files v-if="leftPanel === 'files'" />
+        <network v-if="leftPanel === 'network'" />
+        <events v-if="leftPanel === 'events'" />
+        <settings v-if="leftPanel === 'settings'" />
       </div>
       <div class="right-panel">
-        <div class="main-panel" :class="{'has-bottom-panel': bottomPanel}">
+        <div class="main-panel" :class="{ 'has-bottom-panel': bottomPanel }">
           <router-view />
         </div>
-        <bottom-panel :active="bottomPanel" v-on:toggle="handleToggleBottomPanel" />
+        <bottom-panel
+          :active="bottomPanel"
+          v-on:toggle="handleToggleBottomPanel"
+        />
       </div>
 
       <account-import v-if="rightPanel === 'accountImport'" />
-
-      <events-list v-if="rightPanel === 'events'" />
-      <settings v-if="rightPanel === 'settings'" />
-      <add-custom-network v-if="rightPanel === 'addCustomNetwork'"/>
+      <add-custom-network v-if="rightPanel === 'addCustomNetwork'" />
 
       <!-- Contract panels -->
       <contract-import v-if="rightPanel === 'importContract'" />
@@ -53,36 +41,25 @@
         :contractId="this.callContract"
         :key="this.callContract"
       />
-
-      <div class="right-sidebar">
-        <div class="action events-badge" @click="handleToggleRightPanel('events')">
-          <img src="@/assets/notifications.svg" />
-
-          <span class="badge badge-danger" v-if="events.length">{{ events.length }}</span>
-        </div>
-
-        <div class="action" @click="handleToggleRightPanel('settings')">
-          <img src="@/assets/industry.svg" />
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script>
-import FilesList from "@/components/Files/List";
-import ContractsList from "@/components/Contracts/List";
 import TopBar from "@/components/TopBar/index";
+import LeftSidebar from "@/components/LeftSidebar";
 
 // Panels
 import DeployContract from "@/components/Panels/DeployContract";
 import CallContract from "@/components/Panels/CallContract";
 import AccountImport from "@/components/Panels/AccountImport";
 import ContractImport from "@/components/Panels/ContractImport";
+import Files from "@/components/Panels/Files";
+import Network from "@/components/Panels/Network";
+import Events from "@/components/Panels/Events";
 
 import BottomPanel from "@/components/BottomPanel";
 
-import EventsList from "@/components/Panels/EventsList";
 import Settings from "@/components/Panels/Settings";
 import AddCustomNetwork from "@/components/Panels/AddCustomNetwork";
 
@@ -91,47 +68,46 @@ import Tools from "@/components/Tools";
 import { mapGetters } from "vuex";
 
 import { generateMultipleZilliqaAccounts } from "./utils/zilliqa";
-import { animateCSS } from "./utils/ui";
 
 import { Zilliqa } from "@zilliqa-js/zilliqa";
-import ZilPayMixin from '@/mixins/zilpay';
+import ZilPayMixin from "@/mixins/zilpay";
 
 export default {
   name: "App",
   data() {
     return {
-      leftPanel: true,
       rightPanel: false,
       deployContract: false,
       callContract: false,
-      bottomPanel: true
+      bottomPanel: true,
     };
   },
   mixins: [ZilPayMixin],
   components: {
-    FilesList,
-    ContractsList,
+    LeftSidebar,
+    Files,
+    Network,
     TopBar,
     AccountImport,
     DeployContract,
     CallContract,
     ContractImport,
     BottomPanel,
-    EventsList,
+    Events,
     Settings,
     AddCustomNetwork,
-    Tools
+    Tools,
   },
   computed: {
-    ...mapGetters("events", { events: "list" }),
-    ...mapGetters("accounts", { accounts: "list", selectedAccount: "selected" }),
+    ...mapGetters("accounts", {
+      accounts: "list",
+      selectedAccount: "selected",
+    }),
+    ...mapGetters("general", {
+      leftPanel: "leftPanel",
+    }),
     ...mapGetters("networks", { network: "selected", networksList: "list" }),
-    ...mapGetters("contracts", { contracts: "list" })
-  },
-  watch: {
-    events: function() {
-      animateCSS(".events-badge", "heartBeat");
-    }
+    ...mapGetters("contracts", { contracts: "list" }),
   },
   methods: {
     handleToggleRightPanel(type) {
@@ -144,9 +120,6 @@ export default {
     handleToggleBottomPanel() {
       this.bottomPanel = !this.bottomPanel;
     },
-    handleToggleLeftPanel() {
-      this.leftPanel = !this.leftPanel;
-    }
   },
   async created() {
     // Initialize default network
@@ -158,14 +131,14 @@ export default {
       // Check if contracts are still on network
       const zilliqa = new Zilliqa(process.env.VUE_APP_ISOLATED_URL);
 
-      this.contracts.forEach(async contract => {
+      this.contracts.forEach(async (contract) => {
         const deployed = zilliqa.contracts.at(contract.contractId);
 
         const state = await deployed.getState();
 
         if (state === undefined) {
           this.$store.dispatch("contracts/RemoveContract", {
-            id: contract.contractId
+            id: contract.contractId,
           });
         }
       });
@@ -178,11 +151,11 @@ export default {
           ACCOUNTS_NUMBER
         );
 
-        generatedAccounts.map(item => {
+        generatedAccounts.map((item) => {
           this.$store.dispatch("accounts/AddAccount", {
             address: item.address,
             keystore: item.privateKey,
-            type: "privatekey"
+            type: "privatekey",
           });
         });
       }
@@ -197,7 +170,7 @@ export default {
       this.rightPanel = "accountImport";
     });
 
-    window.EventBus.$on("open-deploy-contract", file => {
+    window.EventBus.$on("open-deploy-contract", (file) => {
       window.EventBus.$emit("clear-components");
       this.deployContract = file;
       this.rightPanel = "deployContract";
@@ -221,17 +194,32 @@ export default {
       this.rightPanel = "addCustomNetwork";
     });
 
-    if (this.selectedAccount !== undefined && this.selectedAccount.type === "zilpay") {
-      this
-        .getZilPayNetwork()
+    if (
+      this.selectedAccount !== undefined &&
+      this.selectedAccount.type === "zilpay"
+    ) {
+      this.getZilPayNetwork()
         .then(() => this.getZilPayAccount())
-        .then(() => this.runZilPayObservable())
+        .then(() => this.runZilPayObservable());
     }
-  }
+  },
 };
 </script>
 
 <style lang="scss">
+*::-webkit-scrollbar {
+  width: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
+}
+
 #app {
   font-family: "Montserrat", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -323,31 +311,48 @@ input.form-control {
   background-color: #eee !important;
   border: 0 !important;
   border-radius: 0 !important;
+
+  &.alt {
+    background-color: #fff !important;
+  }
 }
 
 .ide {
   position: relative;
   display: flex;
   height: 100%;
+  padding-left: 40px;
 
   .left-panel {
     position: relative;
-    padding: 1.5rem 0;
     height: 100%;
     border-right: 1px solid #ccc;
     overflow: hidden;
     width: 12px;
-    display:flex;
-    flex-direction:column;
+    display: flex;
+    flex-direction: column;
 
-    .files-container {
+    .panel {
       height: 100%;
-    }
+      .header {
+        background-color: $accent-bg;
+        padding: 0 1rem;
+        height: 40px;
 
-    .contracts-container {
-      width: calc(100% + 24px);
-      height: 100%;
-      overflow-y: scroll;
+        .img-button {
+          height: 0.85rem;
+
+          &:hover {
+            cursor: pointer;
+          }
+        }
+      }
+
+      .panel-body {
+        background-color: $accent-bg;
+        height: 100%;
+        overflow-x: scroll;
+      }
     }
 
     .toggler {
@@ -424,40 +429,9 @@ input.form-control {
       ); // full height - bottom panel header - border
 
       &.has-bottom-panel {
-        height: calc(100% - 132px); // full height - bottom panel (150px) + editor tabs bar (~28px)
-      }
-    }
-  }
-  .right-sidebar {
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 50px;
-    height: 100%;
-    border-left: 1px solid #ccc;
-    padding: 0.5rem;
-    padding-top: 1rem;
-    z-index: 99;
-    background-color: #fff;
-
-    .action {
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-
-      .badge {
-        position: absolute;
-        top: 0;
-        right: 0;
-      }
-
-      img {
-        width: 30px;
-      }
-      &:hover {
-        cursor: pointer;
+        height: calc(
+          100% - 132px
+        ); // full height - bottom panel (150px) + editor tabs bar (~28px)
       }
     }
   }

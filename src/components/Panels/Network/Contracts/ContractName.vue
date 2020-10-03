@@ -1,8 +1,8 @@
 <template>
   <div
     class="file-name mb-2"
-    :class="{'selected' : selected}"
-    @click="$emit('select-contract', {contractId: contract.contractId})"
+    :class="{ selected: selected }"
+    @click="$emit('select-contract', { contractId: contract.contractId })"
     @contextmenu.prevent="$refs.menu.open"
   >
     <div class="address">
@@ -10,10 +10,13 @@
     </div>
     <div class="d-flex tags">
       <div
-        v-for="(tag,index) in tags"
+        v-for="(tag, index) in tags"
         :key="index"
         class="badge mr-1"
-        :style="{'background-color': tag.color, 'color' : lightOrDark(tag.color) === 'light' ? '#000' : '#fff'}"
+        :style="{
+          'background-color': tag.color,
+          color: lightOrDark(tag.color) === 'light' ? '#000' : '#fff',
+        }"
         @click="handleRemoveTag(index)"
       >
         <span class="remove">X</span>
@@ -44,8 +47,15 @@
         <compact-picker v-model="tagColor" />
       </div>
       <div slot="footer" class="d-flex">
-        <button class="btn btn-light text-danger text-small mr-2" @click="closeModal">Close</button>
-        <button class="btn btn-primary btn-block" @click="handleAddTag">Add Tag</button>
+        <button
+          class="btn btn-light text-danger text-small mr-2"
+          @click="closeModal"
+        >
+          Close
+        </button>
+        <button class="btn btn-primary btn-block" @click="handleAddTag">
+          Add Tag
+        </button>
       </div>
     </modal>
   </div>
@@ -54,10 +64,10 @@
 <script>
 import Swal from "sweetalert2";
 import VueContext from "vue-context";
-import AddressDisplay from "../UI/AddressDisplay";
+import AddressDisplay from "@/components/UI/AddressDisplay";
 import { Compact } from "vue-color";
-import Modal from "../UI/Modal";
-import {lightOrDark} from "../../utils/ui.js";
+import Modal from "@/components/UI/Modal";
+import { lightOrDark } from "@/utils/ui.js";
 
 export default {
   data() {
@@ -66,7 +76,7 @@ export default {
       tagModal: false,
       tagValue: "",
       tagColor: "#ff0000",
-      tags: this.contract.tags
+      tags: this.contract.tags,
     };
   },
   props: ["contract", "selected"],
@@ -74,7 +84,7 @@ export default {
   watch: {
     "contract.tags": function(val) {
       this.tags = val;
-    }
+    },
   },
   methods: {
     closeModal() {
@@ -89,7 +99,7 @@ export default {
       if (confirmed) {
         this.$store
           .dispatch("contracts/RemoveContract", {
-            id: this.contract.contractId
+            id: this.contract.contractId,
           })
           .then(() => {
             this.$notify({
@@ -97,7 +107,7 @@ export default {
               type: "success",
               position: "bottom right",
               title: "Contracts",
-              text: "Contract has been removed"
+              text: "Contract has been removed",
             });
           });
       }
@@ -108,12 +118,12 @@ export default {
         text: "Confirm that you want to remove the tag.",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonText: "Yes"
-      }).then(result => {
+        confirmButtonText: "Yes",
+      }).then((result) => {
         if (result.value) {
           this.$store.dispatch("contracts/RemoveTag", {
             contractId: this.contract.contractId,
-            tagIndex
+            tagIndex,
           });
         }
       });
@@ -126,12 +136,12 @@ export default {
         id: this.contract.contractId,
         tag: {
           value: this.tagValue,
-          color: this.tagColor.hex ?? "#ff0000"
-        }
+          color: this.tagColor.hex ?? "#ff0000",
+        },
       });
       this.closeModal();
-    }
-  }
+    },
+  },
 };
 </script>
 

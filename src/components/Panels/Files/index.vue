@@ -1,13 +1,15 @@
 <template>
-  <div class="files-list mb-4">
-    <div class="header d-flex align-items-center mb-2">
+  <div class="panel files-list">
+    <div
+      class="header text-primary d-flex justify-content-between align-items-center"
+    >
       FILES
-      <img src="@/assets/file-add.svg" class="img-button ml-3" @click="addFile" />
+      <img src="@/assets/plus.svg" class="img-button" />
     </div>
-    <div class="list">
+    <div class="list panel-body">
       <div
         class="list-item py-1"
-        :class="{'selected' : (selected && selected.id === file.id)}"
+        :class="{ selected: selected && selected.id === file.id }"
         v-for="file in list"
         :key="file.id"
       >
@@ -32,32 +34,22 @@ export default {
   },
   components: { FileName },
   computed: {
-    ...mapGetters("files", ["selected", "list"])
+    ...mapGetters("files", ["selected", "list"]),
   },
   methods: {
     addFile() {
-      this.$store.dispatch("files/CreateFile").then(id => {
+      this.$store.dispatch("files/CreateFile").then((id) => {
         this.$store.dispatch("files/SelectFile", { id });
       });
     },
     handleSelect(id) {
       this.$store.dispatch("files/SelectFile", { id });
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style lang="scss" scoped>
-.header {
-  background-color: #fff;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: #ea8b0c;
-  font-family: "Montserrat";
-  font-size: 1rem;
-  padding-left: 1rem;
-}
-
 .files-list {
   .list-item {
     padding-left: 1rem;
@@ -65,14 +57,6 @@ export default {
     &.selected {
       background-color: #ea8a0c44;
     }
-  }
-}
-
-.img-button {
-  height: 20px;
-
-  &:hover {
-    cursor: pointer;
   }
 }
 </style>

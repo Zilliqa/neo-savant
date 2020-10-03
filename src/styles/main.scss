@@ -1,11 +1,27 @@
 @import url("https://fonts.googleapis.com/css?family=Montserrat:300,400,500,700,900&display=swap&subset=latin-ext");
 @import "~vue-context/src/sass/vue-context";
 
-@import "_variables";
+/*==================== Variables ====================*/
+$primary: #ea8b0c;
+$secondary: #6c757d;
+
+$body-bg: darken(#fff, 2);
+$accent-bg: darken($body-bg, 3);
+
+$theme-colors: (
+  "primary": $primary,
+  "secondary": $secondary,
+  "dark": #2b2c2f,
+  "green": #0ec9ac,
+);
+
+@import "node_modules/bootstrap/scss/bootstrap";
+
 @import "_tooltip";
 
 html,
 body {
+  background-color: $body-bg;
   font-family: "Montserrat", sans-serif;
   width: 100%;
   height: 100%;

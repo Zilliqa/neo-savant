@@ -1,8 +1,5 @@
 <template>
   <div class="top-bar d-flex">
-    <div class="logo-container mr-5">
-      <img src="@/assets/logo.png" />
-    </div>
     <div class="menus flex-grow-1 d-flex justify-content-between">
       <div class="main d-flex align-items-center mr-5">
         <a href="https://scilla.readthedocs.io/en/latest/" target="_blank" class="mr-3">Scilla Docs</a>
@@ -60,7 +57,7 @@ export default {
   width: 100%;
   height: 48px;
 
-  padding-left: 2rem;
+  padding-left: calc(40px + 1rem);
   padding-right: 2rem;
 
   font-size: 14px;
@@ -69,18 +66,7 @@ export default {
     color: #fff;
   }
 
-  .logo-container {
-    background-color: #fff;
-    width: 80px;
-    align-items: center;
-    justify-content: center;
-    display: flex;
-
-    img {
-      max-height: 48px;
-      object-fit: contain;
-    }
-  }
+  
 
   .tools-menu {
     list-style: none;
