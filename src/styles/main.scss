@@ -4,15 +4,18 @@
 /*==================== Variables ====================*/
 $primary: #ea8b0c;
 $secondary: #6c757d;
+$bg: darken(#fff, 2);
+$accent: darken($bg, 3);
 
-$body-bg: darken(#fff, 2);
-$accent-bg: darken($body-bg, 3);
+$body-bg: $bg;
+$accent-bg: $accent;
 
 $theme-colors: (
   "primary": $primary,
   "secondary": $secondary,
   "dark": #2b2c2f,
   "green": #0ec9ac,
+  "accent": $accent,
 );
 
 @import "node_modules/bootstrap/scss/bootstrap";
@@ -25,5 +28,77 @@ body {
   font-family: "Montserrat", sans-serif;
   width: 100%;
   height: 100%;
-  font-size: 16px;
+  font-size: 15px;
+}
+
+.btn {
+  border-radius: 0px !important;
+  font-size: 0.85rem;
+  transition: all 0.2s ease-in-out;
+  &.btn-block {
+    i.fas {
+      transition: all 0.2s ease-in-out;
+      margin-left: 0.2rem;
+    }
+    &:hover {
+      i.fas {
+        transition: all 0.2s ease-in-out;
+        margin-left: 0.5rem;
+      }
+    }
+  }
+
+  img {
+    height: 1rem;
+  }
+}
+
+label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .name {
+    color: rgb(143, 142, 142);
+    font-weight: bold;
+  }
+
+  .type {
+    font-size: 12px;
+  }
+}
+
+.select-container {
+  position: relative;
+  &:before {
+    content: "▿";
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index:9;
+  }
+}
+
+select.form-control {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-color: #eee !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding-right: 2rem;
+  position: relative;
+
+  &.alt {
+    background-color: #fff !important;
+  }
+}
+
+.text-small {
+  font-size: 0.85rem;
+}
+
+button {
+  min-width: 38px;
 }

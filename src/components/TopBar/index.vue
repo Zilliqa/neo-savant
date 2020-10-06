@@ -55,7 +55,7 @@ export default {
   position: relative;
 
   width: 100%;
-  height: 48px;
+  height: 28px;
 
   padding-left: calc(40px + 1rem);
   padding-right: 2rem;

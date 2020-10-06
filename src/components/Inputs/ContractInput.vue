@@ -9,7 +9,7 @@
     <input
       type="text"
       :value="pvalue"
-      class="form-control"
+      class="form-control alt"
       :class="{'has-errors': error}"
       ref="paramValue"
       @input="updateData"
@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import InputPopover from "./InputPopover";
+import InputPopover from "@/components/UI/InputPopover";
 /*eslint-disable */
 import brace from "brace"; // eslint-disable-line no-use-before-define
 /*eslint-enable */

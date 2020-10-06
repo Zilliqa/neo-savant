@@ -1,55 +1,26 @@
 <template>
-  <div class="panel-content">
-    <div class="header">
-      <div class="title">Deploy {{file.name}}.scilla</div>
-      <img src="@/assets/close-color.svg" @click="handleClose" class="close-button-new" />
+  <div class="panel deploy">
+    <div
+      class="header text-primary d-flex justify-content-between align-items-center"
+    >
+      DEPLOY
     </div>
-    <div class="body p-4">
-      <div class="alert alert-info" v-if="abi === undefined">Loading contract ABI</div>
+    <div class="panel-body p-3">
+      <loading v-if="loadingContract"></loading>
 
-      <div class="deploy-form" v-if="abi && !signedTx">
-        <transaction-parameters v-on:input="onTransactionParameters"></transaction-parameters>
-        <!-- Initialization parameters -->
-        <div class="row mb-4">
-          <div class="col-12">
-            <p class="font-weight-bold">Initialization parameters</p>
-          </div>
-          <div class="col-12 mb-4" v-for="param in abi.params" :key="param.vname">
-            <contract-input
-              :error="param.validationErrors"
-              :vname="param.vname"
-              :type="param.type"
-              :pvalue="param.value"
-              v-model="param.value"
-            />
-          </div>
-        </div>
-        <!-- Initialization parameters -> needs to be moved to own component -->
+      <div v-else>
+        <network-selector class="mb-4" />
+        <account-selector class="mb-4" />
 
-        <div class="row mb-4">
-          <div class="col-12 mb-4" v-if="account.type === 'keystore'">
-            <div>
-              <label>Enter your passphrase</label>
-              <input type="password" v-model="passphrase" class="form-control" />
-            </div>
-          </div>
-          <div class="col-12 d-flex" v-if="!loading">
-            <button class="btn btn-light text-danger text-small mr-2" @click="resetComponent">
-              <small>Reset</small>
-            </button>
-            <button class="btn btn-primary btn-block" @click="handleDeploy">
-              <i class="fas fa-paper-plane"></i>
-              Deploy Contract
-            </button>
-          </div>
-        </div>
+        <transaction :params="contract.abi.params" />
       </div>
 
       <div class="alert alert-info" v-if="loading">
-        {{loading}}
+        {{ loading }}
         <i class="fas fa-spin fa-spinner"></i>
       </div>
-      <div class="alert alert-danger" v-if="error">{{error}}</div>
+
+      <div class="alert alert-danger" v-if="error">{{ error }}</div>
 
       <div class="alert" v-if="signedTx">
         <p class="font-weight-bold">Transaction ID</p>
@@ -59,16 +30,24 @@
         <p class="font-weight-bold mt-4">Receipt</p>
         <div
           class="alert"
-          :class="{'alert-success': signedTx.receipt.success === true, 'alert-danger': signedTx.receipt.success === false}"
+          :class="{
+            'alert-success': signedTx.receipt.success === true,
+            'alert-danger': signedTx.receipt.success === false,
+          }"
           style="overflow-x:scroll;"
         >
           <vue-json-pretty :data="signedTx.receipt"></vue-json-pretty>
         </div>
       </div>
 
-      <div class="alert alert-danger" v-if="signedTx && signedTx.receipt.errors.length">
+      <div
+        class="alert alert-danger"
+        v-if="signedTx && signedTx.receipt.errors.length"
+      >
         <ul>
-          <li v-for="err in signedTx.receipt.errors[0]" :key="err">{{ possibleErrors[err] }}</li>
+          <li v-for="err in signedTx.receipt.errors[0]" :key="err">
+            {{ possibleErrors[err] }}
+          </li>
         </ul>
       </div>
     </div>
@@ -76,27 +55,34 @@
 </template>
 
 <script>
-import ContractInput from "@/components/Inputs/ContractInput";
-import TransactionParameters from "@/components/Inputs/TransactionParameters";
 import ExplorerLink from "@/components/UI/ExplorerLink";
 import LedgerInterface from "@/utils/ledger-interface";
 import TransportU2F from "@ledgerhq/hw-transport-u2f";
 import VueJsonPretty from "vue-json-pretty";
 import { BN, bytes, Long, units } from "@zilliqa-js/util";
-import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { mapGetters } from "vuex";
-import axios from "axios";
+
+import Loading from "@/components/UI/Loading";
+import NetworkSelector from "@/components/UI/NetworkSelector";
+import AccountSelector from "@/components/UI/AccountSelector";
+
+import Transaction from "@/components/Transaction";
 
 import { validateParams } from "@/utils/validation.js";
 import ZilPayMixin from "@/mixins/zilpay";
+import ContractMixin from "@/mixins/contract";
 
 const MAX_TRIES = 60;
 
 export default {
-  mixins: [ZilPayMixin],
+  mixins: [ZilPayMixin, ContractMixin],
   data() {
     return {
-      abi: undefined,
+      loadingContract: true,
+      loadingTransaction: true,
+
+      loading: false,
+
       VUE_APP_ISOLATED_URL: process.env.VUE_APP_ISOLATED_URL,
       copied: false,
       init: {},
@@ -105,7 +91,6 @@ export default {
       gasLimit: 25000,
       startDeploy: false,
       passphrase: undefined,
-      loading: false,
       ledger: false,
       validatedParams: [],
       files: undefined,
@@ -130,29 +115,20 @@ export default {
   },
   components: {
     VueJsonPretty,
-    ContractInput,
-    TransactionParameters,
+    Transaction,
     ExplorerLink,
+    Loading,
+    NetworkSelector,
+    AccountSelector,
   },
-  props: ["file"],
   computed: {
     ...mapGetters("accounts", { account: "selected" }),
     ...mapGetters("networks", { network: "selected" }),
+    ...mapGetters("files", { file: "selected" }),
   },
   async mounted() {
-    if (this.account === null || this.account === undefined) {
-      this.error = "Please select an account first.";
-      return;
-    }
-    this.getContractAbi();
-
-    if (this.zilliqa === undefined) {
-      this.zilliqa = new Zilliqa(this.network.url);
-    }
-
-    // get minimum gas price from network
-    const minimumGasPrice = await this.zilliqa.blockchain.getMinimumGasPrice();
-    this.gasPrice = minimumGasPrice.result;
+    await this.getContractAbi({ code: this.file.code });
+    this.loadingContract = false;
   },
   methods: {
     handleClose() {
@@ -393,7 +369,7 @@ export default {
       this.error = false;
       this.loading = false;
       this.startDeploy = false;
-      await this.getContractAbi();
+      await this.getContractAbi({ code: this.file.code });
     },
     async handleDeploy() {
       this.error = false;
@@ -456,44 +432,6 @@ export default {
 
         window.EventBus.$emit("refresh-balance");
       }
-    },
-    async getContractAbi() {
-      axios
-        .post(process.env.VUE_APP_SCILLA_CHECKER_URL, {
-          code: this.file.code,
-        })
-        .then((response) => {
-          if (response.data.result === "success") {
-            const { contract_info } = JSON.parse(response.data.message);
-
-            this.abi = contract_info;
-
-            this.abi.params = this.abi.params.map((item) => {
-              return {
-                ...item,
-                value: "",
-              };
-            });
-
-            // this.checked = true;
-            this.$notify({
-              group: "scilla",
-              type: "success",
-              position: "bottom right",
-              title: "Scilla Checker",
-              text: "Contract has been successfully checked",
-            });
-          }
-        })
-        .catch(() => {
-          this.$notify({
-            group: "scilla",
-            type: "error",
-            position: "bottom right",
-            title: "Scilla Checker",
-            text: "There are errors in your contract. Check the editor.",
-          });
-        });
     },
     onTransactionParameters(payload) {
       this.amount = parseInt(payload.amount);

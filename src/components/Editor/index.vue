@@ -1,12 +1,9 @@
 <template>
   <div class="editor">
-    <div class="actions-bar">
-      <div
-        class="d-flex justify-content-between align-items-center"
-        v-if="file && !file.contractId"
-      >
+    <div class="actions-bar" v-if="file && !file.contractId">
+      <div class="d-flex justify-content-between align-items-center">
         <div class="buttons d-flex">
-          <button class="btn btn-check mr-2 ml-2" @click="handleCheck">
+          <button class="btn btn-check mr-2 ml-2" @click="handleRunChecker">
             <img src="@/assets/survey.svg" /> CHECK
           </button>
           <button class="btn btn-link mr-2" @click="handleDeploy">
@@ -21,14 +18,11 @@
           Remember to save changes
         </div>
       </div>
-      <div class="d-flex p-2 align-items-center" v-else>
-        Deployed contracts are readonly.
-      </div>
     </div>
-    <tabs :changed="changed" />
+    <tabs :changed="changed" v-if="file && !file.contractId" />
     <div class="editor-inner d-flex">
       <ace-editor
-        v-if="file && !file.contractId"
+        v-if="file"
         v-model="file.code"
         :fontSize="editor.fontSize"
         :showPrintMargin="true"
@@ -48,11 +42,10 @@
         :setOptions="{
           enableLiveAutocompletion: true,
           enableSnippets: true,
+          readOnly: readonly,
         }"
+        :commands="commands"
       />
-      <pre class="p-5" style="max-width: 700px; overflow:scroll;" v-else>
-        {{ file.code }}
-      </pre>
     </div>
   </div>
 </template>
@@ -75,7 +68,6 @@ import "brace/theme/tomorrow";
 import { mapGetters } from "vuex";
 
 import Tabs from "./Tabs";
-
 import scillaChecker from "@/mixins/scilla-checker";
 
 export default {
@@ -85,13 +77,16 @@ export default {
       code: null,
       changed: false,
       annotations: [],
-      readonly: false
+      commands: [],
     };
   },
   mixins: [scillaChecker],
   computed: {
     ...mapGetters("networks", { network: "selected" }),
     ...mapGetters("general", { editor: "editor" }),
+    readonly() {
+      return this.file.contractId !== undefined;
+    },
   },
   methods: {
     handleInput(payload) {
@@ -108,19 +103,42 @@ export default {
     handleDeploy() {
       window.EventBus.$emit("open-deploy-contract", this.file);
     },
-    async handleCheck() {
-      this.annotations = await this.runScillaChecker(this.file.code);
+    async handleRunChecker() {
+      const checkerResults = await this.runScillaChecker({
+        code: this.file.code,
+        name: this.file.name,
+      });
+
+      this.annotations = checkerResults.annotations;
     },
   },
   components: {
     AceEditor,
     Tabs,
   },
+  created() {
+    this.commands = [
+      {
+        name: "save",
+        bindKey: { win: "Ctrl-S", mac: "Cmd-S" },
+        exec: function(editor) {
+          return window.EventBus.$emit("save-file", editor.session.getValue());
+        },
+      },
+      {
+        name: "run-checker",
+        bindKey: { win: "Ctrl-Alt-C", mac: "Ctrl-Alt-C" },
+        exec: function() {
+          return window.EventBus.$emit("run-checker");
+        },
+      },
+    ];
+  },
   mounted() {
     this.changed = false;
 
-    window.EventBus.$on("console-run-checker", () => {
-      this.handleCheck();
+    window.EventBus.$on("run-checker", async () => {
+      await this.handleRunChecker();
     });
 
     window.EventBus.$on("change-editor-fontSize", (payload) => {
@@ -128,11 +146,15 @@ export default {
     });
 
     window.EventBus.$on("open-editor-contract", ({ contractId }) => {
-      /* this.changeEditorCode({
-        type: "deployed-contract",
-        contractId: contractId
-      }); */
       this.$store.dispatch("contracts/SelectContract", { contractId });
+    });
+
+    window.EventBus.$on("save-file", async (code) => {
+      await this.$store.dispatch("files/UpdateCode", {
+        id: this.file.id,
+        code: code,
+      });
+      this.changed = false;
     });
   },
 };

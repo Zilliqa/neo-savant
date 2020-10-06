@@ -8,13 +8,18 @@
       <div
         id="left-panel"
         class="left-panel"
-        :class="{ open: leftPanel }"
+        :class="{
+          open: leftPanel,
+          'is-extended': ['deploy'].includes(leftPanel),
+        }"
         v-if="leftPanel !== false"
       >
         <files v-if="leftPanel === 'files'" />
         <network v-if="leftPanel === 'network'" />
         <events v-if="leftPanel === 'events'" />
         <settings v-if="leftPanel === 'settings'" />
+        <debug v-if="leftPanel === 'debug'" />
+        <deploy-contract v-if="leftPanel === 'deploy'" />
       </div>
       <div class="right-panel">
         <div class="main-panel" :class="{ 'has-bottom-panel': bottomPanel }">
@@ -50,13 +55,14 @@ import TopBar from "@/components/TopBar/index";
 import LeftSidebar from "@/components/LeftSidebar";
 
 // Panels
-import DeployContract from "@/components/Panels/DeployContract";
+import DeployContract from "@/components/Panels/Deploy";
 import CallContract from "@/components/Panels/CallContract";
 import AccountImport from "@/components/Panels/AccountImport";
 import ContractImport from "@/components/Panels/ContractImport";
 import Files from "@/components/Panels/Files";
 import Network from "@/components/Panels/Network";
 import Events from "@/components/Panels/Events";
+import Debug from "@/components/Panels/Debug";
 
 import BottomPanel from "@/components/BottomPanel";
 
@@ -94,6 +100,7 @@ export default {
     ContractImport,
     BottomPanel,
     Events,
+    Debug,
     Settings,
     AddCustomNetwork,
     Tools,
@@ -266,44 +273,6 @@ export default {
   }
 }
 
-.btn {
-  border-radius: 0px !important;
-  font-size: 0.85rem;
-  transition: all 0.2s ease-in-out;
-
-  &.btn-block {
-    i.fas {
-      transition: all 0.2s ease-in-out;
-      margin-left: 0.2rem;
-    }
-
-    &:hover {
-      i.fas {
-        transition: all 0.2s ease-in-out;
-        margin-left: 0.5rem;
-      }
-    }
-  }
-
-  &.btn-primary {
-    background-color: $primary;
-    border-color: $primary;
-
-    &:hover {
-      background-color: lighten($color: $primary, $amount: 8);
-      border-color: lighten($color: $primary, $amount: 8);
-    }
-  }
-
-  &.btn-outline {
-    background-color: transparent;
-    &:hover {
-      background-color: transparent;
-      background-color: transparentize($color: $secondary, $amount: 0.9);
-    }
-  }
-}
-
 input.form-control {
   -webkit-appearance: none !important;
   -moz-appearance: none !important;
@@ -396,6 +365,11 @@ input.form-control {
 
     &.open {
       width: 300px;
+      min-width: 300px;
+
+      &.is-extended {
+        width: 500px;
+      }
 
       .toggler {
         background-color: transparent;

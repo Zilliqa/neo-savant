@@ -1,8 +1,5 @@
 <template>
   <div class="row mb-4">
-    <div class="col-12">
-      <p class="font-weight-bold">Transaction parameters</p>
-    </div>
     <div class="col-12 col-md-4 input-contract">
       <label class="flex-column align-items-start">
         <div class="name">Amount</div>
@@ -10,7 +7,7 @@
           <input-popover type="Uint128"></input-popover>
         </div>
       </label>
-      <input type="text" v-model="amount" @input="updateAmount" class="form-control" />
+      <input type="text" v-model="amount" @input="updateAmount" class="form-control alt" />
     </div>
     <div class="col-12 col-md-4 input-contract">
       <label class="flex-column align-items-start">
@@ -19,7 +16,7 @@
           <input-popover type="Uint128"></input-popover>
         </div>
       </label>
-      <input type="text" v-model="gasPrice" @input="updateAmount" class="form-control" />
+      <input type="text" v-model="gasPrice" @input="updateAmount" class="form-control alt" />
     </div>
     <div class="col-12 col-md-4 input-contract">
       <label class="flex-column align-items-start">
@@ -28,13 +25,13 @@
           <input-popover type="Uint128"></input-popover>
         </div>
       </label>
-      <input type="text" v-model="gasLimit" @input="updateAmount" class="form-control" />
+      <input type="text" v-model="gasLimit" @input="updateAmount" class="form-control alt" />
     </div>
   </div>
 </template>
 
 <script>
-import InputPopover from "./InputPopover";
+import InputPopover from "@/components/UI/InputPopover";
 
 export default {
   data() {

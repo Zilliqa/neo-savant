@@ -3,16 +3,15 @@
     <div class="content">
       <ul>
         <li v-for="(item, index) in events" :key="index">
-          <div class="pl-3" v-if="item.text">
-            <span
-              class="badge"
-              :class="{
-                'badge-warning': item.type === 'warning',
-                'badge-danger': item.type === 'error',
-              }"
-              >{{ item.row + 1 }}, {{ item.column }}</span
-            >
-            {{ item.text }}
+          <div
+            class="pl-3"
+            v-if="item.text"
+            :class="{
+              warning: item.type === 'warning',
+              danger: item.type === 'error',
+            }"
+          >
+            ({{ item.row + 1 }}, {{ item.column }}) {{ item.text }}
           </div>
           <div v-else>{{ item }}</div>
         </li>
@@ -58,6 +57,14 @@ export default {
 .checker-results {
   .content {
     padding: 0.5rem;
+    font-family: monospace;
+
+    .warning {
+      border-left: 4px solid map_get($theme-colors, "warning");
+    }
+    .danger {
+      border-left: 4px solid map_get($theme-colors, "danger");
+    }
   }
 
   ul {

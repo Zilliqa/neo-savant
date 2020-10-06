@@ -33,13 +33,10 @@ export default {
   created() {},
   methods: {
     importContract() {
-      // this.$store.dispatch('incrementBy', amount)
       window.EventBus.$emit("open-import-contract");
     },
     handleSelect({ contractId }) {
-      window.EventBus.$emit("open-editor-contract", { contractId });
-      window.EventBus.$emit("open-call-contract", { contractId });
-      //this.$store.dispatch("contracts/SelectContract", { contractId });
+      window.EventBus.$emit("open-deployed-contract", { contractId });
     },
   },
 };

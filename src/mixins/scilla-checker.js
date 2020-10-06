@@ -1,20 +1,17 @@
 export default {
-  data() {
-    return {
-      SCILLA_CHECKER_URL: process.env.VUE_APP_SCILLA_CHECKER_URL,
-    };
-  },
   methods: {
-    async runScillaChecker(code) {
-      let annotations = [];
+    async runScillaChecker({ code, name }) {
+      let ret;
 
       window.EventBus.$emit("checker-events-clear");
 
+      const contractName = name ? name : "selected";
+
       window.EventBus.$emit("checker-events", {
-        message: `○ Running checker on ${this.file.name}`,
+        message: `○ Running checker on ${contractName} contract`,
       });
 
-      const response = await fetch(this.SCILLA_CHECKER_URL, {
+      const response = await fetch(process.env.VUE_APP_SCILLA_CHECKER_URL, {
         method: "POST",
         mode: "cors",
         headers: {
@@ -27,6 +24,7 @@ export default {
 
       if (data.result === "success") {
         const message = JSON.parse(data.message);
+        ret = message;
 
         if (message.warnings !== []) {
           const markers = message.warnings.map((err) => {
@@ -45,11 +43,11 @@ export default {
             warnings: markers,
           });
 
-          annotations = markers;
+          ret.annotations = markers;
         }
 
         window.EventBus.$emit("checker-events", {
-          message: "✓ Checker successfully passed.",
+          message: `✓ Checker successfully passed.`,
         });
 
         this.$notify({
@@ -62,6 +60,7 @@ export default {
       }
 
       if (data.result === "error") {
+        ret = data.message;
         const markers = data.message.map((err) => {
           const row = parseInt(err.line, 10);
           const col = parseInt(err.column, 10);
@@ -76,14 +75,22 @@ export default {
 
         window.EventBus.$emit("checker-events", { errors: markers });
 
-        annotations = markers;
+        ret.annotations = markers;
+
+        this.$notify({
+          group: "scilla",
+          type: "error",
+          position: "bottom right",
+          title: "Scilla Checker",
+          text: "Checker failed on the contract.",
+        });
 
         window.EventBus.$emit("checker-events", {
           message: "✗ Checker failed on the contract.",
         });
       }
 
-      return annotations;
+      return ret;
     },
   },
 };

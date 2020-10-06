@@ -12,6 +12,20 @@
     </div>
     <div
       class="action"
+      :class="{ 'is-open': leftPanel === 'debug' }"
+      @click="handleSwitchPanel('debug')"
+    >
+      <img src="@/assets/clipboard.svg" />
+    </div>
+    <div
+      class="action"
+      :class="{ 'is-open': leftPanel === 'deploy' }"
+      @click="handleSwitchPanel('deploy')"
+    >
+      <img src="@/assets/play-button.svg" />
+    </div>
+    <div
+      class="action"
       :class="{ 'is-open': leftPanel === 'network' }"
       @click="handleSwitchPanel('network')"
     >
