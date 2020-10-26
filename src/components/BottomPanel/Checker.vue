@@ -1,6 +1,10 @@
 <template>
   <div class="checker-results">
     <div class="content">
+      <span class="text-info text-small">
+        You can run Checker by pressing
+        <b>Ctrl + Alt + C / Ctrl + Option + C</b> while editing a contract.
+      </span>
       <ul>
         <li v-for="(item, index) in events" :key="index">
           <div

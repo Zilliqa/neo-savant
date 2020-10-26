@@ -1,26 +1,28 @@
 <template>
-  <div class="network-selector d-flex" v-if="account && account.type === 'zilpay'">
+  <div
+    class="network-selector d-flex"
+    v-if="account && account.type === 'zilpay'"
+  >
     <v-popover trigger="click" class="d-flex align-items-center">
       <!-- This will be the popover target (for the events and position) -->
       <div class="selected-network d-flex align-items-center">
         <img src="@/assets/server.svg" height="24px" class="mr-2" />
-        {{selected.name}}
+        {{ selected.name }}
       </div>
       <template slot="popover" class="text-center">
         Accounts and Networks are managed by ZilPay Extension.
         <br />
         <br />
-        <button
-          class="btn btn-success"
-          @click="handleAccountManagerSwitch"
-        >Switch back to IDE Account Manager</button>
+        <button class="btn btn-success" @click="handleAccountManagerSwitch">
+          Switch back to IDE Account Manager
+        </button>
       </template>
     </v-popover>
   </div>
   <div class="network-selector not-zilpay d-flex" v-else>
     <div class="selected-network d-flex align-items-center">
-      <img src="@/assets/server.svg" height="24px" class="mr-2" />
-      {{selected.name}}
+      <img src="@/assets/server.svg" height="16px" class="mr-2" />
+      {{ selected.name }}
     </div>
 
     <div class="networks-list flex-column">
@@ -29,7 +31,9 @@
         v-for="network in list"
         :key="network.name"
         @click="handleSelect(network)"
-      >{{network.name}}</div>
+      >
+        {{ network.name }}
+      </div>
 
       <div class="item font-weight-bold" @click="handleAddNetwork">
         <i class="fas fa-plus-square"></i> Add network
@@ -55,8 +59,8 @@ export default {
       this.$store.dispatch("networks/SelectNetwork", network);
     },
     handleAddNetwork() {
-      window.EventBus.$emit('open-add-custom-network');
-    }
+      window.EventBus.$emit("open-add-custom-network");
+    },
   },
 };
 </script>
@@ -65,6 +69,11 @@ export default {
 .network-selector {
   padding: 0 0.5rem;
   transition: all 0.2s ease;
+
+  .selected-network {
+    font-size: 0.85rem;
+  }
+
   &:hover {
     cursor: pointer;
     background-color: lighten($primary, 10);

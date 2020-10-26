@@ -2,17 +2,26 @@
   <div class="top-bar d-flex">
     <div class="menus flex-grow-1 d-flex justify-content-between">
       <div class="main d-flex align-items-center mr-5">
-        <a href="https://scilla.readthedocs.io/en/latest/" target="_blank" class="mr-3">Scilla Docs</a>
+        <a
+          href="https://scilla.readthedocs.io/en/latest/"
+          target="_blank"
+          class="mr-3"
+          >Scilla Docs</a
+        >
         <a href="https://learnscilla.com" target="_blank">Tutorial</a>
         <li class="tools-menu">
           <a href="#">Tools</a>
 
           <ul class="submenu">
             <li>
-              <a href="#" @click="handleOpenTools('units-converter')">Units Converter</a>
+              <a href="#" @click="handleOpenTools('units-converter')"
+                >Units Converter</a
+              >
             </li>
             <li>
-              <a href="#" @click="handleOpenTools('address-converter')">Address Converter</a>
+              <a href="#" @click="handleOpenTools('address-converter')"
+                >Address Converter</a
+              >
             </li>
           </ul>
         </li>
@@ -39,13 +48,13 @@ export default {
     NetworkSelector,
     AccountSelector,
     AccountBalance,
-    ExplorerLink
+    ExplorerLink,
   },
   methods: {
     handleOpenTools(toolName) {
       window.EventBus.$emit("open-tools", toolName);
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -65,8 +74,6 @@ export default {
   a {
     color: #fff;
   }
-
-  
 
   .tools-menu {
     list-style: none;

@@ -150,7 +150,7 @@ export default {
     .accounts-list {
       position: absolute;
       left: 0;
-      top: 48px;
+      top: 28px;
       z-index: 9999;
       display: flex;
       background-color: lighten($primary, 10);

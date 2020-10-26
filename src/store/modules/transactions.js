@@ -1,87 +1,39 @@
-import uuidv4 from 'uuid';
-
 const state = {
     current: undefined,
-    transactions: []
+    transactions: [],
+    watcher: []
 };
 
 const getters = {
     current: state => state.current,
-    list: state => state.transactions
+    list: state => state.transactions,
+    watcherList: state => state.watcher
 };
 
 const actions = {
-    SelectFile({ commit, state }, payload) {
+    async AddTx({ commit, rootGetters }, txData) {
+        const network = rootGetters['networks/selected'];
 
-        const id = payload.id;
-
-        const file = state.files.find(function (item) {
-            return item.id === id
-        });
-
-        commit('contracts/unselect', null, { root: true });
-        commit('select', file);
+        commit('add', { ...txData, network: network.url, timestamp: Date.now() });
+        commit('addToWatcher', { ...txData, network: network.url, timestamp: Date.now() });
     },
-    CreateFile({ commit }) {
-        const id = uuidv4();
+    /* async UpdateWatcherTx({commit,state, rootGetters}, txData) {
+        const tx = state.watcherList.find(tx => tx.id === txData.id);
 
-        commit('add', { id, name: 'untitled', code: '' });
-
-        return id;
-    },
-    RenameFile({ commit, state }, { id, name }) {
-        const file = state.files.findIndex(item => item.id === id);
-
-        if (file === undefined) {
-            throw Error('File not found.');
+        if(tx !== undefined) {
+            
         }
-
-        commit('rename', { index: file, name: name });
-    },
-    UpdateCode({ commit, state }, { id, code }) {
-        const index = state.files.findIndex(item => item.id === id);
-
-        if (index === undefined) {
-            throw Error('File not found.');
-        }
-
-        commit('updateCode', { index: index, code: code });
-    },
-    RemoveFile({ commit, state }, { id }) {
-        const file = state.files.findIndex(item => item.id === id);
-
-        if (file === undefined) {
-            throw Error('File not found.');
-        }
-
-        if (id === state.selected.id) {
-            commit('unselect');
-        }
-
-        commit('remove', { index: file });
-    }
+    } */
 };
 
 
 const mutations = {
-    select(state, payload) {
-        state.selected = payload;
-    },
-    unselect(state) {
-        state.selected = undefined;
-    },
     add(state, payload) {
-        state.files.push(payload);
+        state.transactions.push(payload);
     },
-    rename(state, payload) {
-        state.files[payload.index].name = payload.name;
+    addToWatcher(state, payload) {
+        state.watcher.push(payload);
     },
-    updateCode(state, payload) {
-        state.files[payload.index].code = payload.code;
-    },
-    remove(state, payload) {
-        state.files.splice(payload.index, 1);
-    }
 };
 
 

@@ -368,7 +368,7 @@ input.form-control {
       min-width: 300px;
 
       &.is-extended {
-        width: 500px;
+        width: 400px;
       }
 
       .toggler {

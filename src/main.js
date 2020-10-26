@@ -17,6 +17,6 @@ Vue.use(VTooltip);
 window.vm = new Vue({
   router,
   store,
-  
+
   render: (h) => h(App),
 }).$mount("#app");

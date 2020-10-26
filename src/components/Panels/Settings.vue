@@ -6,6 +6,8 @@
       SETTINGS
     </div>
     <div class="panel-body p-4">
+      <network-selector class="mb-4" />
+
       <div class="settings-group mb-4">
         <div class="form-input">
           <label>Font size</label>
@@ -34,9 +36,10 @@
 <script>
 import { mapGetters } from "vuex";
 import Swal from "sweetalert2";
+import NetworkSelector from "@/components/UI/NetworkSelector";
 
 export default {
-  components: {},
+  components: { NetworkSelector },
   data() {
     return {
       network: {

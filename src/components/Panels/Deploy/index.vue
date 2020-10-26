@@ -4,66 +4,33 @@
       class="header text-primary d-flex justify-content-between align-items-center"
     >
       DEPLOY
+
+      <img
+        src="@/assets/refresh.svg"
+        class="img-button"
+        @click="panelRefresh"
+      />
     </div>
     <div class="panel-body p-3">
       <loading v-if="loadingContract"></loading>
 
       <div v-else>
-        <network-selector class="mb-4" />
         <account-selector class="mb-4" />
 
-        <transaction :params="contract.abi.params" />
-      </div>
-
-      <div class="alert alert-info" v-if="loading">
-        {{ loading }}
-        <i class="fas fa-spin fa-spinner"></i>
-      </div>
-
-      <div class="alert alert-danger" v-if="error">{{ error }}</div>
-
-      <div class="alert" v-if="signedTx">
-        <p class="font-weight-bold">Transaction ID</p>
-        <explorer-link :txid="signedTx.transId" />
-        <p class="font-weight-bold mt-4">Contract Address</p>
-        <explorer-link :address="signedTx.contractAddress" />
-        <p class="font-weight-bold mt-4">Receipt</p>
-        <div
-          class="alert"
-          :class="{
-            'alert-success': signedTx.receipt.success === true,
-            'alert-danger': signedTx.receipt.success === false,
-          }"
-          style="overflow-x:scroll;"
-        >
-          <vue-json-pretty :data="signedTx.receipt"></vue-json-pretty>
-        </div>
-      </div>
-
-      <div
-        class="alert alert-danger"
-        v-if="signedTx && signedTx.receipt.errors.length"
-      >
-        <ul>
-          <li v-for="err in signedTx.receipt.errors[0]" :key="err">
-            {{ possibleErrors[err] }}
-          </li>
-        </ul>
+        <transaction :params="contract.abi.params" :code="file.code" :file="file" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import ExplorerLink from "@/components/UI/ExplorerLink";
 import LedgerInterface from "@/utils/ledger-interface";
 import TransportU2F from "@ledgerhq/hw-transport-u2f";
-import VueJsonPretty from "vue-json-pretty";
 import { BN, bytes, Long, units } from "@zilliqa-js/util";
 import { mapGetters } from "vuex";
 
 import Loading from "@/components/UI/Loading";
-import NetworkSelector from "@/components/UI/NetworkSelector";
+
 import AccountSelector from "@/components/UI/AccountSelector";
 
 import Transaction from "@/components/Transaction";
@@ -114,11 +81,8 @@ export default {
     };
   },
   components: {
-    VueJsonPretty,
     Transaction,
-    ExplorerLink,
     Loading,
-    NetworkSelector,
     AccountSelector,
   },
   computed: {
@@ -363,13 +327,10 @@ export default {
         this.handleLedgerSign(tx);
       }
     },
-    async resetComponent() {
-      this.abi = undefined;
-      this.signedTx = undefined;
-      this.error = false;
-      this.loading = false;
-      this.startDeploy = false;
+    async panelRefresh() {
+      this.loadingContract = true;
       await this.getContractAbi({ code: this.file.code });
+      this.loadingContract = false;
     },
     async handleDeploy() {
       this.error = false;

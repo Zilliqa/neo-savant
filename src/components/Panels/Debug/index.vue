@@ -3,7 +3,7 @@
     <div
       class="header text-primary d-flex justify-content-between align-items-center"
     >
-      DEBUG
+      DEBUG - SCILLA CHECKER
     </div>
     <div class="panel-body p-3">
       <loading v-if="loading" />
@@ -12,7 +12,7 @@
           class="btn btn-secondary btn-lg btn-block mb-4"
           @click="handleRunChecker"
         >
-          Run debugger on {{ contract.name }}
+          Run scilla-checker on {{ contract.name }}
         </button>
 
         <cashflow-tags

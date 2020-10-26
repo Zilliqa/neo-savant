@@ -1,8 +1,13 @@
 <template>
-  <div class="copy-to-clipboard mr-2" @click="handleCopy" title="Click to copy address">
-    <i class="fas fa-copy" v-if="!done"></i>
-    <i class="fas fa-check" v-else></i>
-  </div>
+  <button
+    class="copy-to-clipboard"
+    @click.prevent="handleCopy"
+    title="Click to copy address"
+    :disabled="done"
+  >
+    <slot v-if="!done"></slot>
+    <img src="@/assets/tick.svg" v-else />
+  </button>
 </template>
 
 <script>
@@ -10,7 +15,7 @@ export default {
   name: "CopyToClipboard",
   data() {
     return {
-      done: false
+      done: false,
     };
   },
   props: ["text"],
@@ -22,7 +27,7 @@ export default {
           this.done = true;
           setTimeout(() => {
             this.done = false;
-          }, 1000);
+          }, 2000);
         });
       } else {
         const input = document.createElement("input");
@@ -35,23 +40,16 @@ export default {
           this.done = true;
           setTimeout(() => {
             this.done = false;
-          }, 1000);
+          }, 2000);
         }
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style lang="scss" scoped>
 .copy-to-clipboard {
-  width: 24px;
-  height: 24px;
-  font-size: 14px;
-  border-radius: 50%;
-  position: relative;
-  transition: all 0.2s ease-in-out;
-
   .fas {
     position: absolute;
     left: 50%;
@@ -59,15 +57,6 @@ export default {
     transform: translate(-50%, -50%);
     opacity: 0.5;
     transition: all 0.2s ease-in-out;
-  }
-
-  &:hover {
-    cursor: pointer;
-    background-color: darken($primary, 5);
-
-    .fas {
-      opacity: 1;
-    }
   }
 }
 </style>

@@ -1,27 +1,46 @@
 <template>
   <div class="bottom-panel">
-    <div class="header" @click="handleToggle">
-      <div class="tab d-flex align-items-center">
-        <img height="13px" class="pr-1" src="@/assets/terminal.svg" /> Checker
+    <div class="header">
+      <div
+        class="tab d-flex align-items-center"
+        :class="{ active: tab === 'checker' }"
+        @click="handleSelect('checker')"
+      >
+        <img height="13px" class="pr-1" src="@/assets/clipboard.svg" /> Checker
+      </div>
+      <div
+        class="tab d-flex align-items-center"
+        :class="{ active: tab === 'transactions' }"
+        @click="handleSelect('transactions')"
+      >
+        <img height="13px" class="pr-1" src="@/assets/notifications.svg" />
+        Ongoing Transactions
       </div>
     </div>
     <div class="body" v-if="active">
-      <checker-tab />
+      <checker-tab v-if="tab === 'checker'" />
+      <transactions-tab v-if="tab === 'transactions'" />
     </div>
   </div>
 </template>
 
 <script>
 import CheckerTab from "./Checker";
+import TransactionsTab from "./Transactions";
 
 export default {
+  data() {
+    return {
+      tab: "checker",
+    };
+  },
   props: ["active"],
-  components: { CheckerTab },
+  components: { CheckerTab, TransactionsTab },
   methods: {
-    handleToggle() {
-      this.$emit("toggle");
-    }
-  }
+    handleSelect(tab) {
+      this.tab = tab;
+    },
+  },
 };
 </script>
 
@@ -41,17 +60,15 @@ export default {
     display: flex;
 
     .tab {
-      background-color: darken($color: #fff, $amount: 5);
+      background-color: #fff;
       padding-left: 0.5rem;
       padding-right: 0.5rem;
-    }
-
-    &:hover {
+      z-index: 999;
       cursor: pointer;
-      background-color: lighten($primary, $amount: 40);
 
-      .tab {
-        background-color: lighten($primary, $amount: 30);
+      &:hover,
+      &.active {
+        background-color: $accent;
       }
     }
   }
