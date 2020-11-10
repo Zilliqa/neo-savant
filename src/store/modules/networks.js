@@ -6,7 +6,7 @@ const state = {
             url: process.env.VUE_APP_ISOLATED_URL,
             faucet: process.env.VUE_APP_ISOLATED_FAUCET,
             type: 'default',
-            chainId: 1,
+            chainId: 222,
             msgVersion: 1
         },
         {
