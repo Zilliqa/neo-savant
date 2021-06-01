@@ -210,7 +210,7 @@ export default {
       refreshingState: false,
       init: {},
       amount: 0,
-      gasPrice: 1000000000,
+      gasPrice: 2000000000,
       gasLimit: 25000,
       startDeploy: false,
       zilliqa: undefined,
