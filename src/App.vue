@@ -4,7 +4,7 @@
     <tools />
     <top-bar />
     <div class="ide">
-      <div id="left-panel" class="left-panel" :class="{'open': leftPanel}">
+      <div id="left-panel" class="left-panel" :class="{ open: leftPanel }">
         <div class="toggler" @click="handleToggleLeftPanel">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -12,9 +12,9 @@
             x="0px"
             y="0px"
             viewBox="0 0 511.641 511.641"
-            style="enable-background:new 0 0 511.641 511.641;"
+            style="enable-background: new 0 0 511.641 511.641"
             xml:space="preserve"
-            :class="{'panel-open':leftPanel}"
+            :class="{ 'panel-open': leftPanel }"
           >
             <path
               d="M148.32,255.76L386.08,18c4.053-4.267,3.947-10.987-0.213-15.04c-4.16-3.947-10.667-3.947-14.827,0L125.707,248.293
@@ -29,17 +29,20 @@
         <contracts-list class="contracts-container" />
       </div>
       <div class="right-panel">
-        <div class="main-panel" :class="{'has-bottom-panel': bottomPanel}">
+        <div class="main-panel" :class="{ 'has-bottom-panel': bottomPanel }">
           <router-view />
         </div>
-        <bottom-panel :active="bottomPanel" v-on:toggle="handleToggleBottomPanel" />
+        <bottom-panel
+          :active="bottomPanel"
+          v-on:toggle="handleToggleBottomPanel"
+        />
       </div>
 
       <account-import v-if="rightPanel === 'accountImport'" />
 
       <events-list v-if="rightPanel === 'events'" />
       <settings v-if="rightPanel === 'settings'" />
-      <add-custom-network v-if="rightPanel === 'addCustomNetwork'"/>
+      <add-custom-network v-if="rightPanel === 'addCustomNetwork'" />
 
       <!-- Contract panels -->
       <contract-import v-if="rightPanel === 'importContract'" />
@@ -54,15 +57,18 @@
         :key="this.callContract"
       />
 
-      <faucet-panel
-        v-if="rightPanel === 'openFaucet'"
-      />
+      <faucet-panel v-if="rightPanel === 'openFaucet'" />
 
       <div class="right-sidebar">
-        <div class="action events-badge" @click="handleToggleRightPanel('events')">
+        <div
+          class="action events-badge"
+          @click="handleToggleRightPanel('events')"
+        >
           <img src="@/assets/notifications.svg" />
 
-          <span class="badge badge-danger" v-if="events.length">{{ events.length }}</span>
+          <span class="badge badge-danger" v-if="events.length">{{
+            events.length
+          }}</span>
         </div>
 
         <div class="action" @click="handleToggleRightPanel('settings')">
@@ -99,7 +105,8 @@ import { generateMultipleZilliqaAccounts } from "./utils/zilliqa";
 import { animateCSS } from "./utils/ui";
 
 import { Zilliqa } from "@zilliqa-js/zilliqa";
-import ZilPayMixin from '@/mixins/zilpay';
+import ZilPayMixin from "@/mixins/zilpay";
+import { toChecksumAddress } from "@zilliqa-js/crypto";
 
 export default {
   name: "App",
@@ -109,7 +116,7 @@ export default {
       rightPanel: false,
       deployContract: false,
       callContract: false,
-      bottomPanel: true
+      bottomPanel: true,
     };
   },
   mixins: [ZilPayMixin],
@@ -126,18 +133,21 @@ export default {
     Settings,
     AddCustomNetwork,
     Tools,
-    FaucetPanel
+    FaucetPanel,
   },
   computed: {
     ...mapGetters("events", { events: "list" }),
-    ...mapGetters("accounts", { accounts: "list", selectedAccount: "selected" }),
+    ...mapGetters("accounts", {
+      accounts: "list",
+      selectedAccount: "selected",
+    }),
     ...mapGetters("networks", { network: "selected", networksList: "list" }),
-    ...mapGetters("contracts", { contracts: "list" })
+    ...mapGetters("contracts", { contracts: "list" }),
   },
   watch: {
-    events: function() {
+    events: function () {
       animateCSS(".events-badge", "heartBeat");
-    }
+    },
   },
   methods: {
     handleToggleRightPanel(type) {
@@ -152,7 +162,7 @@ export default {
     },
     handleToggleLeftPanel() {
       this.leftPanel = !this.leftPanel;
-    }
+    },
   },
   async created() {
     // Initialize default network
@@ -164,14 +174,16 @@ export default {
       // Check if contracts are still on network
       const zilliqa = new Zilliqa(process.env.VUE_APP_ISOLATED_URL);
 
-      this.contracts.forEach(async contract => {
-        const deployed = zilliqa.contracts.at(contract.contractId);
+      this.contracts.forEach(async (contract) => {
+        const deployed = zilliqa.contracts.at(
+          toChecksumAddress(contract.contractId)
+        );
 
         const state = await deployed.getState();
 
         if (state === undefined) {
           this.$store.dispatch("contracts/RemoveContract", {
-            id: contract.contractId
+            id: contract.contractId,
           });
         }
       });
@@ -184,11 +196,11 @@ export default {
           ACCOUNTS_NUMBER
         );
 
-        generatedAccounts.map(item => {
+        generatedAccounts.map((item) => {
           this.$store.dispatch("accounts/AddAccount", {
             address: item.address,
             keystore: item.privateKey,
-            type: "privatekey"
+            type: "privatekey",
           });
         });
       }
@@ -203,7 +215,7 @@ export default {
       this.rightPanel = "accountImport";
     });
 
-    window.EventBus.$on("open-deploy-contract", file => {
+    window.EventBus.$on("open-deploy-contract", (file) => {
       window.EventBus.$emit("clear-components");
       this.deployContract = file;
       this.rightPanel = "deployContract";
@@ -231,13 +243,15 @@ export default {
       this.rightPanel = "addCustomNetwork";
     });
 
-    if (this.selectedAccount !== undefined && this.selectedAccount.type === "zilpay") {
-      this
-        .getZilPayNetwork()
+    if (
+      this.selectedAccount !== undefined &&
+      this.selectedAccount.type === "zilpay"
+    ) {
+      this.getZilPayNetwork()
         .then(() => this.getZilPayAccount())
-        .then(() => this.runZilPayObservable())
+        .then(() => this.runZilPayObservable());
     }
-  }
+  },
 };
 </script>
 
@@ -347,8 +361,8 @@ input.form-control {
     border-right: 1px solid #ccc;
     overflow: hidden;
     width: 12px;
-    display:flex;
-    flex-direction:column;
+    display: flex;
+    flex-direction: column;
 
     .files-container {
       height: 100%;
