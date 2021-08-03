@@ -366,6 +366,7 @@ input.form-control {
 
     .files-container {
       height: 100%;
+      overflow-y: scroll;
     }
 
     .contracts-container {

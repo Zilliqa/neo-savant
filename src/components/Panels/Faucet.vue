@@ -82,15 +82,13 @@ export default {
       this.contractCode = undefined;
     },
     async handleRequest() {
-      let API_LINK = this.network.faucet
-        ? this.network.faucet + "/request-funds"
-        : undefined;
-
-      if (API_LINK === undefined) {
-        API_LINK =
-          this.network.url === process.env.VUE_APP_ISOLATED_URL
-            ? process.env.VUE_APP_ISOLATED_FAUCET + "request-funds"
-            : process.env.VUE_APP_TESTNET_FAUCET;
+      // Defaults to Testnet faucet URL
+      let API_LINK = process.env.VUE_APP_TESTNET_FAUCET;
+      
+      // Simulated ENV
+      if (this.network.url === process.env.VUE_APP_ISOLATED_URL) {
+        // Reference: https://github.com/Zilliqa/zilliqa-isolated-server-faucet
+        API_LINK = process.env.VUE_APP_ISOLATED_FAUCET + "request-funds";
       }
 
       return axios
