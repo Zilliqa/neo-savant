@@ -10,6 +10,7 @@
 
 <script>
 import { mapGetters } from "vuex";
+import { toBech32Address } from "@zilliqa-js/crypto";
 
 export default {
   name: "TestnetWalletLink",
@@ -18,7 +19,8 @@ export default {
     link() {
       const testnetFaucetUrl = 'https://dev-wallet.zilliqa.com/faucet'
       if (this.account && this.account.address) {
-        return testnetFaucetUrl+ `?address=${this.account.address}`
+        const bech32Address = toBech32Address(this.account.address)
+        return testnetFaucetUrl+ `?address=${bech32Address}`
       }
       return testnetFaucetUrl
     }
