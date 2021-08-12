@@ -20,12 +20,13 @@
           </ul>
         </li>
         <explorer-link />
+        <testnet-wallet-link v-if="isTestnet" class="ml-3"/>
         <a
           href="#"
-          v-if="isTestnetOrIsolatedServer"
+          v-if="isIsolatedServer"
           @click="handleOpenFaucet"
           class="ml-3"
-        >Zilliqa Faucet</a>
+        >Faucet</a>
       </div>
       <div class="details d-flex">
         <account-balance />
@@ -41,6 +42,7 @@ import NetworkSelector from "./NetworkSelector";
 import AccountSelector from "./AccountSelector";
 import AccountBalance from "./AccountBalance";
 import ExplorerLink from "../UI/ExplorerLink";
+import TestnetWalletLink from "../UI/TestnetWalletLink";
 
 import { mapGetters } from "vuex";
 
@@ -51,15 +53,15 @@ export default {
     AccountSelector,
     AccountBalance,
     ExplorerLink,
+    TestnetWalletLink,
   },
   computed: {
     ...mapGetters("networks", { selectedNetwork: "selected" }),
-    isTestnetOrIsolatedServer() {
-      if (this.selectedNetwork.url !== "https://api.zilliqa.com") {
-        return true;
-      }
-
-      return false;
+    isIsolatedServer() {
+      return this.selectedNetwork.url === process.env.VUE_APP_ISOLATED_URL
+    },
+    isTestnet() {
+      return this.selectedNetwork.url === 'https://dev-api.zilliqa.com'
     },
   },
   methods: {
