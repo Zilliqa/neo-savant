@@ -186,7 +186,7 @@ import AddressDisplay from "../UI/AddressDisplay";
 import ExplorerLink from "../UI/ExplorerLink";
 import LedgerInterface from "@/utils/ledger-interface";
 import VueJsonPretty from "vue-json-pretty";
-import TransportU2F from "@ledgerhq/hw-transport-u2f";
+import TransportWebUsb from "@ledgerhq/hw-transport-webusb";
 import { BN, bytes, Long, units, validation } from "@zilliqa-js/util";
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { mapGetters } from "vuex";
@@ -285,8 +285,8 @@ export default {
     async handleLedgerSign(tx) {
       try {
         this.error = false;
-        this.loading = "Trying to create U2F transport.";
-        const transport = await TransportU2F.create();
+        this.loading = "Trying to create WebUSB transport.";
+        const transport = await TransportWebUsb.create();
         this.loading = "Connect your Ledger Device and open Zilliqa App.";
         this.ledger = new LedgerInterface(transport);
 
