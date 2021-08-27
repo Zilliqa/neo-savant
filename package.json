@@ -10,6 +10,7 @@
   "dependencies": {
     "@ledgerhq/hw-transport-u2f": "^5.13.1",
     "@ledgerhq/hw-transport-webauthn": "^5.15.0",
+    "@ledgerhq/hw-transport-webusb": "^6.3.0",
     "@zilliqa-js/contract": "^2.2.0",
     "@zilliqa-js/crypto": "^2.2.0",
     "@zilliqa-js/util": "^2.2.0",
