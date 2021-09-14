@@ -194,6 +194,7 @@
 import { BN, units } from "@zilliqa-js/util";
 import LedgerInterface from "@/utils/ledger-interface";
 import TransportWebUsb from "@ledgerhq/hw-transport-webusb";
+import TransportU2F from "@ledgerhq/hw-transport-u2f";
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { mapGetters } from "vuex";
 import { fromBech32Address } from "@zilliqa-js/crypto";
@@ -271,14 +272,17 @@ export default {
 
       this.loading = "Trying to create WebUSB transport.";
 
-      transport = await TransportWebUsb.create();
+      if (await TransportWebUsb.isSupported()) {
+        transport = await TransportWebUsb.create();
+      } else {
+        transport = await TransportU2F.create();
+      }
 
       this.loading = "Trying to initialize Ledger Transport";
       const zil = new LedgerInterface(transport);
       console.log(zil);
       this.loading = "Please confirm action on Ledger Device";
       const address = await zil.getPublicAddress(this.currentIndex + 1);
-      console.log(address);
       if (this.zilliqa === undefined) {
         this.zilliqa = new Zilliqa(this.network.url);
       }

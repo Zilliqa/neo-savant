@@ -187,6 +187,7 @@ import ExplorerLink from "../UI/ExplorerLink";
 import LedgerInterface from "@/utils/ledger-interface";
 import VueJsonPretty from "vue-json-pretty";
 import TransportWebUsb from "@ledgerhq/hw-transport-webusb";
+import TransportU2F from "@ledgerhq/hw-transport-u2f";
 import { BN, bytes, Long, units, validation } from "@zilliqa-js/util";
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { mapGetters } from "vuex";
@@ -284,9 +285,14 @@ export default {
     },
     async handleLedgerSign(tx) {
       try {
+        let transport = null;
         this.error = false;
         this.loading = "Trying to create WebUSB transport.";
-        const transport = await TransportWebUsb.create();
+        if (await TransportWebUsb.isSupported()) {
+          transport = await TransportWebUsb.create();
+        } else {
+          transport = await TransportU2F.create();
+        }
         this.loading = "Connect your Ledger Device and open Zilliqa App.";
         this.ledger = new LedgerInterface(transport);
 
@@ -561,8 +567,7 @@ export default {
           return ret;
         });
 
-
-        let contractAddress = this.contractId
+        let contractAddress = this.contractId;
         if (validation.isBech32(this.contractId)) {
           contractAddress = fromBech32Address(this.contractId);
         }

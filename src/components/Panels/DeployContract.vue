@@ -81,6 +81,7 @@ import TransactionParameters from "@/components/Inputs/TransactionParameters";
 import ExplorerLink from "@/components/UI/ExplorerLink";
 import LedgerInterface from "@/utils/ledger-interface";
 import TransportWebUsb from "@ledgerhq/hw-transport-webusb";
+import TransportU2F from "@ledgerhq/hw-transport-u2f";
 import VueJsonPretty from "vue-json-pretty";
 import { BN, bytes, Long, units } from "@zilliqa-js/util";
 import { Zilliqa } from "@zilliqa-js/zilliqa";
@@ -210,10 +211,14 @@ export default {
       try {
         let transport = null;
 
-        this.loading = "Trying to create WebAuthn transport.";
+        this.error = false;
+        this.loading = "Trying to create WebUSB transport.";
 
-        this.loading = "Trying to create U2F transport.";
-        transport = await TransportWebUsb.create();
+        if (await TransportWebUsb.isSupported()) {
+          transport = await TransportWebUsb.create();
+        } else {
+          transport = await TransportU2F.create();
+        }
 
         this.loading = "Connect your Ledger Device and open Zilliqa App.";
         this.ledger = new LedgerInterface(transport);
