@@ -17,13 +17,13 @@ import { validation } from "@zilliqa-js/util";
 
 const getParamType = ({ type }) => {
     const regex = /(?<List>List (.+))|(?<ByStr20>ByStr20)|(?<String>String)|(?<ByStr>ByStr)(\d{1,})?|(?<Uint>Uint)\d{1,}|(?<Int>Int)\d{1,}|(?<BNum>BNum)/;
-    
+
     const res = type.match(regex);
     let foundType = null;
+    let custom = false;
 
     if (res !== null) {
         const results = res.groups;
-
 
         for (let key in results) {
             if (results[key] !== undefined) {
@@ -31,8 +31,18 @@ const getParamType = ({ type }) => {
                 break;
             }
         }
+
+        if (res[0] !== res.input) {
+            foundType = res[0];
+            custom = true;
+        }
     }
-    return foundType;
+
+    return {
+        initial: type,
+        parsed: foundType,
+        custom
+    };
 }
 
 const validateParam = ({ type, value }) => {
