@@ -2,7 +2,11 @@
   <div class="account-selector panel-content">
     <div class="header">
       <div class="title">Import account on {{ network.name }}</div>
-      <img src="@/assets/close-color.svg" @click="handleClose" class="close-button-new" />
+      <img
+        src="@/assets/close-color.svg"
+        @click="handleClose"
+        class="close-button-new"
+      />
     </div>
 
     <div class="body p-4">
@@ -10,7 +14,7 @@
         <div
           class="type-button"
           @click="handleTypeSelect('keystore')"
-          :class="{'active': type === 'keystore'}"
+          :class="{ active: type === 'keystore' }"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -37,7 +41,7 @@
         <div
           class="type-button"
           @click="handleTypeSelect('ledger')"
-          :class="{'active': type === 'ledger'}"
+          :class="{ active: type === 'ledger' }"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -54,7 +58,7 @@
         <div
           class="type-button"
           @click="handleTypeSelect('zilpay')"
-          :class="{'active': type === 'zilpay'}"
+          :class="{ active: type === 'zilpay' }"
         >
           <svg width="14" height="14" viewBox="0 0 14 14">
             <path
@@ -68,7 +72,9 @@
       <div class="import-form">
         <div class="mb-4" v-if="type === 'ledger'">
           <div class="account-selector">
-            <p class="mb-4 text-dark">Select the Ledger Account you want to proceed with</p>
+            <p class="mb-4 text-dark">
+              Select the Ledger Account you want to proceed with
+            </p>
             <table class="table table-sm">
               <thead>
                 <tr>
@@ -94,19 +100,28 @@
               <button
                 class="btn btn-secondary mr-4"
                 @click="generateLedgerAccount"
-              >Generate #{{ currentIndex + 1 }}</button>
+              >
+                Generate #{{ currentIndex + 1 }}
+              </button>
 
               <button
                 class="btn btn-success"
                 @click="useLedgerAccount(0)"
                 v-if="accounts.length >= 1"
-              >Use #0</button>
+              >
+                Use #0
+              </button>
             </div>
           </div>
         </div>
 
         <div class="mb-4" v-if="type === 'zilpay'">
-          <button class="btn btn-primary btn-block" @click="handleConnectZilPay">connect</button>
+          <button
+            class="btn btn-primary btn-block"
+            @click="handleConnectZilPay"
+          >
+            connect
+          </button>
         </div>
 
         <div class="mb-4" v-if="type === 'keystore'">
@@ -114,7 +129,11 @@
             <label class="d-block">Select your keystore.json file</label>
             <div class="file-text">
               <button
-                class="btn btn-secondary btn-block btn-outline text-secondary mb-2"
+                class="
+                  btn btn-secondary btn-block btn-outline
+                  text-secondary
+                  mb-2
+                "
                 @click="$refs.file.click()"
               >
                 <i class="fas fa-file-upload"></i> Browse
@@ -122,9 +141,16 @@
               <div
                 class="selected-file"
                 v-if="selected !== undefined && selected.name !== undefined"
-              >{{ selected.name }}</div>
+              >
+                {{ selected.name }}
+              </div>
             </div>
-            <input type="file" ref="file" @change="onFileChange" class="d-none" />
+            <input
+              type="file"
+              ref="file"
+              @change="onFileChange"
+              class="d-none"
+            />
           </div>
 
           <div>
@@ -146,7 +172,10 @@
         </div>
 
         <div class="buttons d-flex" v-if="type !== 'zilpay'">
-          <button class="btn btn-light text-danger text-small mr-2" @click="handleClose">
+          <button
+            class="btn btn-light text-danger text-small mr-2"
+            @click="handleClose"
+          >
             <small>Cancel</small>
           </button>
           <button class="btn btn-primary btn-block" @click="handleImport">
@@ -164,8 +193,8 @@
 <script>
 import { BN, units } from "@zilliqa-js/util";
 import LedgerInterface from "@/utils/ledger-interface";
+import TransportWebUsb from "@ledgerhq/hw-transport-webusb";
 import TransportU2F from "@ledgerhq/hw-transport-u2f";
-import TransportWebAuthn from "@ledgerhq/hw-transport-webauthn";
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { mapGetters } from "vuex";
 import { fromBech32Address } from "@zilliqa-js/crypto";
@@ -182,14 +211,14 @@ export default {
       loading: false,
       zilliqa: undefined,
       currentIndex: -1,
-      accounts: []
+      accounts: [],
     };
   },
   mixins: [ZilPayMixin],
   computed: {
     ...mapGetters("networks", { network: "selected" }),
     ...mapGetters("networks", ["list"]),
-    ...mapGetters("accounts", { acountsList: "list" })
+    ...mapGetters("accounts", { acountsList: "list" }),
   },
   methods: {
     handleClose() {
@@ -241,17 +270,17 @@ export default {
     async generateLedgerAccount() {
       let transport = null;
 
-      this.loading = "Trying to create WebAuthn transport.";
-      const isWebAuthn = await TransportWebAuthn.isSupported();
-      if (isWebAuthn) {
-        transport = await TransportWebAuthn.create();
+      this.loading = "Trying to create WebUSB transport.";
+
+      if (await TransportWebUsb.isSupported()) {
+        transport = await TransportWebUsb.create();
       } else {
-        this.loading = "Trying to create U2F transport.";
         transport = await TransportU2F.create();
       }
 
       this.loading = "Trying to initialize Ledger Transport";
       const zil = new LedgerInterface(transport);
+      console.log(zil);
       this.loading = "Please confirm action on Ledger Device";
       const address = await zil.getPublicAddress(this.currentIndex + 1);
       if (this.zilliqa === undefined) {
@@ -263,7 +292,7 @@ export default {
           index: this.currentIndex + 1,
           address: fromBech32Address(address.pubAddr),
           publicKey: address.publicKey,
-          balance: 0
+          balance: 0,
         });
       } else {
         const zils = units.fromQa(
@@ -274,7 +303,7 @@ export default {
           index: this.currentIndex + 1,
           address: fromBech32Address(address.pubAddr),
           publicKey: address.publicKey,
-          balance: zils
+          balance: zils,
         });
       }
       this.currentIndex = this.currentIndex + 1;
@@ -288,7 +317,7 @@ export default {
           address: account.address,
           keystore: account.index,
           pubkey: account.publicKey,
-          type: "ledger"
+          type: "ledger",
         })
         .then(() => {
           window.EventBus.$emit("refresh-balance");
@@ -298,14 +327,14 @@ export default {
             type: "success",
             position: "bottom right",
             title: "Accounts",
-            text: "Account successfully imported"
+            text: "Account successfully imported",
           });
           this.importAccount = false;
           this.loading = false;
         });
       window.EventBus.$emit("login-success", {
         keystore: account.index,
-        address: account.address
+        address: account.address,
       });
       if (this.address !== null) {
         this.$emit("close-login");
@@ -335,7 +364,7 @@ export default {
           .dispatch("accounts/AddAccount", {
             address: address,
             keystore: this.file,
-            type: "keystore"
+            type: "keystore",
           })
           .then(() => {
             window.EventBus.$emit("refresh-balance");
@@ -345,7 +374,7 @@ export default {
               type: "success",
               position: "bottom right",
               title: "Accounts",
-              text: "Account successfully imported"
+              text: "Account successfully imported",
             });
             this.importAccount = false;
             this.loading = false;
@@ -356,8 +385,8 @@ export default {
         this.loading = false;
         this.error = error.message;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
