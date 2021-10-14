@@ -28,21 +28,21 @@
       <div v-else>
         <div class="row mb-4">
           <transaction-input
-            class="col-12 col-md-4"
+            class="col-12 mb-2"
             v-model="amount"
             :def="amount"
             name="Amount"
             type="Uint128"
           />
           <transaction-input
-            class="col-12 col-md-4"
+            class="col-12 mb-2"
             v-model="gasPrice"
             :def="gasPrice"
             name="Gas Price"
             type="Uint128"
           />
           <transaction-input
-            class="col-12 col-md-4"
+            class="col-12"
             v-model="gasLimit"
             :def="gasLimit"
             name="Gas Limit"
@@ -64,7 +64,7 @@
         <div class="row">
           <div class="col-12">
             <button class="btn btn-secondary btn-block" @click="handleGenerate">
-              Generate transaction
+              Generate tx for {{ file.name }}
             </button>
           </div>
         </div>

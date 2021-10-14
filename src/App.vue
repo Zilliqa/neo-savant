@@ -77,6 +77,7 @@ import { generateMultipleZilliqaAccounts } from "./utils/zilliqa";
 
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import ZilPayMixin from "@/mixins/zilpay";
+import TxWatcherMixin from "@/mixins/tx-watcher";
 
 export default {
   name: "App",
@@ -88,7 +89,7 @@ export default {
       bottomPanel: true,
     };
   },
-  mixins: [ZilPayMixin],
+  mixins: [ZilPayMixin, TxWatcherMixin],
   components: {
     LeftSidebar,
     Files,
@@ -115,6 +116,7 @@ export default {
     }),
     ...mapGetters("networks", { network: "selected", networksList: "list" }),
     ...mapGetters("contracts", { contracts: "list" }),
+    ...mapGetters("transactions", { transactionsWatcher: "watcherList" }),
   },
   methods: {
     handleToggleRightPanel(type) {
@@ -168,7 +170,16 @@ export default {
       }
     }
   },
+  watch: {
+    transactionsWatcher(transactionsList) {
+      this.TxWatcher(transactionsList);
+    },
+  },
   mounted() {
+    if (this.transactionsWatcher.length) {
+      this.TxWatcher(this.transactionsWatcher);
+    }
+
     window.EventBus.$on("close-right-panel", () => {
       this.rightPanel = false;
     });

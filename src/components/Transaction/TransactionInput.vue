@@ -1,6 +1,6 @@
 <template>
   <div class="input-contract">
-    <label class="flex-column align-items-start">
+    <label class="d-flex align-items-center">
       <div class="name">{{ name }}</div>
       <div class="type">
         <input-popover :type="type"></input-popover>

@@ -2,7 +2,7 @@
   <v-popover offset="16" trigger="click" placement="top">
     <!-- This will be the popover target (for the events and position) -->
     <a class="tooltip-target d-flex align-items-center">
-      <span>{{ type }}</span>
+      <span class="text-dark">{{ type }}</span>
       <img class="ml-1" src="@/assets/question.svg" />
     </a>
 

@@ -2,7 +2,7 @@
   <div class="nav-item">
     <a class="nav-link d-flex align-items-center" :class="{ active: selected }">
       <div class="file-name" @click="$emit('select-file')">
-        {{ item.name }}
+        {{ item.name }}.{{ item.ext }}
       </div>
       <div class="action ml-2">
         <img

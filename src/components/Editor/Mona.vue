@@ -1,6 +1,6 @@
 <template>
   <div class="editor">
-    <div class="actions-bar" v-if="file && !file.contractId">
+    <div class="actions-bar d-none" v-if="file && !file.contractId">
       <div class="d-flex justify-content-between align-items-center">
         <div class="buttons d-flex">
           <button class="btn btn-check mr-2 ml-2" @click="handleRunChecker">
@@ -20,7 +20,11 @@
       </div>
     </div>
     <tabs :changed="changed" v-if="file && !file.contractId" />
-    <div class="editor-inner" ref="editor"></div>
+    <div class="editor-inner" ref="editor">
+      <div class="alert alert-info" v-if="changed">
+        Remember to save your changes by pressing Ctrl / Cmd + S.
+      </div>
+    </div>
   </div>
 </template>
 
@@ -64,9 +68,10 @@ export default {
     async handleSave() {
       await this.$store.dispatch("files/UpdateCode", {
         id: this.file.id,
-        code: this.file.code,
+        code: this.editor.getValue(),
       });
       this.changed = false;
+      console.log("hs");
     },
     handleDeploy() {
       window.EventBus.$emit("open-deploy-contract", this.file);
@@ -188,7 +193,8 @@ export default {
       storage: ["let", "fun", "tfun", "type"],
       symbols: /[=><!~?:&|+\-*\/\^%]+/,
 
-      escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
+      escapes:
+        /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
       digits: /\d+(_+\d+)*/,
       octaldigits: /[0-7]+(_+[0-7]+)*/,
       binarydigits: /[0-1]+(_+[0-1]+)*/,
@@ -273,14 +279,12 @@ export default {
         const wordObject = model.getWordAtPosition(position);
         const map = {
           // keywords
-          let:
-            "**let:**  Give `f` the name `x` in the contract (`let x = f`). The binding of `x` to `f` is global and extends to the end of the contract.",
+          let: "**let:**  Give `f` the name `x` in the contract (`let x = f`). The binding of `x` to `f` is global and extends to the end of the contract.",
           contains:
             "**contains:**  In `contains m k` Is the key `k` associated with a value in the map `m`? Returns a `Bool`. The contains function is typically used in `library` functions.",
           delete:
             "**delete:** `delete m[k]` In-place remove operation, i.e., identical to `remove`, but without making a copy of `m`. `m` must refer to a contract field. Removal from nested maps is supported with the syntax `delete m[k1][k2][...]`. If any of the specified keys do not exist in the corresponding map, no action is taken. Note that in the case of a nested removal `delete m[k1][...][kn-1][kn]`, only the key-value association of `kn` is removed. The key-value bindings of `k` to `kn-1` will still exist.",
-          put:
-            "**put**: `put m k v` Insert a key `k` and a value `v` into a map `m`. Returns a new map which is a copy of the `m` but with `k` associated with `v`. The value of `m` is unchanged. The put function is typically used in library functions. Note that `put` makes a copy of `m` before inserting the key-value pair.",
+          put: "**put**: `put m k v` Insert a key `k` and a value `v` into a map `m`. Returns a new map which is a copy of the `m` but with `k` associated with `v`. The value of `m` is unchanged. The put function is typically used in library functions. Note that `put` makes a copy of `m` before inserting the key-value pair.",
           remove:
             "**remove m k:** `remove m k` Remove a key `k` and its associated value from the map `m`. Returns a new map which is a copy of `m` but with `k` being unassociated with a value. The value of m is unchanged. The remove function is typically used in library functions. Note that remove makes a copy of m before removing the key-value pair.",
           library:
@@ -293,10 +297,8 @@ export default {
             '**event:** `event e` Emit a message `e` as an event. The following code emits an event with name `e_name`. `e = { _eventname : "e_name"; <entry>_2 ; <entry>_3 }; event e`',
           field:
             "**field:** `field vname_1 : vtype_1 = expr_1` Mutable variables represent the mutable state of the contract. They are also called fields. They are declared after the immutable variables, with each declaration prefixed with the keyword `field`",
-          send:
-            '**send:** `send msgs` Send a list of messages `msgs` where msgs can be `msg = { _tag : "setHello"; _recipient : contractAddress; _amount : Uint128 0; param : Uint32 0 };`',
-          fun:
-            "*fun:* `fun (x : T) => expr` A function that takes an input x of type T and returns the value to which expression expr evaluates.",
+          send: '**send:** `send msgs` Send a list of messages `msgs` where msgs can be `msg = { _tag : "setHello"; _recipient : contractAddress; _amount : Uint128 0; param : Uint32 0 };`',
+          fun: "*fun:* `fun (x : T) => expr` A function that takes an input x of type T and returns the value to which expression expr evaluates.",
           transition:
             "**transition:** Transitions define the change in the state of the contract. These are defined with the keyword `transition` followed by the parameters to be passed. The definition ends with the `end` keyword. \n\n `transition foo (vname_1 : vtype_1, vname_2 : vtype_2, ...)	...	  end`",
           match:
@@ -319,8 +321,7 @@ export default {
           Int64: "`Int64`: 64 bit integer type",
           Int128: "`Int128`: 128 bit integer type",
           Int256: "`Int256`: 256 bit integer type",
-          Map:
-            "`Map`: A value of type `Map kt vt` provides a key-value store where `kt` is the type of keys and `vt` is the type of values.",
+          Map: "`Map`: A value of type `Map kt vt` provides a key-value store where `kt` is the type of keys and `vt` is the type of values.",
           True: "`True`: Value of Boolean type",
           False: "`False`: Value of Boolean type",
           ByStr20:
@@ -329,44 +330,29 @@ export default {
             "`ByStr32`: A hash in Scilla is declared using the data type `ByStr32`. A `ByStr32` represents a hexadecimal byte string of 32 bytes (64 hexadecimal characters). A `ByStr32` literal is prefixed with `0x`",
           ByStr64: "`ByStr64`: Used to declare digital signtures.",
           ByStr33: "`ByStr33`: Used to declare Schnorr public key",
-          BNum:
-            "`BNum`: Block numbers have a dedicated type `BNum` in Scilla. Variables of this type are specified with the keyword `BNum` followed by an integer value (for example `BNum 101`)",
+          BNum: "`BNum`: Block numbers have a dedicated type `BNum` in Scilla. Variables of this type are specified with the keyword `BNum` followed by an integer value (for example `BNum 101`)",
           Option:
             "`Optional`: Optional values are specified using the type `Option t`	, where `t` is some type. The `Option` ADT has two constructors:	Some represents the presence of a value. The `Some` constructor takes one argument (the `value`, of type `t`). `None` represents the absence of a value. The `None` constructor takes no arguments.",
-          None:
-            "`None`: Constructor from `Option`. Represents the absence of a value. The `None` constructor takes no arguments.",
+          None: "`None`: Constructor from `Option`. Represents the absence of a value. The `None` constructor takes no arguments.",
           Bool: "`Bool`: Boolean values are specified using the type Bool",
-          Some:
-            "`Some`: Constructor from `Option` takes one argument (the `value`, of type `t`)",
-          List:
-            "Lists of values are specified using the type List t, where t is some type. The List ADT has two constructors: Nil represents an empty list. The Nil constructor takes no arguments.	Cons represents a non-empty list. The Cons constructor takes two arguments: The first element of the list (of type t), and another list (of type List t) representing the rest of the list.	",
-          Cons:
-            "`Cons`: Represents a non-empty list. The `Cons` constructor takes two arguments: The first element of the list (of type `t`), and another list (of type `List t`) representing the rest of the list.",
-          Pair:
-            "Pairs of values are specified using the type `Pair t1 t2`, where `t1` and `t2` are types. The `Pair` ADT has one constructor:	`Pair` represents a pair of values. The Pair constructor takes two arguments, namely the two values of the pair, of types `t1` and `t2`, respectively.",
+          Some: "`Some`: Constructor from `Option` takes one argument (the `value`, of type `t`)",
+          List: "Lists of values are specified using the type List t, where t is some type. The List ADT has two constructors: Nil represents an empty list. The Nil constructor takes no arguments.	Cons represents a non-empty list. The Cons constructor takes two arguments: The first element of the list (of type t), and another list (of type List t) representing the rest of the list.	",
+          Cons: "`Cons`: Represents a non-empty list. The `Cons` constructor takes two arguments: The first element of the list (of type `t`), and another list (of type `List t`) representing the rest of the list.",
+          Pair: "Pairs of values are specified using the type `Pair t1 t2`, where `t1` and `t2` are types. The `Pair` ADT has one constructor:	`Pair` represents a pair of values. The Pair constructor takes two arguments, namely the two values of the pair, of types `t1` and `t2`, respectively.",
           type: "`type`: used to declare a type",
           scilla_version:
             "`scilla_version`: The contract starts with the declaration of `scilla_version`, which indicates which major Scilla version the contract uses.",
-          Zero:
-            "`Zero`: Represents the number `0`. The `Zero` constructor takes no arguments..",
-          Succ:
-            "`Succ`:  Represents the successor of another Peano number. The `Succ` constructor takes one argument (of type `Nat`) which represents the Peano number that is one less than the current number.",
+          Zero: "`Zero`: Represents the number `0`. The `Zero` constructor takes no arguments..",
+          Succ: "`Succ`:  Represents the successor of another Peano number. The `Succ` constructor takes one argument (of type `Nat`) which represents the Peano number that is one less than the current number.",
 
           //operations
-          eq:
-            "_eq_: Equality operator `builtin eq i1 i2` Is i1 equal to i2? Returns a Bool",
-          add:
-            "_add_: In `builtin add i1 i2` Add integer values i1 and i2. Returns an integer of the same type.",
-          sub:
-            "_sub_: `builtin sub i1 i2` Subtract `i2` from `i1`. Returns an integer of the same type.",
-          mul:
-            "_mul_: `builtin mul i1 i2`, Integer product of `i1` and `i2`. Returns an integer of the same type.",
-          div:
-            "_div_: `builtin div i1 i2` Integer division of `i1` by `i2`. Returns an integer of the same type.",
-          rem:
-            "_rem_: `builtin rem i1 i2`: The remainder of integer division of `i1` by `i2`. Returns an integer of the same type.",
-          lt:
-            "_lt_: `builtin lt i1 i2` Is `i1` less than `i2`? Returns a `Bool`",
+          eq: "_eq_: Equality operator `builtin eq i1 i2` Is i1 equal to i2? Returns a Bool",
+          add: "_add_: In `builtin add i1 i2` Add integer values i1 and i2. Returns an integer of the same type.",
+          sub: "_sub_: `builtin sub i1 i2` Subtract `i2` from `i1`. Returns an integer of the same type.",
+          mul: "_mul_: `builtin mul i1 i2`, Integer product of `i1` and `i2`. Returns an integer of the same type.",
+          div: "_div_: `builtin div i1 i2` Integer division of `i1` by `i2`. Returns an integer of the same type.",
+          rem: "_rem_: `builtin rem i1 i2`: The remainder of integer division of `i1` by `i2`. Returns an integer of the same type.",
+          lt: "_lt_: `builtin lt i1 i2` Is `i1` less than `i2`? Returns a `Bool`",
           blt: "_blt_: `blt b1 b2`, Is `b1` less than `b2`? Returns a `Bool`",
           in: "_in_: Used after the `let` keyword",
           substr:
@@ -381,8 +367,7 @@ export default {
             "_to_byStr_: `builtin to_byStr x` Convert a hash `x` of type ByStrX (for some known X) to one of arbitrary length of type `ByStr`",
           to_nat:
             "_to_nat_: `builtin to_nat i1`, Convert a value of type `Uint32` to the equivalent value of type `Nat`",
-          pow:
-            "_pow_: `builtin pow i1 i2`, `i1` raised to the power of `i2`. Returns an integer of the same type as `i1`",
+          pow: "_pow_: `builtin pow i1 i2`, `i1` raised to the power of `i2`. Returns an integer of the same type as `i1`",
           to_uint256:
             "_to_uint256_: `builtin to_uint256 x`, Convert a hash x to the equivalent value of type `Uint256`. x must be of type ByStrX for some known X less than or equal to 32",
           to_uint32:
@@ -417,6 +402,19 @@ export default {
       value: this.file.code,
       language: "scilla",
     });
+
+    const hs = this.handleSave;
+
+    this.editor.getModel().onDidChangeContent(() => {
+      this.changed = true;
+    });
+
+    this.editor.addCommand(
+      monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S,
+      async function () {
+        await hs();
+      }
+    );
   },
 };
 </script>
@@ -424,6 +422,17 @@ export default {
 <style lang="scss" scoped>
 .editor {
   height: calc(100% - 28px); // - tabs height
+  position: relative;
+
+  .alert {
+    font-size: 0.8rem;
+    padding: 0.5rem;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index:9999;
+    width: 100%;
+  }
 
   .ace_scrollbar.ace_scrollbar-h {
     display: none !important;

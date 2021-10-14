@@ -27,7 +27,7 @@
         </li>
         <explorer-link />
       </div>
-      <div class="details d-flex">
+      <div class="details d-none">
         <account-balance />
         <account-selector />
         <network-selector />

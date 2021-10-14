@@ -4,7 +4,7 @@
       <tab-item
         v-for="f in openFiles"
         :key="f.id"
-        :item="f"
+        :item="{ ...f, ext: 'scilla' }"
         :selected="selectedFile.id === f.id"
         :changed="changed && changed === f.id"
         v-on:select-file="handleSelectFile(f.id)"
