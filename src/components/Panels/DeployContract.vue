@@ -115,7 +115,7 @@ import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { mapGetters } from "vuex";
 import axios from "axios";
 
-import { validateParams, getParamType } from "@/utils/validation.js";
+import { validateParams } from "@/utils/validation.js";
 import ZilPayMixin from "@/mixins/zilpay";
 
 const MAX_TRIES = 120;
@@ -450,15 +450,11 @@ export default {
           // eslint-disable-next-line no-empty
         } catch (e) {}
 
-        const validatedType = getParamType({ type: item.type });
-
         return {
           vname: item.vname,
-          type:
-            validatedType.parsed !== validatedType.initial &&
-            validatedType.parsed === "ByStr20"
-              ? validatedType.parsed
-              : item.type,
+          type: item.type.includes("ByStr")
+            ? item.type.split(" ").shift()
+            : item.type,
           value: val,
         };
       });

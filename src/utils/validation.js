@@ -19,8 +19,7 @@ const getParamType = ({ type }) => {
     const regex = /(?<List>List (.+))|(?<ByStr20>ByStr20)|(?<String>String)|(?<ByStr>ByStr)(\d{1,})?|(?<Uint>Uint)\d{1,}|(?<Int>Int)\d{1,}|(?<BNum>BNum)/;
 
     const res = type.match(regex);
-    let foundType = null;
-    let custom = false;
+    let foundType = undefined;
 
     if (res !== null) {
         const results = res.groups;
@@ -34,15 +33,10 @@ const getParamType = ({ type }) => {
 
         if (res[0] !== res.input) {
             foundType = res[0];
-            custom = true;
         }
     }
 
-    return {
-        initial: type,
-        parsed: foundType,
-        custom
-    };
+    return foundType
 }
 
 const validateParam = ({ type, value }) => {
