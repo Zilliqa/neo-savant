@@ -1,20 +1,32 @@
 <template>
   <div class="panel-content">
     <div class="header">
-      <div class="title">Deploy {{file.name}}.scilla</div>
-      <img src="@/assets/close-color.svg" @click="handleClose" class="close-button-new" />
+      <div class="title">Deploy {{ file.name }}.scilla</div>
+      <img
+        src="@/assets/close-color.svg"
+        @click="handleClose"
+        class="close-button-new"
+      />
     </div>
     <div class="body p-4">
-      <div class="alert alert-info" v-if="abi === undefined">Loading contract ABI</div>
+      <div class="alert alert-info" v-if="abi === undefined">
+        Loading contract ABI
+      </div>
 
       <div class="deploy-form" v-if="abi && !signedTx">
-        <transaction-parameters v-on:input="onTransactionParameters"></transaction-parameters>
+        <transaction-parameters
+          v-on:input="onTransactionParameters"
+        ></transaction-parameters>
         <!-- Initialization parameters -->
         <div class="row mb-4">
           <div class="col-12">
             <p class="font-weight-bold">Initialization parameters</p>
           </div>
-          <div class="col-12 mb-4" v-for="param in abi.params" :key="param.vname">
+          <div
+            class="col-12 mb-4"
+            v-for="param in abi.params"
+            :key="param.vname"
+          >
             <contract-input
               :error="param.validationErrors"
               :vname="param.vname"
@@ -30,11 +42,18 @@
           <div class="col-12 mb-4" v-if="account.type === 'keystore'">
             <div>
               <label>Enter your passphrase</label>
-              <input type="password" v-model="passphrase" class="form-control" />
+              <input
+                type="password"
+                v-model="passphrase"
+                class="form-control"
+              />
             </div>
           </div>
           <div class="col-12 d-flex" v-if="!loading">
-            <button class="btn btn-light text-danger text-small mr-2" @click="resetComponent">
+            <button
+              class="btn btn-light text-danger text-small mr-2"
+              @click="resetComponent"
+            >
               <small>Reset</small>
             </button>
             <button class="btn btn-primary btn-block" @click="handleDeploy">
@@ -46,10 +65,10 @@
       </div>
 
       <div class="alert alert-info" v-if="loading">
-        {{loading}}
+        {{ loading }}
         <i class="fas fa-spin fa-spinner"></i>
       </div>
-      <div class="alert alert-danger" v-if="error">{{error}}</div>
+      <div class="alert alert-danger" v-if="error">{{ error }}</div>
 
       <div class="alert" v-if="signedTx">
         <p class="font-weight-bold">Transaction ID</p>
@@ -59,16 +78,24 @@
         <p class="font-weight-bold mt-4">Receipt</p>
         <div
           class="alert"
-          :class="{'alert-success': signedTx.receipt.success === true, 'alert-danger': signedTx.receipt.success === false}"
-          style="overflow-x:scroll;"
+          :class="{
+            'alert-success': signedTx.receipt.success === true,
+            'alert-danger': signedTx.receipt.success === false,
+          }"
+          style="overflow-x: scroll"
         >
           <vue-json-pretty :data="signedTx.receipt"></vue-json-pretty>
         </div>
       </div>
 
-      <div class="alert alert-danger" v-if="signedTx && signedTx.receipt.errors.length">
+      <div
+        class="alert alert-danger"
+        v-if="signedTx && signedTx.receipt.errors.length"
+      >
         <ul>
-          <li v-for="err in signedTx.receipt.errors[0]" :key="err">{{ possibleErrors[err] }}</li>
+          <li v-for="err in signedTx.receipt.errors[0]" :key="err">
+            {{ possibleErrors[err] }}
+          </li>
         </ul>
       </div>
     </div>
@@ -80,6 +107,7 @@ import ContractInput from "@/components/Inputs/ContractInput";
 import TransactionParameters from "@/components/Inputs/TransactionParameters";
 import ExplorerLink from "@/components/UI/ExplorerLink";
 import LedgerInterface from "@/utils/ledger-interface";
+import TransportWebUsb from "@ledgerhq/hw-transport-webusb";
 import TransportU2F from "@ledgerhq/hw-transport-u2f";
 import VueJsonPretty from "vue-json-pretty";
 import { BN, bytes, Long, units } from "@zilliqa-js/util";
@@ -163,9 +191,10 @@ export default {
         try {
           const txn = await this.zilliqa.blockchain.getTransaction(this.txId);
           if (txn.receipt) {
-            const contractAddress = await this.zilliqa.blockchain.getContractAddressFromTransactionID(
-              this.txId
-            );
+            const contractAddress =
+              await this.zilliqa.blockchain.getContractAddressFromTransactionID(
+                this.txId
+              );
             if (contractAddress.result) {
               this.loading = false;
               const contract = {
@@ -210,10 +239,14 @@ export default {
       try {
         let transport = null;
 
-        this.loading = "Trying to create WebAuthn transport.";
+        this.error = false;
+        this.loading = "Trying to create WebUSB transport.";
 
-        this.loading = "Trying to create U2F transport.";
-        transport = await TransportU2F.create();
+        if (await TransportWebUsb.isSupported()) {
+          transport = await TransportWebUsb.create();
+        } else {
+          transport = await TransportU2F.create();
+        }
 
         this.loading = "Connect your Ledger Device and open Zilliqa App.";
         this.ledger = new LedgerInterface(transport);
@@ -419,7 +452,9 @@ export default {
 
         return {
           vname: item.vname,
-          type: item.type,
+          type: item.type.includes("ByStr")
+            ? item.type.split(" ").shift()
+            : item.type,
           value: val,
         };
       });
