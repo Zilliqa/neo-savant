@@ -2,16 +2,16 @@
   <div class="contracts-list">
     <div
       class="list-item"
-      v-for="contract in list"
-      :key="contract.id"
+      v-for="tx in list"
+      :key="tx.id"
       :class="{
-        selected: selected && contract.contractId === selected.contractId,
+        selected: selected && tx.id === selected.id,
       }"
     >
-      <contract-name
-        :contract="contract"
+      <tx-row
+        :tx="tx"
         v-on:select-contract="handleSelect"
-        :selected="selected && contract.contractId === selected.contractId"
+        :selected="selected && tx.id === selected.id"
       />
     </div>
   </div>
@@ -19,14 +19,14 @@
 
 <script>
 import { mapGetters } from "vuex";
-import ContractName from "./ContractName";
+import TxRow from "./TxRow";
 
 export default {
-  name: "ContractsList",
+  name: "TransactionsList",
   data() {
     return {};
   },
-  components: { ContractName },
+  components: { TxRow },
   computed: {
     ...mapGetters("transactions", ["selected", "list"]),
   },
