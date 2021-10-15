@@ -564,7 +564,14 @@ export default {
           } catch (error) {
             ret = { vname: item.vname, value: item.value, type: item.type };
           }
-          return ret;
+
+          return {
+            vname: ret.vname,
+            value: ret.value,
+            type: ret.type.includes("ByStr")
+              ? ret.type.split(" ").shift()
+              : ret.type,
+          };
         });
 
         let contractAddress = this.contractId;
