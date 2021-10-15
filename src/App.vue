@@ -199,7 +199,7 @@ export default {
       this.rightPanel = false;
     });
 
-    window.EventBus.$on("open-call-contract", ({ contractId }) => {
+    window.EventBus.$on("open-deployed-contract", ({ contractId }) => {
       this.callContract = contractId;
       this.rightPanel = "callContract";
     });
