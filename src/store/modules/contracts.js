@@ -28,7 +28,7 @@ const actions = {
             throw Error('Contract does not exist on network.');
         }
 
-        commit('files/unselect', null, { root: true })
+        // commit('files/unselect', null, { root: true })
         commit('select', contract);
     },
     AddContract({ commit, state, rootGetters, dispatch }, contract) {

@@ -1,28 +1,25 @@
 <template>
   <div class="editor">
-    <div class="actions-bar d-none" v-if="file && !file.contractId">
-      <div class="d-flex justify-content-between align-items-center">
-        <div class="buttons d-flex">
-          <button class="btn btn-check mr-2 ml-2" @click="handleRunChecker">
-            <img src="@/assets/survey.svg" /> CHECK
-          </button>
-          <button class="btn btn-link mr-2" @click="handleDeploy">
-            <img src="@/assets/send.svg" /> DEPLOY
-          </button>
-
-          <button class="btn btn-link" v-if="changed" @click="handleSave">
-            <img src="@/assets/save.svg" /> SAVE
-          </button>
-        </div>
-        <div class="message d-flex align-items-center" v-if="changed">
-          Remember to save changes
+    <tabs :changed="changed" />
+    <div class="editors">
+      <div class="editor-inner" ref="editor2">
+        <div class="alert alert-info text-small">
+          Deployed contract is readonly.
         </div>
       </div>
-    </div>
-    <tabs :changed="changed" v-if="file && !file.contractId" />
-    <div class="editor-inner" ref="editor">
-      <div class="alert alert-info" v-if="changed">
-        Remember to save your changes by pressing Ctrl / Cmd + S.
+      <div class="editor-inner" ref="editor">
+        <div class="d-none" v-if="changed">
+          Remember to save your changes by pressing Ctrl / Cmd + S.
+
+          <button
+            type="button"
+            class="close"
+            data-dismiss="alert"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -39,6 +36,10 @@ import scillaChecker from "@/mixins/scilla-checker";
 export default {
   props: {
     file: {
+      type: Object,
+      default: undefined,
+    },
+    secondFile: {
       type: Object,
       default: undefined,
     },
@@ -71,7 +72,6 @@ export default {
         code: this.editor.getValue(),
       });
       this.changed = false;
-      console.log("hs");
     },
     handleDeploy() {
       window.EventBus.$emit("open-deploy-contract", this.file);
@@ -415,6 +415,18 @@ export default {
         await hs();
       }
     );
+
+    if (this.secondFile && this.secondFile.code) {
+      monaco.editor.create(this.$refs.editor2, {
+        theme: "scillaLight",
+        value: this.secondFile.code,
+        language: "scilla",
+        minimap: {
+          enabled: false,
+        },
+        readOnly: true,
+      });
+    }
   },
 };
 </script>
@@ -424,13 +436,21 @@ export default {
   height: calc(100% - 28px); // - tabs height
   position: relative;
 
-  .alert {
+  .editors {
+    width: 100%;
+    height: calc(100% - 28px); // - tabs height
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .alert-2 {
     font-size: 0.8rem;
     padding: 0.5rem;
     position: absolute;
     top: 0;
     right: 0;
-    z-index:9999;
+    z-index: 9999;
     width: 100%;
   }
 

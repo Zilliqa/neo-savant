@@ -201,6 +201,7 @@ export default {
 
     window.EventBus.$on("open-deployed-contract", ({ contractId }) => {
       this.callContract = contractId;
+      this.$store.dispatch("contracts/SelectContract", { contractId });
       this.rightPanel = "callContract";
     });
 
