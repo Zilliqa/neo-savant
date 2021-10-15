@@ -280,7 +280,6 @@ export default {
 
       this.loading = "Trying to initialize Ledger Transport";
       const zil = new LedgerInterface(transport);
-      console.log(zil);
       this.loading = "Please confirm action on Ledger Device";
       const address = await zil.getPublicAddress(this.currentIndex + 1);
       if (this.zilliqa === undefined) {
