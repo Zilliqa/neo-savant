@@ -3,7 +3,7 @@
     <label>
       <span class="name">Account</span>
     </label>
-    <div class="d-flex">
+    <div class="d-flex mb-2">
       <div class="select-container mr-2">
         <select class="form-control alt" @change="handleSelect">
           <option value="undefined" :selected="selected === undefined">
@@ -32,16 +32,21 @@
 
       <button class="btn btn-outline-secondary">+</button>
     </div>
+    <div class="d-flex" v-if="selected && selected.address">
+      Balance: <AccountBalance class="ml-2" :address="selected.address" />
+    </div>
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
 import CopyToClipboard from "@/components/UI/CopyToClipboard";
+import AccountBalance from "@/components/UI/AccountBalance";
 
 export default {
   components: {
     CopyToClipboard,
+    AccountBalance,
   },
   methods: {
     async handleSelect(ev) {
