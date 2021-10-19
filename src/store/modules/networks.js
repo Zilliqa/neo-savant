@@ -19,7 +19,6 @@ const state = {
         {
             name: 'Simulated ENV',
             url: process.env.VUE_APP_ISOLATED_URL,
-            faucet: process.env.VUE_APP_ISOLATED_FAUCET,
             type: 'default',
             chainId: 222,
             msgVersion: 1
@@ -27,7 +26,6 @@ const state = {
         {
             name: 'Testnet',
             url: 'https://dev-api.zilliqa.com',
-            faucet: process.env.VUE_APP_TESTNET_FAUCET,
             type: 'default',
             chainId: 333,
             msgVersion: 1
