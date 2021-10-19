@@ -13,16 +13,19 @@ import { mapGetters } from "vuex";
 import { toBech32Address } from "@zilliqa-js/crypto";
 
 export default {
-  name: "TestnetWalletLink",
+  name: "FaucetLink",
   computed: {
     ...mapGetters("accounts", { account: "selected" }),
+    ...mapGetters("networks", { network: "selected", networksList: "list" }),
     link() {
-      const testnetFaucetUrl = 'https://dev-wallet.zilliqa.com/faucet'
+      // the possible chain IDs for the faucet service: 222, 333
+      const network = this.network.chainId === 222 ? 'isolated_server' : 'testnet';
+      const url = 'https://dev-wallet.zilliqa.com/faucet'
       if (this.account && this.account.address) {
         const bech32Address = toBech32Address(this.account.address)
-        return testnetFaucetUrl+ `?address=${bech32Address}`
+        return url+ `?address=${bech32Address}&network=${network}`
       }
-      return testnetFaucetUrl
+      return url
     }
   }
 };

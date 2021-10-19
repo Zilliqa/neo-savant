@@ -21,10 +21,6 @@
               <input type="text" v-model="url" class="form-control" />
             </div>
             <div class="col-12 mb-4">
-              <label>Faucet address</label>
-              <input type="text" v-model="faucet" class="form-control" />
-            </div>
-            <div class="col-12 mb-4">
               <label>Chain ID</label>
               <input
                 type="text"
@@ -70,7 +66,6 @@ export default {
     return {
       name: undefined,
       url: undefined,
-      faucet: undefined,
       chainId: 1,
       msgVersion: 1,
       loading: false,
@@ -95,7 +90,7 @@ export default {
       this.name = "";
     },
     handleImport() {
-      if (!this.name || !this.faucet || !this.url) {
+      if (!this.name || !this.url) {
         return;
       }
 
@@ -103,7 +98,6 @@ export default {
         .dispatch("networks/AddNetwork", {
           name: this.name,
           url: this.url,
-          faucet: this.faucet,
           chainId: parseInt(this.chainId),
           type: "custom",
           msgVersion: parseInt(this.msgVersion),
