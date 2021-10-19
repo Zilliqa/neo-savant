@@ -18,7 +18,7 @@ export default {
     ...mapGetters("accounts", { account: "selected" }),
     ...mapGetters("networks", { network: "selected", networksList: "list" }),
     link() {
-      console.log(this.network.chainId)
+      // the possible chain IDs for the faucet service: 222, 333
       const network = this.network.chainId === 222 ? 'isolated_server' : 'testnet';
       const url = 'https://dev-wallet.zilliqa.com/faucet'
       if (this.account && this.account.address) {
