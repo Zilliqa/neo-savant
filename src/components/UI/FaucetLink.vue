@@ -20,12 +20,12 @@ export default {
     link() {
       // the possible chain IDs for the faucet service: 222, 333
       const network = this.network.chainId === 222 ? 'isolated_server' : 'testnet';
-      const url = 'https://dev-wallet.zilliqa.com/faucet'
+      const url = process.env.VUE_APP_FAUCET_URL
       if (this.account && this.account.address) {
         const bech32Address = toBech32Address(this.account.address)
         return url+ `?address=${bech32Address}&network=${network}`
       }
-      return url
+      return url+`?network=${network}`
     }
   }
 };
