@@ -20,7 +20,7 @@
           </ul>
         </li>
         <explorer-link />
-        <faucet-link class="ml-3"/>
+        <faucet-link v-if="isFaucetAvailable" class="ml-3"/>
       </div>
       <div class="details d-flex">
         <account-balance />
@@ -51,11 +51,9 @@ export default {
   },
   computed: {
     ...mapGetters("networks", { selectedNetwork: "selected" }),
-    isIsolatedServer() {
-      return this.selectedNetwork.url === process.env.VUE_APP_ISOLATED_URL
-    },
-    isTestnet() {
-      return this.selectedNetwork.url === 'https://dev-api.zilliqa.com'
+    isFaucetAvailable() {
+      const allowList = [222, 333];
+      return allowList.includes(this.selectedNetwork.chainId);
     },
   },
   methods: {
