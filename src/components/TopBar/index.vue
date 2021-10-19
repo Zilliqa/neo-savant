@@ -20,13 +20,7 @@
           </ul>
         </li>
         <explorer-link />
-        <testnet-wallet-link v-if="isTestnet" class="ml-3"/>
-        <a
-          href="#"
-          v-if="isIsolatedServer"
-          @click="handleOpenFaucet"
-          class="ml-3"
-        >Faucet</a>
+        <faucet-link class="ml-3"/>
       </div>
       <div class="details d-flex">
         <account-balance />
@@ -42,7 +36,7 @@ import NetworkSelector from "./NetworkSelector";
 import AccountSelector from "./AccountSelector";
 import AccountBalance from "./AccountBalance";
 import ExplorerLink from "../UI/ExplorerLink";
-import TestnetWalletLink from "../UI/TestnetWalletLink";
+import FaucetLink from "../UI/FaucetLink";
 
 import { mapGetters } from "vuex";
 
@@ -53,7 +47,7 @@ export default {
     AccountSelector,
     AccountBalance,
     ExplorerLink,
-    TestnetWalletLink,
+    FaucetLink,
   },
   computed: {
     ...mapGetters("networks", { selectedNetwork: "selected" }),
@@ -67,10 +61,7 @@ export default {
   methods: {
     handleOpenTools(toolName) {
       window.EventBus.$emit("open-tools", toolName);
-    },
-    handleOpenFaucet() {
-      window.EventBus.$emit("open-faucet");
-    },
+    }
   },
 };
 </script>
