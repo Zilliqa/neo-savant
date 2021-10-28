@@ -10,16 +10,32 @@
       <small class="mx-1">@</small>
       <address-display :address="event.address"></address-display>
     </p>
-    <vue-json-pretty :data="event.params" />
+    <MonacoEditor
+      class="editor mb-4"
+      :value="JSON.stringify(event.params, null, 2)"
+      :options="monacoOptions"
+      language="json"
+    />
   </div>
 </template>
 
 <script>
-import VueJsonPretty from "vue-json-pretty";
 import AddressDisplay from "@/components/UI/AddressDisplay";
+import MonacoEditor from "vue-monaco";
 export default {
+  data() {
+    return {
+      monacoOptions: {
+        minimap: {
+          enabled: false,
+        },
+        lineNumbers: false,
+        readOnly: true,
+      },
+    };
+  },
   props: ["event"],
-  components: { VueJsonPretty, AddressDisplay },
+  components: { MonacoEditor, AddressDisplay },
 };
 </script>
 
@@ -30,6 +46,8 @@ export default {
   position: relative;
   transition: all 0.25s ease-in-out;
   z-index: 999;
+  width: 100%;
+  height: 300px;
 
   .item-header {
     border-bottom: 1px dashed #ccc;

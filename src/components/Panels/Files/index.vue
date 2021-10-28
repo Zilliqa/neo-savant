@@ -1,38 +1,33 @@
 <template>
   <div class="panel files-list">
     <div
-      class="header text-primary d-flex justify-content-between align-items-center"
+      class="
+        header
+        text-primary
+        d-flex
+        justify-content-between
+        align-items-center
+      "
     >
       FILES
       <img src="@/assets/plus.svg" class="img-button" />
     </div>
     <div class="list panel-body">
-      <div
-        class="list-item py-1"
-        :class="{ selected: selected && selected.id === file.id }"
-        v-for="file in list"
-        :key="file.id"
-      >
-        <file-name
-          :file="file"
-          v-on:select-file="handleSelect"
-          :selected="selected && selected.id === file.id"
-        />
-      </div>
+      <tree-view
+        :treeData="{ name: 'Files List', children: list, root: true }"
+        :selectedFile="selected"
+      />
     </div>
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
-import FileName from "./FileName";
+import TreeView from "./TreeView";
 
 export default {
   name: "FilesList",
-  data() {
-    return {};
-  },
-  components: { FileName },
+  components: { TreeView },
   computed: {
     ...mapGetters("files", ["selected", "list"]),
   },
@@ -41,9 +36,6 @@ export default {
       this.$store.dispatch("files/CreateFile").then((id) => {
         this.$store.dispatch("files/SelectFile", { id });
       });
-    },
-    handleSelect(id) {
-      this.$store.dispatch("files/SelectFile", { id });
     },
   },
 };
