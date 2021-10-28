@@ -28,7 +28,16 @@ const actions = {
             throw Error('Contract does not exist on network.');
         }
 
-        // commit('files/unselect', null, { root: true })
+        const filesOpened = rootGetters['files/open'];
+
+        const alreadyOpen = filesOpened.find(item => item.id === contract.contractId);
+
+        if (alreadyOpen !== undefined) {
+            commit('files/select', { id: contract.contractId, name: contract.file_name, code: contract.code, type: 'contract' }, { root: true })
+        } else {
+            commit('files/open', { id: contract.contractId, name: contract.file_name, code: contract.code, type: 'contract' }, { root: true })
+        }
+
         commit('select', contract);
     },
     AddContract({ commit, state, rootGetters, dispatch }, contract) {

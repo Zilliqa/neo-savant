@@ -17,9 +17,6 @@ const getters = {
 const actions = {
     SelectFile({ commit, state }, payload) {
 
-        // Remove any selected contract
-        commit('contracts/unselect', null, { root: true });
-
         const id = payload.id;
 
         const file = state.files.find(function (item) {
@@ -30,11 +27,11 @@ const actions = {
             return item.id === id
         });
 
-        if (!alreadyOpen) {
+        if (alreadyOpen) {
+            commit('select', alreadyOpen);
+        } else {
             commit('open', file);
         }
-
-        commit('select', file);
     },
     CreateFile({ commit }) {
         const id = uuidv4();

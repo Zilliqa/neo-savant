@@ -1,10 +1,10 @@
 <template>
-  <div class="address">{{ address }}</div>
+  <div class="address"><slot></slot> {{ address }}</div>
 </template>
 
 <script>
 export default {
-  props: ["address"]
+  props: ["address"],
 };
 </script>
 

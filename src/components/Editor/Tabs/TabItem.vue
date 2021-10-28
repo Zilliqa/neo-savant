@@ -1,8 +1,18 @@
 <template>
   <div class="nav-item">
-    <a class="nav-link d-flex align-items-center" :class="{ active: selected }">
+    <a
+      class="nav-link d-flex align-items-center"
+      :class="{ active: selected, contract: item.type === 'contract' }"
+    >
       <div class="file-name" @click="$emit('select-file')">
-        {{ item.name }}.{{ item.ext }}
+        <div v-if="item.type && item.type === 'contract'">
+          <img src="@/assets/contracts.svg" class="file-logo" />
+          {{ item.name }}
+        </div>
+        <div v-else>
+          <img src="@/assets/logo.png" class="file-logo" />
+          {{ item.name }}.{{ item.ext }}
+        </div>
       </div>
       <div class="action ml-2">
         <img
@@ -37,6 +47,7 @@ export default {
     background-color: $accent-bg;
     border-right: 1px solid darken($accent-bg, 10);
     height: 2rem;
+    color: #000;
 
     .close-button {
       visibility: hidden;
@@ -68,6 +79,12 @@ export default {
 
   .img-button {
     height: 0.6rem;
+  }
+}
+
+.file-name {
+  .file-logo {
+    width: 16px;
   }
 }
 </style>

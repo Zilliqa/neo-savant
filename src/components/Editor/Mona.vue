@@ -2,7 +2,7 @@
   <div class="editor d-flex flex-column">
     <tabs :changed="changed" />
     <div class="actions-bar">
-      <div class="buttons d-flex">
+      <div class="buttons d-flex" v-if="file.type !== 'contract'">
         <button class="btn btn-link ml-2" @click="handleRunChecker">
           <img src="@/assets/survey.svg" />
         </button>
@@ -13,6 +13,13 @@
         <button class="btn btn-link" v-if="changed" @click="handleSave">
           <img src="@/assets/save.svg" />
         </button>
+      </div>
+      <div
+        class="px-4 d-flex justify-content-between align-items-center"
+        v-else
+      >
+        <span>Deployed contracts are readonly.</span>
+        <address-display :address="file.id">Address:</address-display>
       </div>
     </div>
     <div class="editors">
@@ -41,6 +48,7 @@ import { mapGetters } from "vuex";
 
 import Tabs from "./Tabs";
 import scillaChecker from "@/mixins/scilla-checker";
+import AddressDisplay from "../UI/AddressDisplay.vue";
 
 export default {
   props: {
@@ -96,6 +104,7 @@ export default {
   },
   components: {
     Tabs,
+    AddressDisplay,
   },
   watch: {
     file(newValue, oldValue) {
@@ -409,12 +418,17 @@ export default {
       theme: "scillaLight",
       value: this.file.code,
       language: "scilla",
+      readOnly: this.file.type && this.file.type === "contract" ? true : false,
     });
 
     const hs = this.handleSave;
 
     this.editor.getModel().onDidChangeContent(() => {
       this.changed = true;
+      this.editor.updateOptions({
+        readOnly:
+          this.file.type && this.file.type === "contract" ? true : false,
+      });
     });
 
     this.editor.addCommand(

@@ -17,9 +17,9 @@
         <small>{{ network.url }}</small>
       </div>
       <div class="ml-3 mb-0"><small>Current block</small></div>
-      <p class="ml-3 mt-3 mb-0">CONTRACTS</p>
+      <p class="ml-3 mt-3 mb-0 text-primary">CONTRACTS</p>
       <contracts />
-      <p class="ml-3 mt-3 mb-0">TRANSACTIONS</p>
+      <p class="ml-3 mt-3 mb-0 text-primary">TRANSACTIONS</p>
       <transactions />
     </div>
   </div>
