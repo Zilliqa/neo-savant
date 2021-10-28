@@ -16,7 +16,6 @@ import { mapGetters } from "vuex";
 const { Zilliqa } = require("@zilliqa-js/zilliqa");
 const { units, BN } = require("@zilliqa-js/util");
 
-import axios from "axios";
 import numbro from "numbro";
 
 export default {
@@ -55,26 +54,9 @@ export default {
           balance.error.code === -5 &&
           this.network.url === process.env.VUE_APP_ISOLATED_URL
         ) {
-          return axios
-            .post(process.env.VUE_APP_ISOLATED_FAUCET + "register-account", {
-              address: this.account.address,
-            })
-            .then(async (response) => {
-              if (response.data.success === true) {
-                return this.getBalance();
-              } else {
-                this.$notify({
-                  group: "scilla",
-                  type: "error",
-                  position: "bottom right",
-                  title: "IDE Internal ERROR",
-                  text: "There is a problem with isolated server faucet.",
-                });
-              }
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+          this.internalBalance = 0;
+          this.balanceLoading = false;
+          return 0;
         }
 
         if (!balance.error && balance.result.balance) {

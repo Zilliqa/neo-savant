@@ -4,7 +4,7 @@ const state = {
     {
       name: "Simulated ENV",
       url: process.env.VUE_APP_ISOLATED_URL,
-      chainId: 1,
+      chainId: 222,
       msgVersion: 1,
       type: "default",
     },

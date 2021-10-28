@@ -36,6 +36,7 @@ export default {
     border-radius: 0;
     background-color: $accent-bg;
     border-right: 1px solid darken($accent-bg, 10);
+    height: 2rem;
 
     .close-button {
       visibility: hidden;

@@ -30,10 +30,19 @@
         <img src="@/assets/copy.svg" />
       </copy-to-clipboard>
 
-      <button class="btn btn-outline-secondary">+</button>
+      <button
+        class="btn btn-outline-secondary"
+        @click="handleOpenAccountImport"
+      >
+        +
+      </button>
     </div>
-    <div class="d-flex" v-if="selected && selected.address">
-      Balance: <AccountBalance class="ml-2" :address="selected.address" />
+    <div class="d-flex align-items-center justify-content-between" v-if="selected && selected.address">
+      <div>
+        <AccountBalance class="ml-2" :address="selected.address" />
+      </div>
+
+      <a :href="faucetLink" class="btn btn-link pr-0" target="_blank">Faucet request</a>
     </div>
   </div>
 </template>
@@ -42,6 +51,7 @@
 import { mapGetters } from "vuex";
 import CopyToClipboard from "@/components/UI/CopyToClipboard";
 import AccountBalance from "@/components/UI/AccountBalance";
+import { toBech32Address } from "@zilliqa-js/crypto";
 
 export default {
   components: {
@@ -55,9 +65,24 @@ export default {
       await this.$store.dispatch("accounts/SelectAccount", account);
       window.EventBus.$emit("refresh-balance");
     },
+    handleOpenAccountImport() {
+      window.EventBus.$emit("open-account-import");
+    },
   },
   computed: {
     ...mapGetters("accounts", { list: "list", selected: "selected" }),
+    ...mapGetters("networks", { network: "selected" }),
+    faucetLink() {
+      // the possible chain IDs for the faucet service: 222, 333
+      const network =
+        this.network.chainId === 222 ? "isolated_server" : "testnet";
+      const url = process.env.VUE_APP_FAUCET_URL;
+      if (this.selected && this.selected.address) {
+        const bech32Address = toBech32Address(this.selected.address);
+        return url + `?address=${bech32Address}&network=${network}`;
+      }
+      return url + `?network=${network}`;
+    },
   },
 };
 </script>

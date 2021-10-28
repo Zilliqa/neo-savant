@@ -21,6 +21,15 @@
           language="json"
         />
 
+        <transaction-input
+          class="col-12 mb-2 px-0"
+          v-model="passphrase"
+          :def="passphrase"
+          name="Passphrase"
+          type="String"
+          v-if="account.type === 'keystore'"
+        />
+
         <button class="btn btn-secondary btn-block" @click="handleSign">
           Sign and send transaction
         </button>
@@ -94,6 +103,7 @@ export default {
       gasLimit: 25000,
       signedTx: undefined,
       preparedTx: undefined,
+      passphrase: undefined,
       monacoOptions: {
         minimap: {
           enabled: false,

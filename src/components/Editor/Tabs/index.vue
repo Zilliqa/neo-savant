@@ -38,5 +38,6 @@ export default {
 <style lang="scss" scoped>
 .tabs-bar {
   background-color: $accent-bg;
+  height: 2rem;
 }
 </style>

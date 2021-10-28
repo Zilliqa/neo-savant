@@ -1,13 +1,22 @@
 <template>
-  <div class="editor">
+  <div class="editor d-flex flex-column">
     <tabs :changed="changed" />
-    <div class="editors">
-      <div class="editor-inner" ref="editor2">
-        <div class="alert alert-info text-small">
-          Deployed contract is readonly.
-        </div>
+    <div class="actions-bar">
+      <div class="buttons d-flex">
+        <button class="btn btn-link ml-2" @click="handleRunChecker">
+          <img src="@/assets/survey.svg" />
+        </button>
+        <button class="btn btn-link" @click="handleDeploy">
+          <img src="@/assets/send.svg" />
+        </button>
+
+        <button class="btn btn-link" v-if="changed" @click="handleSave">
+          <img src="@/assets/save.svg" />
+        </button>
       </div>
-      <div class="editor-inner" ref="editor">
+    </div>
+    <div class="editors">
+      <div class="editor-inner flex-grow-1" ref="editor">
         <div class="d-none" v-if="changed">
           Remember to save your changes by pressing Ctrl / Cmd + S.
 
@@ -91,7 +100,6 @@ export default {
   watch: {
     file(newValue, oldValue) {
       if (newValue.code !== oldValue.code) {
-        console.log(this.editor);
         this.editor.getModel().setValue(newValue.code);
       }
     },
@@ -415,18 +423,6 @@ export default {
         await hs();
       }
     );
-
-    if (this.secondFile && this.secondFile.code) {
-      monaco.editor.create(this.$refs.editor2, {
-        theme: "scillaLight",
-        value: this.secondFile.code,
-        language: "scilla",
-        minimap: {
-          enabled: false,
-        },
-        readOnly: true,
-      });
-    }
   },
 };
 </script>
@@ -438,10 +434,9 @@ export default {
 
   .editors {
     width: 100%;
-    height: calc(100% - 28px); // - tabs height
+    height: 100%; // - tabs height
     position: relative;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
   }
 
   .alert-2 {
@@ -462,11 +457,10 @@ export default {
     padding: 0.5rem;
     padding-left: 0;
     font-size: 0.85rem;
-    height: 50px;
   }
 
   .editor-inner {
-    height: calc(100% - 50px);
+    height: 100%;
     overflow-y: scroll;
   }
 
@@ -477,10 +471,12 @@ export default {
     font-weight: 500;
     font-size: 0.85rem;
 
-    background-color: lighten($primary, 40);
+    background-color: transparent;
+    opacity: 0.75;
 
     &:hover {
-      background-color: rgba(0, 0, 0, 0.1);
+      // background-color: rgba(0, 0, 0, 0.1);
+      opacity: 1;
       text-decoration: none;
     }
 

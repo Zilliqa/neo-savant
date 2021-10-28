@@ -152,6 +152,19 @@ export default {
         this.error = error.message;
       }
     },
+    async handleZilPaySign(tx) {
+      try {
+        this.loading = "Please sign transaction on ZilPay...";
+        const result = await this.signZilPayTx(tx);
+        this.loading = "Waiting for transaction to reach the network...";
+        this.txId = result.TranID;
+        this.watchTries = 0;
+        await this.watchTx();
+      } catch (err) {
+        this.loading = false;
+        this.error = err.message;
+      }
+    },
     async zilliqaHandleSign(tx) {
       try {
         switch (this.account.type) {
@@ -159,7 +172,16 @@ export default {
             this.handleLedgerSign(tx);
             break;
           case "keystore":
-            this.handleKeystoreSign(tx);
+            this.loading = "Trying to sign and send transaction...";
+
+            if (this.passphrase === "" || this.passphrase === undefined) {
+              throw new Error("Enter your passphrase.");
+            }
+
+            await this.Zilliqa.wallet.addByKeystore(
+              this.account.keystore,
+              this.passphrase
+            );
             break;
           case "privatekey":
             await this.Zilliqa.wallet.addByPrivateKey(this.account.keystore);

@@ -86,7 +86,7 @@ const actions = {
         }
 
         commit('close', { index: file });
-        
+
         if (state.open.length) {
             commit('select', state.open[0]);
         }
