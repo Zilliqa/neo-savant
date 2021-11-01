@@ -27,12 +27,16 @@
 
     <div class="networks-list flex-column">
       <div
-        class="item"
+        class="d-flex align-items-center"
         v-for="network in list"
         :key="network.name"
-        @click="handleSelect(network)"
       >
-        {{ network.name }}
+        <div class="p-2" v-if="network.type === 'custom'">
+          <i class="fas fa-trash" @click.prevent="handleRemove(network)"></i>
+        </div>
+        <div class="item flex-grow-1" @click="handleSelect(network)">
+          {{ network.name }}
+        </div>
       </div>
 
       <div class="item font-weight-bold" @click="handleAddNetwork">
@@ -61,12 +65,19 @@ export default {
     handleAddNetwork() {
       window.EventBus.$emit("open-add-custom-network");
     },
+    handleRemove(network) {
+      return confirm(
+        "Are you sure you want to delete this network?",
+        this.$store.dispatch("networks/RemoveNetwork", network)
+      );
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .network-selector {
+  min-width: 130px;
   padding: 0 0.5rem;
   transition: all 0.2s ease;
 
@@ -86,6 +97,14 @@ export default {
   position: relative;
   .networks-list {
     display: none;
+
+    .fa-trash {
+      opacity: 0.6;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
   }
 
   &.not-zilpay:hover {

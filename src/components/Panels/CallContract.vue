@@ -187,14 +187,15 @@ import ExplorerLink from "../UI/ExplorerLink";
 import LedgerInterface from "@/utils/ledger-interface";
 import VueJsonPretty from "vue-json-pretty";
 import TransportU2F from "@ledgerhq/hw-transport-u2f";
-import { BN, bytes, Long, units } from "@zilliqa-js/util";
+import { BN, bytes, Long, units, validation } from "@zilliqa-js/util";
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { mapGetters } from "vuex";
 import axios from "axios";
 import { validateParams } from "@/utils/validation.js";
 import ZilPayMixin from "@/mixins/zilpay";
+import { fromBech32Address, toChecksumAddress } from "@zilliqa-js/crypto";
 
-const MAX_TRIES = 50;
+const MAX_TRIES = 120;
 
 export default {
   mixins: [ZilPayMixin],
@@ -210,7 +211,7 @@ export default {
       refreshingState: false,
       init: {},
       amount: 0,
-      gasPrice: 1000000000,
+      gasPrice: 2000000000,
       gasLimit: 25000,
       startDeploy: false,
       zilliqa: undefined,
@@ -560,10 +561,16 @@ export default {
           return ret;
         });
 
+
+        let contractAddress = this.contractId
+        if (validation.isBech32(this.contractId)) {
+          contractAddress = fromBech32Address(this.contractId);
+        }
+
         const tx = this.zilliqa.transactions.new(
           {
             version: VERSION,
-            toAddr: this.contractId,
+            toAddr: toChecksumAddress(contractAddress),
             amount: new BN(this.amount),
             gasPrice: new BN(this.gasPrice), // in Qa
             gasLimit: Long.fromNumber(this.gasLimit),

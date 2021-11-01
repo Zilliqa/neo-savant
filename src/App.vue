@@ -205,6 +205,10 @@ export default {
       this.rightPanel = "callContract";
     });
 
+    window.EventBus.$on("open-faucet", () => {
+      this.rightPanel = "openFaucet";
+    });
+
     window.EventBus.$on("open-import-contract", () => {
       this.rightPanel = "importContract";
     });

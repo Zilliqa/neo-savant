@@ -1,7 +1,7 @@
 <template>
   <div class="input-contract">
     <label>
-      <div class="name">{{vname}}</div>
+      <div class="name">{{ vname }}</div>
       <div class="type">
         <input-popover :type="type"></input-popover>
       </div>
@@ -13,7 +13,7 @@
       :class="{'has-errors': error}"
       ref="paramValue"
       @input="updateData"
-      v-if="inputType !== 'List'"
+      v-if="inputType !== 'List' && inputType !== null"
     />
     <ace-editor
       :value="pvalue"
@@ -28,13 +28,15 @@
       theme="dawn"
       width="100%"
       height="150px"
-      :class="{'ace_editor ace-dawn ace-has-errors': error}"
+      :class="{ 'ace_editor ace-dawn ace-has-errors': error }"
       :name="`contractInput-${vname}`"
-      :editorProps="{$blockScrolling: true}"
+      :editorProps="{ $blockScrolling: true }"
       v-else
     />
 
-    <small class="text-small font-weight-bold text-danger" v-if="error">{{ error }}</small>
+    <small class="text-small font-weight-bold text-danger" v-if="error">{{
+      error
+    }}</small>
   </div>
 </template>
 
@@ -55,7 +57,7 @@ export default {
   computed: {
     inputType() {
       return getParamType({ type: this.type });
-    }
+    },
   },
   props: ["vname", "type", "pvalue", "error"],
   components: { AceEditor, InputPopover },
@@ -70,8 +72,8 @@ export default {
       }
 
       this.$emit("input", newval);
-    }
-  }
+    },
+  },
 };
 </script>
 

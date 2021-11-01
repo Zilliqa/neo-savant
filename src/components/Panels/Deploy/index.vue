@@ -39,7 +39,7 @@ import { validateParams } from "@/utils/validation.js";
 import ZilPayMixin from "@/mixins/zilpay";
 import ContractMixin from "@/mixins/contract";
 
-const MAX_TRIES = 60;
+const MAX_TRIES = 120;
 
 export default {
   mixins: [ZilPayMixin, ContractMixin],
@@ -54,7 +54,7 @@ export default {
       copied: false,
       init: {},
       amount: 0,
-      gasPrice: 1000000000,
+      gasPrice: 2000000000,
       gasLimit: 25000,
       startDeploy: false,
       passphrase: undefined,

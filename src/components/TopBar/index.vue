@@ -26,6 +26,13 @@
           </ul>
         </li>
         <explorer-link />
+        <testnet-wallet-link v-if="isTestnet" class="ml-3"/>
+        <a
+          href="#"
+          v-if="isIsolatedServer"
+          @click="handleOpenFaucet"
+          class="ml-3"
+        >Faucet</a>
       </div>
       <div class="details d-none">
         <account-balance />
@@ -41,6 +48,9 @@ import NetworkSelector from "./NetworkSelector";
 import AccountSelector from "./AccountSelector";
 import AccountBalance from "./AccountBalance";
 import ExplorerLink from "../UI/ExplorerLink";
+import TestnetWalletLink from "../UI/TestnetWalletLink";
+
+import { mapGetters } from "vuex";
 
 export default {
   name: "TopBar",
@@ -49,10 +59,23 @@ export default {
     AccountSelector,
     AccountBalance,
     ExplorerLink,
+    TestnetWalletLink,
+  },
+  computed: {
+    ...mapGetters("networks", { selectedNetwork: "selected" }),
+    isIsolatedServer() {
+      return this.selectedNetwork.url === process.env.VUE_APP_ISOLATED_URL
+    },
+    isTestnet() {
+      return this.selectedNetwork.url === 'https://dev-api.zilliqa.com'
+    },
   },
   methods: {
     handleOpenTools(toolName) {
       window.EventBus.$emit("open-tools", toolName);
+    },
+    handleOpenFaucet() {
+      window.EventBus.$emit("open-faucet");
     },
   },
 };

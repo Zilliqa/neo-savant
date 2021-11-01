@@ -1,5 +1,5 @@
 # build stage
-FROM node:10 as build-stage
+FROM node:14.17 as build-stage
 
 ARG DEPLOY_ENV="dev"
 
