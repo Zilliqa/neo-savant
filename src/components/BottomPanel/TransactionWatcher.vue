@@ -32,7 +32,6 @@ export default {
   methods: {
     async watchTx() {
       this.loading = true;
-      console.log(this.transaction.id, this.watchTries <= this.MAX_TRIES);
       if (
         this.transaction.id !== undefined &&
         parseInt(this.watchTries) <= this.MAX_TRIES
@@ -41,13 +40,17 @@ export default {
           const txn = await this.Zilliqa.blockchain.getTransaction(
             this.transaction.id
           );
+          await this.$store.dispatch("transactions/UpdateWatcherTx", {
+            ...this.transaction,
+            receipt: txn.receipt,
+          });
           if (txn.receipt) {
-            const contractAddress = await this.Zilliqa.blockchain.getContractAddressFromTransactionID(
-              this.transaction.id
-            );
+            const contractAddress =
+              await this.Zilliqa.blockchain.getContractAddressFromTransactionID(
+                this.transaction.id
+              );
 
             if (contractAddress.result) {
-              console.log("contractAddress", contractAddress);
               this.loading = false;
 
               const contract = {
@@ -61,16 +64,13 @@ export default {
                 code: this.transaction.file.code,
               };
 
-              console.log("contract", contract);
-
               this.details = {
-                    receipt: txn.receipt,
-                    transId: this.transaction.id,
-                    contractAddress: "0x" + contractAddress.result,
-                  };
+                receipt: txn.receipt,
+                transId: this.transaction.id,
+                contractAddress: "0x" + contractAddress.result,
+              };
 
-              await this.$store
-                .dispatch("contracts/AddContract", contract);
+              await this.$store.dispatch("contracts/AddContract", contract);
             } else {
               this.watchTries = parseInt(this.watchTries) + 1;
               await this.watchTx();

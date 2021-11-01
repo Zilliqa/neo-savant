@@ -32,13 +32,16 @@ const actions = {
         commit('add', { ...txData, network: network.url, timestamp: Date.now() });
         commit('addToWatcher', { ...txData, network: network.url, timestamp: Date.now() });
     },
-    /* async UpdateWatcherTx({commit,state, rootGetters}, txData) {
-        const tx = state.watcherList.find(tx => tx.id === txData.id);
+    async UpdateWatcherTx({ commit, state }, txData) {
+        const txIndex = state.watcher.findIndex(tx => tx.id === txData.id);
+        const tx = state.transactions.find(tx => tx.id === txData.id);
 
-        if(tx !== undefined) {
-            
+        if (txIndex !== -1) {
+            commit('removeFromWatcher', txIndex);
+            commit('updateTx', txData);
+            tx.watchResult = txData;
         }
-    } */
+    }
 };
 
 
@@ -46,9 +49,16 @@ const mutations = {
     add(state, payload) {
         state.transactions.push(payload);
     },
+    updateTx(state, payload) {
+        const txi = state.transactions.findIndex(tx => tx.id === payload.id);
+        state.transactions[txi] = payload;
+    },
     addToWatcher(state, payload) {
         state.watcher.push(payload);
     },
+    removeFromWatcher(state, payload) {
+        state.watcher.splice(payload, 1);
+    }
 };
 
 

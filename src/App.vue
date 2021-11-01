@@ -78,6 +78,7 @@ import { generateMultipleZilliqaAccounts } from "./utils/zilliqa";
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import ZilPayMixin from "@/mixins/zilpay";
 import TxWatcherMixin from "@/mixins/tx-watcher";
+import ZilliqaMixin from "@/mixins/zilliqa";
 
 export default {
   name: "App",
@@ -89,7 +90,7 @@ export default {
       bottomPanel: true,
     };
   },
-  mixins: [ZilPayMixin, TxWatcherMixin],
+  mixins: [ZilPayMixin, ZilliqaMixin, TxWatcherMixin],
   components: {
     LeftSidebar,
     Files,
