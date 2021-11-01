@@ -1,15 +1,5 @@
 <template>
   <div class="panel-content">
-    <div class="header">
-      <div class="title">
-        <address-display :address="contractId" />
-      </div>
-      <img
-        src="@/assets/close-color.svg"
-        @click="handleClose"
-        class="close-button-new"
-      />
-    </div>
     <div class="body p-4">
       <p class="font-weight-bold mb-0">Contract Address</p>
       <explorer-link :address="contractId" />
@@ -46,11 +36,13 @@
           />
         </p>
         <div v-if="contractState">
-          <vue-json-pretty
-            :deep="1"
-            :data="contractState"
+          <MonacoEditor
+            class="editor mb-4"
+            :value="JSON.stringify(contractState, null, 2)"
+            :options="monacoOptions"
+            language="json"
             v-if="contractStateLength < 50000"
-          ></vue-json-pretty>
+          />
           <pre style="max-height: 600px; overflow: scroll" v-else>
             {{ contractState }}
           </pre>
@@ -65,9 +57,13 @@
 
       <div class="mt-4" v-if="contractInit && !exec">
         <p class="font-weight-bold mb-0">Contract Init</p>
-        <div style="width: 100%; overflow-x: scroll">
-          <vue-json-pretty :deep="0" :data="contractInit"></vue-json-pretty>
-        </div>
+        <MonacoEditor
+          class="editor mb-4"
+          :value="JSON.stringify(contractInit, null, 2)"
+          :options="monacoOptions"
+          language="json"
+          v-if="contractStateLength < 50000"
+        />
       </div>
 
       <div class="deploy-form" v-if="abi && exec && !signedTx">
@@ -182,10 +178,8 @@
 
 <script>
 import ContractInput from "../Inputs/ContractInput";
-import AddressDisplay from "../UI/AddressDisplay";
 import ExplorerLink from "../UI/ExplorerLink";
 import LedgerInterface from "@/utils/ledger-interface";
-import VueJsonPretty from "vue-json-pretty";
 import TransportU2F from "@ledgerhq/hw-transport-u2f";
 import { BN, bytes, Long, units, validation } from "@zilliqa-js/util";
 import { Zilliqa } from "@zilliqa-js/zilliqa";
@@ -194,6 +188,7 @@ import axios from "axios";
 import { validateParams } from "@/utils/validation.js";
 import ZilPayMixin from "@/mixins/zilpay";
 import { fromBech32Address, toChecksumAddress } from "@zilliqa-js/crypto";
+import MonacoEditor from "vue-monaco";
 
 const MAX_TRIES = 120;
 
@@ -235,9 +230,16 @@ export default {
         8: "CREATE_CONTRACT_FAILED",
         9: "JSON_OUTPUT_CORRUPTED",
       },
+      monacoOptions: {
+        minimap: {
+          enabled: false,
+        },
+        lineNumbers: false,
+        readOnly: true,
+      },
     };
   },
-  components: { VueJsonPretty, ContractInput, ExplorerLink, AddressDisplay },
+  components: { MonacoEditor, ContractInput, ExplorerLink },
   props: ["contractId"],
   computed: {
     ...mapGetters("accounts", { account: "selected" }),
@@ -561,8 +563,7 @@ export default {
           return ret;
         });
 
-
-        let contractAddress = this.contractId
+        let contractAddress = this.contractId;
         if (validation.isBech32(this.contractId)) {
           contractAddress = fromBech32Address(this.contractId);
         }
@@ -614,6 +615,10 @@ export default {
   &.faded {
     opacity: 0.5;
   }
+}
+
+.editor {
+  height: 200px;
 }
 
 .refresh-state-button {

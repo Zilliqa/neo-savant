@@ -254,15 +254,14 @@ export default {
 
 .panel-content {
   position: absolute;
-  top: 0;
-  right: 30px; // 50px RightSidebar - 20px scroll sidebar
-  height: 100%;
+  top: 2rem;
+  right: 0;
+  height: calc(100% - 2rem);
   width: 500px;
   min-width: 450px;
   min-height: 350px;
   z-index: 98;
-  border-left: 1px solid saturate($primary, 10);
-  background-color: #fff;
+  background-color: #f2f2f2;
 
   .header {
     display: flex;

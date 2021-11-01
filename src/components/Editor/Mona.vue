@@ -91,7 +91,7 @@ export default {
       this.changed = false;
     },
     handleDeploy() {
-      window.EventBus.$emit("open-deploy-contract", this.file);
+      this.$store.dispatch("general/OpenLeftPanel", 'deploy');
     },
     async handleRunChecker() {
       const checkerResults = await this.runScillaChecker({
