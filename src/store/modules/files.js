@@ -56,9 +56,15 @@ const actions = {
 
         if (alreadyOpen) {
             commit('select', alreadyOpen);
+            if (alreadyOpen.type === 'deployed-contract') {
+                window.EventBus.$emit("open-deployed-contract", { contractId: alreadyOpen.id });
+            }
         } else {
             commit('open', file);
             commit('select', file);
+            if (file.type === 'deployed-contract') {
+                window.EventBus.$emit("open-deployed-contract", { contractId: file.id });
+            }
         }
     },
     CreateFile({ commit }) {
@@ -108,6 +114,12 @@ const actions = {
 
         if (id === state.selected.id) {
             commit('unselect');
+        }
+
+        const fileDetails = state.open[file];
+
+        if (fileDetails.type === 'deployed-contract') {
+            window.EventBus.$emit('close-right-panel');
         }
 
         commit('close', { index: file });

@@ -51,6 +51,7 @@ const actions = {
             commit('files/select', { id: contract.contractId, name: contract.file_name, code: contract.code, type: 'deployed-contract' }, { root: true })
         } else {
             commit('files/open', { id: contract.contractId, name: contract.file_name, code: contract.code, type: 'deployed-contract' }, { root: true })
+            commit('files/select', { id: contract.contractId, name: contract.file_name, code: contract.code, type: 'deployed-contract' }, { root: true })
         }
 
         commit('select', contract);
