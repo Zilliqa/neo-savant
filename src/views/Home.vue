@@ -33,6 +33,13 @@ export default {
     ...mapGetters("files", { selectedFile: "selected" }),
     ...mapGetters("contracts", { selectedContract: "selected" }),
   },
+  created() {
+    if (this.$route.params && this.$route.params.code) {
+      this.$store.dispatch("files/OpenExternalCode", {
+        code: this.$route.params.code,
+      });
+    }
+  },
 };
 </script>
 

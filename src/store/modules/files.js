@@ -30,6 +30,18 @@ const getters = {
 };
 
 const actions = {
+    OpenExternalCode({ commit, state }, payload) {
+        const id = uuidv4();
+
+        commit('add', { id, name: 'untitled', ext: 'scilla', code: payload.code });
+
+        const file = state.files.find(function (item) {
+            return item.id === id
+        });
+
+        commit('open', file);
+        commit('select', file);
+    },
     SelectFile({ commit, state }, payload) {
 
         const id = payload.id;
@@ -46,12 +58,13 @@ const actions = {
             commit('select', alreadyOpen);
         } else {
             commit('open', file);
+            commit('select', file);
         }
     },
     CreateFile({ commit }) {
         const id = uuidv4();
 
-        commit('add', { id, name: 'untitled', code: '' });
+        commit('add', { id, name: 'untitled', ext: 'scilla', code: '' });
 
         return id;
     },

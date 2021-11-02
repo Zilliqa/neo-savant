@@ -1,12 +1,20 @@
 <template>
   <div
-    class="file-name"
-    :class="{'selected' : selected}"
+    class="file-name d-flex align-items-center"
+    :class="{ selected: selected }"
     @click="$emit('select-file', file.id)"
     @contextmenu.prevent="$refs.menu.open"
   >
-    <span class="editable" @dblclick="edit = true" v-if="!edit">{{ file.name }}</span>
-    <input v-if="edit" v-model="file.name" v-on:blur="handleRename" @keyup.enter="handleRename" />
+    <file-icon class="mr-1" :type="file.type" :ext="file.ext" />
+    <span class="editable" @dblclick="edit = true" v-if="!edit">{{
+      file.name
+    }}</span>
+    <input
+      v-if="edit"
+      v-model="file.name"
+      v-on:blur="handleRename"
+      @keyup.enter="handleRename"
+    />
     <span class="extension">.scilla</span>
 
     <vue-context class="context-menu" ref="menu">
@@ -22,15 +30,16 @@
 
 <script>
 import { VueContext } from "vue-context";
+import FileIcon from "@/components/UI/FileIcon";
 
 export default {
   data() {
     return {
-      edit: false
+      edit: false,
     };
   },
   props: ["file", "selected"],
-  components: { VueContext },
+  components: { VueContext, FileIcon },
   methods: {
     handleRename() {
       this.edit = false;
@@ -38,7 +47,7 @@ export default {
       this.$store
         .dispatch("files/RenameFile", {
           id: this.file.id,
-          name: this.file.name
+          name: this.file.name,
         })
         .then(() => {
           this.$notify({
@@ -46,7 +55,7 @@ export default {
             type: "success",
             position: "bottom right",
             title: "Files",
-            text: "File has been renamed"
+            text: "File has been renamed",
           });
         });
     },
@@ -56,7 +65,7 @@ export default {
       if (confirmed) {
         this.$store
           .dispatch("files/RemoveFile", {
-            id: this.file.id
+            id: this.file.id,
           })
           .then(() => {
             this.$notify({
@@ -64,12 +73,12 @@ export default {
               type: "success",
               position: "bottom right",
               title: "Files",
-              text: "File has been deleted"
+              text: "File has been deleted",
             });
           });
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -77,6 +86,7 @@ export default {
 .file-name {
   font-size: 0.85rem;
   color: #000;
+  padding-bottom: 5px;
 
   &.selected {
     color: $primary;

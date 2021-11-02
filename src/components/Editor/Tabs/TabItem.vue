@@ -5,14 +5,8 @@
       :class="{ active: selected, contract: item.type === 'contract' }"
     >
       <div class="file-name" @click="$emit('select-file')">
-        <div v-if="item.type && item.type === 'contract'">
-          <img src="@/assets/contracts.svg" class="file-logo" />
-          {{ item.name }}
-        </div>
-        <div v-else>
-          <img src="@/assets/logo.png" class="file-logo" />
-          {{ item.name }}.{{ item.ext }}
-        </div>
+        <file-icon :type="item.type" :ext="item.ext" />
+        {{ item.name }}{{ item.ext ? `.${item.ext}` : null }}
       </div>
       <div class="action ml-2">
         <img
@@ -32,8 +26,13 @@
 </template>
 
 <script>
+import FileIcon from "@/components/UI/FileIcon";
+
 export default {
   props: ["item", "selected", "changed"],
+  components: {
+    FileIcon,
+  },
 };
 </script>
 
@@ -79,12 +78,6 @@ export default {
 
   .img-button {
     height: 0.6rem;
-  }
-}
-
-.file-name {
-  .file-logo {
-    width: 16px;
   }
 }
 </style>

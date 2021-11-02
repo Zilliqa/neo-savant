@@ -66,6 +66,7 @@ export default {
       code: null,
       changed: false,
       annotations: [],
+      decorations: [],
       commands: [],
       editor: undefined,
     };
@@ -91,7 +92,7 @@ export default {
       this.changed = false;
     },
     handleDeploy() {
-      this.$store.dispatch("general/OpenLeftPanel", 'deploy');
+      this.$store.dispatch("general/OpenLeftPanel", "deploy");
     },
     async handleRunChecker() {
       const checkerResults = await this.runScillaChecker({
@@ -99,7 +100,25 @@ export default {
         name: this.file.name,
       });
 
-      this.annotations = checkerResults.annotations;
+      console.log(checkerResults.annotations);
+
+      let newDecorations = checkerResults.annotations.map((e) => {
+        return {
+          range: new monaco.Range(e.row + 1, 1, e.row + 1, 1),
+          options: {
+            isWholeLine: true,
+            glyphMarginClassName:
+              e.type === "error" ? "errorIcon" : "warningIcon",
+            glyphMarginHoverMessage: { value: e.text },
+            className: e.type === "error" ? "errorLine" : "warningLine",
+          },
+        };
+      });
+
+      this.decorations = this.editor.deltaDecorations(
+        this.decorations,
+        newDecorations
+      );
     },
   },
   components: {
@@ -418,7 +437,9 @@ export default {
       theme: "scillaLight",
       value: this.file.code,
       language: "scilla",
-      readOnly: this.file.type && this.file.type === "contract" ? true : false,
+      glyphMargin: true,
+      readOnly:
+        this.file.type && this.file.type === "deployed-contract" ? true : false,
     });
 
     const hs = this.handleSave;
@@ -427,7 +448,9 @@ export default {
       this.changed = true;
       this.editor.updateOptions({
         readOnly:
-          this.file.type && this.file.type === "contract" ? true : false,
+          this.file.type && this.file.type === "deployed-contract"
+            ? true
+            : false,
       });
     });
 
@@ -441,7 +464,28 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+.warningLine {
+  background-color: yellow;
+}
+.warningIcon {
+  display: block;
+  background-image: url("~@/assets/warning.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  left: 10px !important;
+  z-index: 9999;
+}
+.errorLine {
+  background-color: lighten(red, 20);
+}
+.errorIcon {
+  display: block;
+  background-image: url("~@/assets/error.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
 .editor {
   height: calc(100% - 28px); // - tabs height
   position: relative;

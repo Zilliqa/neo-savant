@@ -48,9 +48,9 @@ const actions = {
         const alreadyOpen = filesOpened.find(item => item.id === contract.contractId);
 
         if (alreadyOpen !== undefined) {
-            commit('files/select', { id: contract.contractId, name: contract.file_name, code: contract.code, type: 'contract' }, { root: true })
+            commit('files/select', { id: contract.contractId, name: contract.file_name, code: contract.code, type: 'deployed-contract' }, { root: true })
         } else {
-            commit('files/open', { id: contract.contractId, name: contract.file_name, code: contract.code, type: 'contract' }, { root: true })
+            commit('files/open', { id: contract.contractId, name: contract.file_name, code: contract.code, type: 'deployed-contract' }, { root: true })
         }
 
         commit('select', contract);

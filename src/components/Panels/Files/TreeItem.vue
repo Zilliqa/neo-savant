@@ -2,7 +2,7 @@
   <li>
     <div
       :class="{ bold: isFolder }"
-      class="d-flex"
+      class="d-flex align-items-center"
       @click="toggle"
       @dblclick="makeFolder"
       v-if="!item.root || item.root !== true"
@@ -25,6 +25,7 @@
         :item="child"
         @make-folder="$emit('make-folder', $event)"
         @add-item="$emit('add-item', $event)"
+        :selectedFile="selectedFile"
       ></tree-item>
     </ul>
   </li>
@@ -72,7 +73,7 @@ export default {
 
 <style lang="scss" scoped>
 .file-name {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #000;
 
   &.selected {

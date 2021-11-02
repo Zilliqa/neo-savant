@@ -25,14 +25,14 @@ import zilGame from '!raw-loader!./zil_hash_game.scilla';
 import asciiart from '!raw-loader!./asciiart.scilla';
 
 export const defaultFiles = [
-  { id: 'hello-world', name: 'HelloWorld', code: helloWorld },
-  { id: 'book-store', name: 'BookStore', code: bookstore },
-  { id: 'crowd-funding', name: 'CrowdFunding', code: crowdfunding },
-  { id: 'auction', name: 'Auction', code: auction },
-  { id: 'fungible-token', name: 'FungibleToken', code: fungibleToken },
-  { id: 'non-fungible', name: 'NonFungible', code: nonFungibleToken },
-  { id: 'zil-game', name: 'ZilGame', code: zilGame },
-  { id: 'schnorr-test', name: 'SchnorrTest', code: schnorr },
-  { id: 'ecdsa-test', name: 'ECDSATest', code: ecdsa },
-  { id: 'asciiart', name: 'AsciiArt', code: asciiart }
+  { id: 'hello-world', name: 'HelloWorld', code: helloWorld, ext: 'scilla' },
+  { id: 'book-store', name: 'BookStore', code: bookstore, ext: 'scilla' },
+  { id: 'crowd-funding', name: 'CrowdFunding', code: crowdfunding, ext: 'scilla' },
+  { id: 'auction', name: 'Auction', code: auction, ext: 'scilla' },
+  { id: 'fungible-token', name: 'FungibleToken', code: fungibleToken, ext: 'scilla' },
+  { id: 'non-fungible', name: 'NonFungible', code: nonFungibleToken, ext: 'scilla' },
+  { id: 'zil-game', name: 'ZilGame', code: zilGame, ext: 'scilla' },
+  { id: 'schnorr-test', name: 'SchnorrTest', code: schnorr, ext: 'scilla' },
+  { id: 'ecdsa-test', name: 'ECDSATest', code: ecdsa, ext: 'scilla' },
+  { id: 'asciiart', name: 'AsciiArt', code: asciiart, ext: 'scilla' }
 ];
