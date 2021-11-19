@@ -568,7 +568,7 @@ export default {
           return {
             vname: ret.vname,
             value: ret.value,
-            type: ret.type.includes("ByStr")
+            type: ret.type.startsWith("ByStr")
               ? ret.type.split(" ").shift()
               : ret.type,
           };

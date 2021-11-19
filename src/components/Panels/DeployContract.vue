@@ -452,7 +452,7 @@ export default {
 
         return {
           vname: item.vname,
-          type: item.type.includes("ByStr")
+          type: item.type.startsWith("ByStr")
             ? item.type.split(" ").shift()
             : item.type,
           value: val,
