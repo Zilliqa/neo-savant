@@ -6,6 +6,7 @@
         <input-popover :type="type"></input-popover>
       </div>
     </label>
+    {{ inputType }} {{ type }}
     <input
       type="text"
       :value="pvalue"
