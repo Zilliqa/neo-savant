@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
 
+import zrc6 from '!raw-loader!./zrc6.scilla';
 import auction from '!raw-loader!./auction.scilla';
 import bookstore from '!raw-loader!./bookstore.scilla';
 import crowdfunding from '!raw-loader!./crowdfunding.scilla';
@@ -26,6 +27,7 @@ import asciiart from '!raw-loader!./asciiart.scilla';
 
 export const defaultFiles = [
   { id: 'hello-world', name: 'HelloWorld', code: helloWorld },
+  { id: 'zrc6', name: 'ZRC-6', code: zrc6 },
   { id: 'book-store', name: 'BookStore', code: bookstore },
   { id: 'crowd-funding', name: 'CrowdFunding', code: crowdfunding },
   { id: 'auction', name: 'Auction', code: auction },
