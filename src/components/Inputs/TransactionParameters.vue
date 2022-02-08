@@ -40,8 +40,8 @@ export default {
   data() {
     return {
       amount: 0,
-      gasPrice: 1000000000,
-      gasLimit: 25000
+      gasPrice: 2000000000,
+      gasLimit: 30000
     };
   },
   components: { InputPopover },

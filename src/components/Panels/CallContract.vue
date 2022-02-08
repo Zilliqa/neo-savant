@@ -213,7 +213,7 @@ export default {
       init: {},
       amount: 0,
       gasPrice: 2000000000,
-      gasLimit: 25000,
+      gasLimit: 30000,
       startDeploy: false,
       zilliqa: undefined,
       passphrase: undefined,
