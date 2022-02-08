@@ -106,7 +106,27 @@
               :type="param.type"
               :pvalue="param.value"
               v-model="param.value"
+              v-if="exec.vname !== 'SubmitCustomTransaction' || param.vname !== `transaction`"
             />
+
+            <button 
+            v-if="exec.vname === 'SubmitCustomTransaction' && param.vname === `transaction` && multiSigTransitions === undefined"
+            class="btn btn-light text-primary text-small mr-2"
+            @click="getMultiSigTransitions"
+            >
+              <small>Show the available multi-sig transitions</small>
+            </button>
+          
+            <multi-sig-transition-input
+              :error="param.validationErrors"
+              :vname="param.vname"
+              :type="param.type"
+              :pvalue="param.value"
+              v-model="param.value"
+              :multiSigTransitions= "multiSigTransitions"
+              v-if="exec.vname === 'SubmitCustomTransaction' && param.vname === `transaction` && multiSigTransitions !== undefined"
+            />
+            
           </div>
         </div>
         <!-- Transition parameters -> needs to be moved to own component -->
@@ -182,6 +202,7 @@
 
 <script>
 import ContractInput from "../Inputs/ContractInput";
+import MultiSigTransitionInput from "../Inputs/MultiSigTransitionInput";
 import AddressDisplay from "../UI/AddressDisplay";
 import ExplorerLink from "../UI/ExplorerLink";
 import LedgerInterface from "@/utils/ledger-interface";
@@ -236,9 +257,16 @@ export default {
         8: "CREATE_CONTRACT_FAILED",
         9: "JSON_OUTPUT_CORRUPTED",
       },
+      multiSigTransitions: undefined,
     };
   },
-  components: { VueJsonPretty, ContractInput, ExplorerLink, AddressDisplay },
+  components: {
+    VueJsonPretty,
+    ContractInput,
+    MultiSigTransitionInput,
+    ExplorerLink,
+    AddressDisplay,
+  },
   props: ["contractId"],
   computed: {
     ...mapGetters("accounts", { account: "selected" }),
@@ -275,10 +303,12 @@ export default {
       this.error = false;
       this.loading = false;
       this.abi = this.getContractAbi();
+      this.multiSigTransitions = undefined;
     },
     handleTransitionSelect(transition) {
       this.exec = transition;
       this.signedTx = undefined;
+      this.multiSigTransitions = undefined;
     },
     handleClose() {
       window.EventBus.$emit("close-right-panel");
@@ -498,6 +528,40 @@ export default {
           }
         }
       }
+    },
+    async getMultiSigTransitions() {
+      const mswADTs = this.abi.ADTs.find(
+        (x) => x.tname.split(".")[1] === "MultiSigTransition"
+      ).tmap;
+
+      const mswTransitionNames = mswADTs.map((x) => x.cname.split(".")[1]);
+      const tagetAddress = this.exec.params[0].value;
+
+      if (tagetAddress === undefined) {
+        return;
+      }
+
+      const tagetCodeRes = await this.zilliqa.blockchain.getSmartContractCode(
+        tagetAddress
+      );
+      const targetContractResult = await axios.post(
+        process.env.VUE_APP_SCILLA_CHECKER_URL,
+        { code: tagetCodeRes.result.code }
+      );
+      const availableTransitions = JSON.parse(targetContractResult.data.message)
+        .contract_info.transitions.filter((x) =>
+          mswTransitionNames.includes(x.vname)
+        )
+        .map((cur) => {
+          const { vname, params } = cur;
+          const p = params.map((x) => ({
+            vname: x.vname,
+            type: x.type.startsWith("ByStr") ? x.type.split(" ")[0] : x.type,
+          }));
+          return { vname, params: p };
+        });
+
+      this.multiSigTransitions = availableTransitions;
     },
     async refreshContractState() {
       this.refreshingState = true;
